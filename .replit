@@ -1,0 +1,39 @@
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MCP Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "tailscale_mcp_server"
+
+[[workflows.workflow]]
+name = "MCP Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install && npm run build && npm start"
+
+[[workflows.workflow]]
+name = "tailscale_mcp_server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm init -y && npm install @modelcontextprotocol/sdk zod axios && npm install --save-dev typescript @types/node && npx tsc && node dist/index.js"
+
+[deployment]
+run = ["sh", "-c", "npm install && npm run build && npm start"]
