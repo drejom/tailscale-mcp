@@ -1,6 +1,6 @@
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
 import { promisify } from 'util';
-import { TailscaleCLIStatus, TailscaleCLIStatusSchema, CLIResponse, CLIError } from './types.js';
+import { TailscaleCLIStatus, TailscaleCLIStatusSchema, CLIResponse } from './types.js';
 import { logger } from './logger.js';
 
 const execAsync = promisify(exec);
@@ -50,7 +50,7 @@ export class TailscaleCLI {
     if (!result.success) {
       return {
         success: false,
-        error: result.error,
+        error: result.error || 'Unknown error',
         stderr: result.stderr
       };
     }
@@ -81,7 +81,7 @@ export class TailscaleCLI {
     if (!statusResult.success) {
       return {
         success: false,
-        error: statusResult.error,
+        error: statusResult.error || 'Unknown error',
         stderr: statusResult.stderr
       };
     }

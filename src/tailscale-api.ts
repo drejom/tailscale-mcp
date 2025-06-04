@@ -131,7 +131,7 @@ export class TailscaleAPI {
       
       return this.handleResponse({ ...response, data: device });
     } catch (error) {
-      if (error.name === 'ZodError') {
+      if ((error as any).name === 'ZodError') {
         return {
           success: false,
           error: 'Invalid device data received from API'

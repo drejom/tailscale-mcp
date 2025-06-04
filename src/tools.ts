@@ -1,16 +1,7 @@
 import { 
-  ListDirectoryRequestSchema,
-  ReadFileRequestSchema,
-  CallToolRequestSchema
-} from '@modelcontextprotocol/sdk/types.js';
-import { 
-  ListDevicesRequest,
   ListDevicesRequestSchema,
-  DeviceActionRequest,
   DeviceActionRequestSchema,
-  NetworkStatusRequest,
   NetworkStatusRequestSchema,
-  RouteActionRequest,
   RouteActionRequestSchema,
   ToolResult
 } from './types.js';

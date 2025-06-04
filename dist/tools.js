@@ -1,9 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TailscaleTools = void 0;
-const types_js_1 = require("./types.js");
-const logger_js_1 = require("./logger.js");
-class TailscaleTools {
+import { ListDevicesRequestSchema, DeviceActionRequestSchema, NetworkStatusRequestSchema, RouteActionRequestSchema } from './types.js';
+import { logger } from './logger.js';
+export class TailscaleTools {
+    api;
+    cli;
     constructor(api, cli) {
         this.api = api;
         this.cli = cli;
@@ -13,8 +12,8 @@ class TailscaleTools {
      */
     async listDevices(args) {
         try {
-            const request = types_js_1.ListDevicesRequestSchema.parse(args);
-            logger_js_1.logger.info('Listing devices with options:', request);
+            const request = ListDevicesRequestSchema.parse(args);
+            logger.info('Listing devices with options:', request);
             const result = await this.api.listDevices();
             if (!result.success) {
                 return {
@@ -49,7 +48,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error listing devices:', error);
+            logger.error('Error listing devices:', error);
             return {
                 content: [{
                         type: 'text',
@@ -64,8 +63,8 @@ class TailscaleTools {
      */
     async getNetworkStatus(args) {
         try {
-            const request = types_js_1.NetworkStatusRequestSchema.parse(args);
-            logger_js_1.logger.info('Getting network status with format:', request.format);
+            const request = NetworkStatusRequestSchema.parse(args);
+            logger.info('Getting network status with format:', request.format);
             const result = await this.cli.getStatus();
             if (!result.success) {
                 return {
@@ -121,7 +120,7 @@ class TailscaleTools {
             }
         }
         catch (error) {
-            logger_js_1.logger.error('Error getting network status:', error);
+            logger.error('Error getting network status:', error);
             return {
                 content: [{
                         type: 'text',
@@ -136,8 +135,8 @@ class TailscaleTools {
      */
     async deviceAction(args) {
         try {
-            const request = types_js_1.DeviceActionRequestSchema.parse(args);
-            logger_js_1.logger.info('Performing device action:', request);
+            const request = DeviceActionRequestSchema.parse(args);
+            logger.info('Performing device action:', request);
             let result;
             let actionName;
             switch (request.action) {
@@ -183,7 +182,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error performing device action:', error);
+            logger.error('Error performing device action:', error);
             return {
                 content: [{
                         type: 'text',
@@ -198,8 +197,8 @@ class TailscaleTools {
      */
     async manageRoutes(args) {
         try {
-            const request = types_js_1.RouteActionRequestSchema.parse(args);
-            logger_js_1.logger.info('Managing routes:', request);
+            const request = RouteActionRequestSchema.parse(args);
+            logger.info('Managing routes:', request);
             let result;
             let actionName;
             switch (request.action) {
@@ -237,7 +236,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error managing routes:', error);
+            logger.error('Error managing routes:', error);
             return {
                 content: [{
                         type: 'text',
@@ -260,7 +259,7 @@ class TailscaleTools {
                 authKey: args.authKey,
                 loginServer: args.loginServer
             };
-            logger_js_1.logger.info('Connecting to Tailscale network with options:', options);
+            logger.info('Connecting to Tailscale network with options:', options);
             const result = await this.cli.up(options);
             if (!result.success) {
                 return {
@@ -279,7 +278,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error connecting to network:', error);
+            logger.error('Error connecting to network:', error);
             return {
                 content: [{
                         type: 'text',
@@ -294,7 +293,7 @@ class TailscaleTools {
      */
     async disconnectNetwork() {
         try {
-            logger_js_1.logger.info('Disconnecting from Tailscale network');
+            logger.info('Disconnecting from Tailscale network');
             const result = await this.cli.down();
             if (!result.success) {
                 return {
@@ -313,7 +312,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error disconnecting from network:', error);
+            logger.error('Error disconnecting from network:', error);
             return {
                 content: [{
                         type: 'text',
@@ -339,7 +338,7 @@ class TailscaleTools {
                     isError: true
                 };
             }
-            logger_js_1.logger.info(`Pinging ${target} (${count} packets)`);
+            logger.info(`Pinging ${target} (${count} packets)`);
             const result = await this.cli.ping(target, count);
             if (!result.success) {
                 return {
@@ -358,7 +357,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error pinging peer:', error);
+            logger.error('Error pinging peer:', error);
             return {
                 content: [{
                         type: 'text',
@@ -373,7 +372,7 @@ class TailscaleTools {
      */
     async getVersion() {
         try {
-            logger_js_1.logger.info('Getting Tailscale version');
+            logger.info('Getting Tailscale version');
             const result = await this.cli.version();
             if (!result.success) {
                 return {
@@ -392,7 +391,7 @@ class TailscaleTools {
             };
         }
         catch (error) {
-            logger_js_1.logger.error('Error getting version:', error);
+            logger.error('Error getting version:', error);
             return {
                 content: [{
                         type: 'text',
@@ -403,5 +402,4 @@ class TailscaleTools {
         }
     }
 }
-exports.TailscaleTools = TailscaleTools;
 //# sourceMappingURL=tools.js.map

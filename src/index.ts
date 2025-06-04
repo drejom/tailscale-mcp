@@ -194,34 +194,46 @@ class TailscaleMCPServer {
         const { name, arguments: args } = request.params;
         logger.info(`Executing tool: ${name}`, args);
 
+        let result: ToolResult;
+
         switch (name) {
           case 'list_devices':
-            return await this.tools.listDevices(args || {});
+            result = await this.tools.listDevices(args || {});
+            break;
           
           case 'get_network_status':
-            return await this.tools.getNetworkStatus(args || {});
+            result = await this.tools.getNetworkStatus(args || {});
+            break;
           
           case 'device_action':
-            return await this.tools.deviceAction(args || {});
+            result = await this.tools.deviceAction(args || {});
+            break;
           
           case 'manage_routes':
-            return await this.tools.manageRoutes(args || {});
+            result = await this.tools.manageRoutes(args || {});
+            break;
           
           case 'connect_network':
-            return await this.tools.connectNetwork(args || {});
+            result = await this.tools.connectNetwork(args || {});
+            break;
           
           case 'disconnect_network':
-            return await this.tools.disconnectNetwork();
+            result = await this.tools.disconnectNetwork();
+            break;
           
           case 'ping_peer':
-            return await this.tools.pingPeer(args || {});
+            result = await this.tools.pingPeer(args || {});
+            break;
           
           case 'get_version':
-            return await this.tools.getVersion();
+            result = await this.tools.getVersion();
+            break;
           
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
+
+        return result;
       } catch (error: any) {
         logger.error('Tool execution error:', error);
         return {
@@ -265,11 +277,9 @@ process.on('SIGTERM', () => {
 });
 
 // Start the server if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    logger.error('Unhandled error:', error);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  logger.error('Unhandled error:', error);
+  process.exit(1);
+});
 
 export { TailscaleMCPServer };

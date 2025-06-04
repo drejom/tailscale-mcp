@@ -1,108 +1,107 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CLIError = exports.TailscaleError = exports.RouteActionRequestSchema = exports.NetworkStatusRequestSchema = exports.DeviceActionRequestSchema = exports.ListDevicesRequestSchema = exports.TailscaleCLIStatusSchema = exports.TailscaleNetworkStatusSchema = exports.TailscaleDeviceSchema = void 0;
-const zod_1 = require("zod");
+import { z } from 'zod';
 // Tailscale Device Schema
-exports.TailscaleDeviceSchema = zod_1.z.object({
-    id: zod_1.z.string(),
-    name: zod_1.z.string(),
-    hostname: zod_1.z.string(),
-    clientVersion: zod_1.z.string(),
-    updateAvailable: zod_1.z.boolean(),
-    os: zod_1.z.string(),
-    created: zod_1.z.string(),
-    lastSeen: zod_1.z.string(),
-    keyExpiryDisabled: zod_1.z.boolean(),
-    expires: zod_1.z.string(),
-    authorized: zod_1.z.boolean(),
-    isExternal: zod_1.z.boolean(),
-    machineKey: zod_1.z.string(),
-    nodeKey: zod_1.z.string(),
-    blocksIncomingConnections: zod_1.z.boolean(),
-    enabledRoutes: zod_1.z.array(zod_1.z.string()),
-    advertisedRoutes: zod_1.z.array(zod_1.z.string()),
-    clientConnectivity: zod_1.z.object({
-        endpoints: zod_1.z.array(zod_1.z.string()),
-        derp: zod_1.z.string(),
-        mappingVariesByDestIP: zod_1.z.boolean(),
-        latency: zod_1.z.record(zod_1.z.number()).optional(),
-        clientSupports: zod_1.z.object({
-            hairPinning: zod_1.z.boolean(),
-            ipv6: zod_1.z.boolean(),
-            pcp: zod_1.z.boolean(),
-            pmp: zod_1.z.boolean(),
-            udp: zod_1.z.boolean(),
-            upnp: zod_1.z.boolean()
+export const TailscaleDeviceSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    hostname: z.string(),
+    clientVersion: z.string(),
+    updateAvailable: z.boolean(),
+    os: z.string(),
+    created: z.string(),
+    lastSeen: z.string(),
+    keyExpiryDisabled: z.boolean(),
+    expires: z.string(),
+    authorized: z.boolean(),
+    isExternal: z.boolean(),
+    machineKey: z.string(),
+    nodeKey: z.string(),
+    blocksIncomingConnections: z.boolean(),
+    enabledRoutes: z.array(z.string()),
+    advertisedRoutes: z.array(z.string()),
+    clientConnectivity: z.object({
+        endpoints: z.array(z.string()),
+        derp: z.string(),
+        mappingVariesByDestIP: z.boolean(),
+        latency: z.record(z.number()).optional(),
+        clientSupports: z.object({
+            hairPinning: z.boolean(),
+            ipv6: z.boolean(),
+            pcp: z.boolean(),
+            pmp: z.boolean(),
+            udp: z.boolean(),
+            upnp: z.boolean()
         })
     }),
-    addresses: zod_1.z.array(zod_1.z.string()),
-    user: zod_1.z.string(),
-    tags: zod_1.z.array(zod_1.z.string()).optional()
+    addresses: z.array(z.string()),
+    user: z.string(),
+    tags: z.array(z.string()).optional()
 });
-exports.TailscaleNetworkStatusSchema = zod_1.z.object({
-    self: exports.TailscaleDeviceSchema,
-    magicDNSSuffix: zod_1.z.string(),
-    magicDNSEnabled: zod_1.z.boolean(),
-    domainName: zod_1.z.string(),
-    currentTailnet: zod_1.z.object({
-        name: zod_1.z.string(),
-        magicDNSSuffix: zod_1.z.string(),
-        magicDNSEnabled: zod_1.z.boolean()
+export const TailscaleNetworkStatusSchema = z.object({
+    self: TailscaleDeviceSchema,
+    magicDNSSuffix: z.string(),
+    magicDNSEnabled: z.boolean(),
+    domainName: z.string(),
+    currentTailnet: z.object({
+        name: z.string(),
+        magicDNSSuffix: z.string(),
+        magicDNSEnabled: z.boolean()
     }),
-    peers: zod_1.z.array(exports.TailscaleDeviceSchema)
+    peers: z.array(TailscaleDeviceSchema)
 });
-exports.TailscaleCLIStatusSchema = zod_1.z.object({
-    version: zod_1.z.string(),
-    tun: zod_1.z.boolean(),
-    backendState: zod_1.z.string(),
-    authURL: zod_1.z.string().optional(),
-    tailscaleIPs: zod_1.z.array(zod_1.z.string()),
-    self: zod_1.z.object({
-        id: zod_1.z.string(),
-        publicKey: zod_1.z.string(),
-        hostName: zod_1.z.string(),
-        dnsName: zod_1.z.string(),
-        os: zod_1.z.string(),
-        userID: zod_1.z.number(),
-        tailscaleIPs: zod_1.z.array(zod_1.z.string()),
-        capabilities: zod_1.z.array(zod_1.z.string()).optional()
+export const TailscaleCLIStatusSchema = z.object({
+    version: z.string(),
+    tun: z.boolean(),
+    backendState: z.string(),
+    authURL: z.string().optional(),
+    tailscaleIPs: z.array(z.string()),
+    self: z.object({
+        id: z.string(),
+        publicKey: z.string(),
+        hostName: z.string(),
+        dnsName: z.string(),
+        os: z.string(),
+        userID: z.number(),
+        tailscaleIPs: z.array(z.string()),
+        capabilities: z.array(z.string()).optional()
     }),
-    peers: zod_1.z.array(zod_1.z.object({
-        id: zod_1.z.string(),
-        publicKey: zod_1.z.string(),
-        hostName: zod_1.z.string(),
-        dnsName: zod_1.z.string(),
-        os: zod_1.z.string(),
-        userID: zod_1.z.number(),
-        tailscaleIPs: zod_1.z.array(zod_1.z.string()),
-        connType: zod_1.z.string().optional(),
-        derp: zod_1.z.string().optional(),
-        lastWrite: zod_1.z.string().optional(),
-        lastSeen: zod_1.z.string().optional(),
-        online: zod_1.z.boolean().optional(),
-        exitNode: zod_1.z.boolean().optional(),
-        exitNodeOption: zod_1.z.boolean().optional(),
-        active: zod_1.z.boolean().optional()
+    peers: z.array(z.object({
+        id: z.string(),
+        publicKey: z.string(),
+        hostName: z.string(),
+        dnsName: z.string(),
+        os: z.string(),
+        userID: z.number(),
+        tailscaleIPs: z.array(z.string()),
+        connType: z.string().optional(),
+        derp: z.string().optional(),
+        lastWrite: z.string().optional(),
+        lastSeen: z.string().optional(),
+        online: z.boolean().optional(),
+        exitNode: z.boolean().optional(),
+        exitNodeOption: z.boolean().optional(),
+        active: z.boolean().optional()
     })).optional()
 });
 // Tool request/response schemas
-exports.ListDevicesRequestSchema = zod_1.z.object({
-    includeRoutes: zod_1.z.boolean().optional().default(false)
+export const ListDevicesRequestSchema = z.object({
+    includeRoutes: z.boolean().optional().default(false)
 });
-exports.DeviceActionRequestSchema = zod_1.z.object({
-    deviceId: zod_1.z.string(),
-    action: zod_1.z.enum(['authorize', 'deauthorize', 'delete', 'expire-key'])
+export const DeviceActionRequestSchema = z.object({
+    deviceId: z.string(),
+    action: z.enum(['authorize', 'deauthorize', 'delete', 'expire-key'])
 });
-exports.NetworkStatusRequestSchema = zod_1.z.object({
-    format: zod_1.z.enum(['json', 'summary']).optional().default('json')
+export const NetworkStatusRequestSchema = z.object({
+    format: z.enum(['json', 'summary']).optional().default('json')
 });
-exports.RouteActionRequestSchema = zod_1.z.object({
-    deviceId: zod_1.z.string(),
-    routes: zod_1.z.array(zod_1.z.string()),
-    action: zod_1.z.enum(['enable', 'disable'])
+export const RouteActionRequestSchema = z.object({
+    deviceId: z.string(),
+    routes: z.array(z.string()),
+    action: z.enum(['enable', 'disable'])
 });
 // Error types
-class TailscaleError extends Error {
+export class TailscaleError extends Error {
+    code;
+    statusCode;
     constructor(message, code, statusCode) {
         super(message);
         this.code = code;
@@ -110,8 +109,9 @@ class TailscaleError extends Error {
         this.name = 'TailscaleError';
     }
 }
-exports.TailscaleError = TailscaleError;
-class CLIError extends Error {
+export class CLIError extends Error {
+    stderr;
+    exitCode;
     constructor(message, stderr, exitCode) {
         super(message);
         this.stderr = stderr;
@@ -119,5 +119,4 @@ class CLIError extends Error {
         this.name = 'CLIError';
     }
 }
-exports.CLIError = CLIError;
 //# sourceMappingURL=types.js.map
