@@ -17,14 +17,14 @@ export class TailscaleAPI {
     const tailnet = config.tailnet || process.env.TAILSCALE_TAILNET || 'default';
 
     if (!apiKey) {
-      throw new TailscaleError('API key is required. Set TAILSCALE_API_KEY environment variable.');
+      logger.warn('No Tailscale API key provided. API operations will fail until TAILSCALE_API_KEY is set.');
     }
 
     this.tailnet = tailnet;
     this.client = axios.create({
       baseURL: 'https://api.tailscale.com/api/v2',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': apiKey ? `Bearer ${apiKey}` : '',
         'Content-Type': 'application/json'
       },
       timeout: 30000

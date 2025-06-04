@@ -1,4 +1,4 @@
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { TailscaleAPI } from './tailscale-api.js';
 import { TailscaleCLI } from './tailscale-cli.js';
 export declare class TailscaleTools {

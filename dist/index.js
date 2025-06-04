@@ -1,18 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TailscaleMCPServer = void 0;
-const index_1 = require("@modelcontextprotocol/sdk/server/index");
-const stdio_1 = require("@modelcontextprotocol/sdk/server/stdio");
-const types_1 = require("@modelcontextprotocol/sdk/types");
-const tailscale_api_1 = require("./tailscale-api");
-const tailscale_cli_1 = require("./tailscale-cli");
-const tools_1 = require("./tools");
-const logger_1 = require("./logger");
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, } from '@modelcontextprotocol/sdk/types.js';
+import { createTailscaleAPI } from './tailscale-api.js';
+import { TailscaleCLI } from './tailscale-cli.js';
+import { TailscaleTools } from './tools.js';
+import { logger } from './logger.js';
 class TailscaleMCPServer {
     server;
     tools;
     constructor() {
-        this.server = new index_1.Server({
+        this.server = new Server({
             name: 'tailscale-mcp-server',
             version: '1.0.0',
         }, {
@@ -21,14 +18,14 @@ class TailscaleMCPServer {
             },
         });
         // Initialize Tailscale integrations
-        const api = (0, tailscale_api_1.createTailscaleAPI)();
-        const cli = new tailscale_cli_1.TailscaleCLI();
-        this.tools = new tools_1.TailscaleTools(api, cli);
+        const api = createTailscaleAPI();
+        const cli = new TailscaleCLI();
+        this.tools = new TailscaleTools(api, cli);
         this.setupHandlers();
     }
     setupHandlers() {
         // List available tools
-        this.server.setRequestHandler(types_1.ListToolsRequestSchema, async () => {
+        this.server.setRequestHandler(ListToolsRequestSchema, async () => {
             return {
                 tools: [
                     {
@@ -180,10 +177,10 @@ class TailscaleMCPServer {
             };
         });
         // Handle tool calls
-        this.server.setRequestHandler(types_1.CallToolRequestSchema, async (request) => {
+        this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
             try {
                 const { name, arguments: args } = request.params;
-                logger_1.logger.info(`Executing tool: ${name}`, args);
+                logger.info(`Executing tool: ${name}`, args);
                 let result;
                 switch (name) {
                     case 'list_devices':
@@ -216,7 +213,7 @@ class TailscaleMCPServer {
                 return result;
             }
             catch (error) {
-                logger_1.logger.error('Tool execution error:', error);
+                logger.error('Tool execution error:', error);
                 return {
                     content: [{
                             type: 'text',
@@ -228,12 +225,11 @@ class TailscaleMCPServer {
         });
     }
     async start() {
-        const transport = new stdio_1.StdioServerTransport();
+        const transport = new StdioServerTransport();
         await this.server.connect(transport);
-        logger_1.logger.info('Tailscale MCP Server started');
+        logger.info('Tailscale MCP Server started');
     }
 }
-exports.TailscaleMCPServer = TailscaleMCPServer;
 // Start the server
 async function main() {
     try {
@@ -241,22 +237,23 @@ async function main() {
         await server.start();
     }
     catch (error) {
-        logger_1.logger.error('Failed to start server:', error);
+        logger.error('Failed to start server:', error);
         process.exit(1);
     }
 }
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-    logger_1.logger.info('Received SIGINT, shutting down gracefully...');
+    logger.info('Received SIGINT, shutting down gracefully...');
     process.exit(0);
 });
 process.on('SIGTERM', () => {
-    logger_1.logger.info('Received SIGTERM, shutting down gracefully...');
+    logger.info('Received SIGTERM, shutting down gracefully...');
     process.exit(0);
 });
 // Start the server if this file is run directly
 main().catch((error) => {
-    logger_1.logger.error('Unhandled error:', error);
+    logger.error('Unhandled error:', error);
     process.exit(1);
 });
+export { TailscaleMCPServer };
 //# sourceMappingURL=index.js.map
