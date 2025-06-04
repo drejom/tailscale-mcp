@@ -1,4 +1,4 @@
-import { ToolResult } from './types.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { TailscaleAPI } from './tailscale-api.js';
 import { TailscaleCLI } from './tailscale-cli.js';
 export declare class TailscaleTools {
@@ -8,11 +8,11 @@ export declare class TailscaleTools {
     /**
      * List all devices in the tailnet
      */
-    listDevices(args: any): Promise<ToolResult>;
+    listDevices(args: any): Promise<CallToolResult>;
     /**
      * Get network status from CLI
      */
-    getNetworkStatus(args: any): Promise<ToolResult>;
+    getNetworkStatus(args: any): Promise<CallToolResult>;
     /**
      * Perform device actions
      */

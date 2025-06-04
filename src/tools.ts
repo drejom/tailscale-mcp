@@ -2,9 +2,9 @@ import {
   ListDevicesRequestSchema,
   DeviceActionRequestSchema,
   NetworkStatusRequestSchema,
-  RouteActionRequestSchema,
-  ToolResult
+  RouteActionRequestSchema
 } from './types.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { TailscaleAPI } from './tailscale-api.js';
 import { TailscaleCLI } from './tailscale-cli.js';
 import { logger } from './logger.js';
@@ -18,7 +18,7 @@ export class TailscaleTools {
   /**
    * List all devices in the tailnet
    */
-  async listDevices(args: any): Promise<ToolResult> {
+  async listDevices(args: any): Promise<CallToolResult> {
     try {
       const request = ListDevicesRequestSchema.parse(args);
       logger.info('Listing devices with options:', request);
@@ -76,7 +76,7 @@ export class TailscaleTools {
   /**
    * Get network status from CLI
    */
-  async getNetworkStatus(args: any): Promise<ToolResult> {
+  async getNetworkStatus(args: any): Promise<CallToolResult> {
     try {
       const request = NetworkStatusRequestSchema.parse(args);
       logger.info('Getting network status with format:', request.format);
@@ -154,7 +154,7 @@ export class TailscaleTools {
   /**
    * Perform device actions
    */
-  async deviceAction(args: any): Promise<ToolResult> {
+  async deviceAction(args: any): Promise<CallToolResult> {
     try {
       const request = DeviceActionRequestSchema.parse(args);
       logger.info('Performing device action:', request);
@@ -220,7 +220,7 @@ export class TailscaleTools {
   /**
    * Manage device routes
    */
-  async manageRoutes(args: any): Promise<ToolResult> {
+  async manageRoutes(args: any): Promise<CallToolResult> {
     try {
       const request = RouteActionRequestSchema.parse(args);
       logger.info('Managing routes:', request);
@@ -278,7 +278,7 @@ export class TailscaleTools {
   /**
    * Connect to Tailscale network
    */
-  async connectNetwork(args: any): Promise<ToolResult> {
+  async connectNetwork(args: any): Promise<CallToolResult> {
     try {
       const options = {
         acceptRoutes: args.acceptRoutes || false,

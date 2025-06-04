@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import { createTailscaleAPI } from './tailscale-api.js';
 import { TailscaleCLI } from './tailscale-cli.js';
@@ -194,7 +195,7 @@ class TailscaleMCPServer {
         const { name, arguments: args } = request.params;
         logger.info(`Executing tool: ${name}`, args);
 
-        let result: ToolResult;
+        let result: CallToolResult;
 
         switch (name) {
           case 'list_devices':
