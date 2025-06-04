@@ -5,10 +5,10 @@ import {
   ListToolsRequestSchema,
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
-import { createTailscaleAPI } from './tailscale-api.js';
-import { TailscaleCLI } from './tailscale-cli.js';
-import { TailscaleTools } from './tools.js';
-import { logger } from './logger.js';
+import { createTailscaleAPI } from './tailscale-api';
+import { TailscaleCLI } from './tailscale-cli';
+import { TailscaleTools } from './tools';
+import { logger } from './logger';
 
 class TailscaleMCPServer {
   private server: Server;

@@ -16,26 +16,26 @@ export declare class TailscaleTools {
     /**
      * Perform device actions
      */
-    deviceAction(args: any): Promise<ToolResult>;
+    deviceAction(args: any): Promise<CallToolResult>;
     /**
      * Manage device routes
      */
-    manageRoutes(args: any): Promise<ToolResult>;
+    manageRoutes(args: any): Promise<CallToolResult>;
     /**
      * Connect to Tailscale network
      */
-    connectNetwork(args: any): Promise<ToolResult>;
+    connectNetwork(args: any): Promise<CallToolResult>;
     /**
      * Disconnect from Tailscale network
      */
-    disconnectNetwork(): Promise<ToolResult>;
+    disconnectNetwork(): Promise<CallToolResult>;
     /**
      * Ping a peer
      */
-    pingPeer(args: any): Promise<ToolResult>;
+    pingPeer(args: any): Promise<CallToolResult>;
     /**
      * Get Tailscale version
      */
-    getVersion(): Promise<ToolResult>;
+    getVersion(): Promise<CallToolResult>;
 }
 //# sourceMappingURL=tools.d.ts.map

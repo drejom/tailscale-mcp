@@ -1,17 +1,24 @@
-import axios from 'axios';
-import { TailscaleDeviceSchema, TailscaleError } from './types.js';
-import { logger } from './logger.js';
-export class TailscaleAPI {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TailscaleAPI = void 0;
+exports.createTailscaleAPI = createTailscaleAPI;
+const axios_1 = __importDefault(require("axios"));
+const types_js_1 = require("./types.js");
+const logger_js_1 = require("./logger.js");
+class TailscaleAPI {
     client;
     tailnet;
     constructor(config) {
         const apiKey = config.apiKey || process.env.TAILSCALE_API_KEY;
         const tailnet = config.tailnet || process.env.TAILSCALE_TAILNET || 'default';
         if (!apiKey) {
-            throw new TailscaleError('API key is required. Set TAILSCALE_API_KEY environment variable.');
+            throw new types_js_1.TailscaleError('API key is required. Set TAILSCALE_API_KEY environment variable.');
         }
         this.tailnet = tailnet;
-        this.client = axios.create({
+        this.client = axios_1.default.create({
             baseURL: 'https://api.tailscale.com/api/v2',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
@@ -21,17 +28,17 @@ export class TailscaleAPI {
         });
         // Add request/response interceptors for logging
         this.client.interceptors.request.use((config) => {
-            logger.debug(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+            logger_js_1.logger.debug(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
             return config;
         }, (error) => {
-            logger.error('API Request Error:', error);
+            logger_js_1.logger.error('API Request Error:', error);
             return Promise.reject(error);
         });
         this.client.interceptors.response.use((response) => {
-            logger.debug(`API Response: ${response.status} ${response.config.url}`);
+            logger_js_1.logger.debug(`API Response: ${response.status} ${response.config.url}`);
             return response;
         }, (error) => {
-            logger.error('API Response Error:', {
+            logger_js_1.logger.error('API Response Error:', {
                 url: error.config?.url,
                 status: error.response?.status,
                 data: error.response?.data
@@ -87,10 +94,10 @@ export class TailscaleAPI {
             // Validate and parse devices
             const devices = response.data.devices?.map((device) => {
                 try {
-                    return TailscaleDeviceSchema.parse(device);
+                    return types_js_1.TailscaleDeviceSchema.parse(device);
                 }
                 catch (parseError) {
-                    logger.warn('Failed to parse device:', { device, error: parseError });
+                    logger_js_1.logger.warn('Failed to parse device:', { device, error: parseError });
                     return null;
                 }
             }).filter((device) => device !== null) || [];
@@ -106,7 +113,7 @@ export class TailscaleAPI {
     async getDevice(deviceId) {
         try {
             const response = await this.client.get(`/device/${deviceId}`);
-            const device = TailscaleDeviceSchema.parse(response.data);
+            const device = types_js_1.TailscaleDeviceSchema.parse(response.data);
             return this.handleResponse({ ...response, data: device });
         }
         catch (error) {
@@ -227,8 +234,9 @@ export class TailscaleAPI {
         }
     }
 }
+exports.TailscaleAPI = TailscaleAPI;
 // Export factory function for creating API instances
-export function createTailscaleAPI(config = {}) {
+function createTailscaleAPI(config = {}) {
     return new TailscaleAPI(config);
 }
 //# sourceMappingURL=tailscale-api.js.map

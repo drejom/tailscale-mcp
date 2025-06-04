@@ -1,10 +1,13 @@
-export var LogLevel;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Logger = exports.logger = exports.LogLevel = void 0;
+var LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["DEBUG"] = 0] = "DEBUG";
     LogLevel[LogLevel["INFO"] = 1] = "INFO";
     LogLevel[LogLevel["WARN"] = 2] = "WARN";
     LogLevel[LogLevel["ERROR"] = 3] = "ERROR";
-})(LogLevel || (LogLevel = {}));
+})(LogLevel || (exports.LogLevel = LogLevel = {}));
 class Logger {
     level;
     constructor(level = LogLevel.INFO) {
@@ -51,8 +54,7 @@ class Logger {
         this.log(level, message, JSON.stringify(obj, null, 2));
     }
 }
+exports.Logger = Logger;
 // Export singleton instance
-export const logger = new Logger(process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL) : LogLevel.INFO);
-// Export class for custom instances
-export { Logger };
+exports.logger = new Logger(process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL) : LogLevel.INFO);
 //# sourceMappingURL=logger.js.map

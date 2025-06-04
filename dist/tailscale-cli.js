@@ -1,9 +1,12 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { TailscaleCLIStatusSchema } from './types.js';
-import { logger } from './logger.js';
-const execAsync = promisify(exec);
-export class TailscaleCLI {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tailscaleCLI = exports.TailscaleCLI = void 0;
+const child_process_1 = require("child_process");
+const util_1 = require("util");
+const types_js_1 = require("./types.js");
+const logger_js_1 = require("./logger.js");
+const execAsync = (0, util_1.promisify)(child_process_1.exec);
+class TailscaleCLI {
     cliPath;
     constructor(cliPath = 'tailscale') {
         this.cliPath = cliPath;
@@ -13,10 +16,10 @@ export class TailscaleCLI {
      */
     async executeCommand(args) {
         try {
-            logger.debug(`Executing: ${this.cliPath} ${args.join(' ')}`);
+            logger_js_1.logger.debug(`Executing: ${this.cliPath} ${args.join(' ')}`);
             const { stdout, stderr } = await execAsync(`${this.cliPath} ${args.join(' ')}`);
             if (stderr && stderr.trim()) {
-                logger.warn('CLI stderr:', stderr);
+                logger_js_1.logger.warn('CLI stderr:', stderr);
             }
             return {
                 success: true,
@@ -25,7 +28,7 @@ export class TailscaleCLI {
             };
         }
         catch (error) {
-            logger.error('CLI command failed:', error);
+            logger_js_1.logger.error('CLI command failed:', error);
             return {
                 success: false,
                 error: error.message,
@@ -47,14 +50,14 @@ export class TailscaleCLI {
         }
         try {
             const statusData = JSON.parse(result.data);
-            const validatedStatus = TailscaleCLIStatusSchema.parse(statusData);
+            const validatedStatus = types_js_1.TailscaleCLIStatusSchema.parse(statusData);
             return {
                 success: true,
                 data: validatedStatus
             };
         }
         catch (error) {
-            logger.error('Failed to parse status JSON:', error);
+            logger_js_1.logger.error('Failed to parse status JSON:', error);
             return {
                 success: false,
                 error: `Failed to parse status data: ${error.message}`
@@ -166,6 +169,7 @@ export class TailscaleCLI {
         }
     }
 }
+exports.TailscaleCLI = TailscaleCLI;
 // Export default instance
-export const tailscaleCLI = new TailscaleCLI();
+exports.tailscaleCLI = new TailscaleCLI();
 //# sourceMappingURL=tailscale-cli.js.map

@@ -3,11 +3,11 @@ import {
   DeviceActionRequestSchema,
   NetworkStatusRequestSchema,
   RouteActionRequestSchema
-} from './types.js';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { TailscaleAPI } from './tailscale-api.js';
-import { TailscaleCLI } from './tailscale-cli.js';
-import { logger } from './logger.js';
+} from './types';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types';
+import { TailscaleAPI } from './tailscale-api';
+import { TailscaleCLI } from './tailscale-cli';
+import { logger } from './logger';
 
 export class TailscaleTools {
   constructor(
@@ -324,7 +324,7 @@ export class TailscaleTools {
   /**
    * Disconnect from Tailscale network
    */
-  async disconnectNetwork(): Promise<ToolResult> {
+  async disconnectNetwork(): Promise<CallToolResult> {
     try {
       logger.info('Disconnecting from Tailscale network');
 
@@ -361,7 +361,7 @@ export class TailscaleTools {
   /**
    * Ping a peer
    */
-  async pingPeer(args: any): Promise<ToolResult> {
+  async pingPeer(args: any): Promise<CallToolResult> {
     try {
       const target = args.target;
       const count = args.count || 4;
@@ -411,7 +411,7 @@ export class TailscaleTools {
   /**
    * Get Tailscale version
    */
-  async getVersion(): Promise<ToolResult> {
+  async getVersion(): Promise<CallToolResult> {
     try {
       logger.info('Getting Tailscale version');
 
