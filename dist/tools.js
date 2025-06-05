@@ -418,7 +418,7 @@ export class TailscaleTools {
                         };
                     }
                     return {
-                        content: [{ type: 'text', text: `Current ACL configuration:\n\n${result.data}` }]
+                        content: [{ type: 'text', text: `Current ACL configuration:\n\n${typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2)}` }]
                     };
                 }
                 case 'update': {

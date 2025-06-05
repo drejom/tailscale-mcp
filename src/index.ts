@@ -184,6 +184,148 @@ class TailscaleMCPServer {
             inputSchema: {
               type: 'object'
             }
+          },
+          {
+            name: 'manage_acl',
+            description: 'Manage Tailscale Access Control Lists (ACLs)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                operation: {
+                  type: 'string',
+                  enum: ['get', 'update', 'validate'],
+                  description: 'ACL operation to perform'
+                },
+                aclConfig: {
+                  type: 'object',
+                  description: 'ACL configuration (required for update/validate operations)',
+                  properties: {
+                    groups: {
+                      type: 'object',
+                      description: 'User groups definition'
+                    },
+                    tagOwners: {
+                      type: 'object',
+                      description: 'Tag ownership mapping'
+                    },
+                    acls: {
+                      type: 'array',
+                      description: 'Access control rules',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          action: {
+                            type: 'string',
+                            enum: ['accept', 'drop']
+                          },
+                          src: {
+                            type: 'array',
+                            items: { type: 'string' }
+                          },
+                          dst: {
+                            type: 'array',
+                            items: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              required: ['operation']
+            }
+          },
+          {
+            name: 'manage_dns',
+            description: 'Manage Tailscale DNS configuration',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                operation: {
+                  type: 'string',
+                  enum: ['get_nameservers', 'set_nameservers', 'get_preferences', 'set_preferences', 'get_searchpaths', 'set_searchpaths'],
+                  description: 'DNS operation to perform'
+                },
+                nameservers: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'DNS nameservers (for set_nameservers operation)'
+                },
+                magicDNS: {
+                  type: 'boolean',
+                  description: 'Enable/disable MagicDNS (for set_preferences operation)'
+                },
+                searchPaths: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'DNS search paths (for set_searchpaths operation)'
+                }
+              },
+              required: ['operation']
+            }
+          },
+          {
+            name: 'manage_keys',
+            description: 'Manage Tailscale authentication keys',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                operation: {
+                  type: 'string',
+                  enum: ['list', 'create', 'delete'],
+                  description: 'Key management operation'
+                },
+                keyId: {
+                  type: 'string',
+                  description: 'Authentication key ID (for delete operation)'
+                },
+                keyConfig: {
+                  type: 'object',
+                  description: 'Key configuration (for create operation)',
+                  properties: {
+                    capabilities: {
+                      type: 'object',
+                      properties: {
+                        devices: {
+                          type: 'object',
+                          properties: {
+                            create: {
+                              type: 'object',
+                              properties: {
+                                reusable: { type: 'boolean' },
+                                ephemeral: { type: 'boolean' },
+                                preauthorized: { type: 'boolean' },
+                                tags: {
+                                  type: 'array',
+                                  items: { type: 'string' }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    expirySeconds: { type: 'number' },
+                    description: { type: 'string' }
+                  }
+                }
+              },
+              required: ['operation']
+            }
+          },
+          {
+            name: 'get_tailnet_info',
+            description: 'Get detailed Tailscale network information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                includeDetails: {
+                  type: 'boolean',
+                  description: 'Include advanced configuration details',
+                  default: false
+                }
+              }
+            }
           }
         ]
       };
@@ -228,6 +370,22 @@ class TailscaleMCPServer {
           
           case 'get_version':
             result = await this.tools.getVersion();
+            break;
+          
+          case 'manage_acl':
+            result = await this.tools.manageACL(args || {});
+            break;
+          
+          case 'manage_dns':
+            result = await this.tools.manageDNS(args || {});
+            break;
+          
+          case 'manage_keys':
+            result = await this.tools.manageKeys(args || {});
+            break;
+          
+          case 'get_tailnet_info':
+            result = await this.tools.getTailnetInfo(args || {});
             break;
           
           default:
