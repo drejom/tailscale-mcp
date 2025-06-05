@@ -17,8 +17,8 @@ export const TailscaleDeviceSchema = z.object({
   machineKey: z.string(),
   nodeKey: z.string(),
   blocksIncomingConnections: z.boolean(),
-  enabledRoutes: z.array(z.string()),
-  advertisedRoutes: z.array(z.string()),
+  enabledRoutes: z.array(z.string()).optional().default([]),
+  advertisedRoutes: z.array(z.string()).optional().default([]),
   clientConnectivity: z.object({
     endpoints: z.array(z.string()),
     derp: z.string(),
@@ -32,7 +32,7 @@ export const TailscaleDeviceSchema = z.object({
       udp: z.boolean(),
       upnp: z.boolean()
     })
-  }),
+  }).optional(),
   addresses: z.array(z.string()),
   user: z.string(),
   tags: z.array(z.string()).optional()

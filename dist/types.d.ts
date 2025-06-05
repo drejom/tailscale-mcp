@@ -15,9 +15,9 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
     machineKey: z.ZodString;
     nodeKey: z.ZodString;
     blocksIncomingConnections: z.ZodBoolean;
-    enabledRoutes: z.ZodArray<z.ZodString, "many">;
-    advertisedRoutes: z.ZodArray<z.ZodString, "many">;
-    clientConnectivity: z.ZodObject<{
+    enabledRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+    advertisedRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+    clientConnectivity: z.ZodOptional<z.ZodObject<{
         endpoints: z.ZodArray<z.ZodString, "many">;
         derp: z.ZodString;
         mappingVariesByDestIP: z.ZodBoolean;
@@ -70,7 +70,7 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
             upnp: boolean;
         };
         latency?: Record<string, number> | undefined;
-    }>;
+    }>>;
     addresses: z.ZodArray<z.ZodString, "many">;
     user: z.ZodString;
     tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -92,7 +92,9 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
     blocksIncomingConnections: boolean;
     enabledRoutes: string[];
     advertisedRoutes: string[];
-    clientConnectivity: {
+    addresses: string[];
+    user: string;
+    clientConnectivity?: {
         endpoints: string[];
         derp: string;
         mappingVariesByDestIP: boolean;
@@ -105,9 +107,7 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
             upnp: boolean;
         };
         latency?: Record<string, number> | undefined;
-    };
-    addresses: string[];
-    user: string;
+    } | undefined;
     tags?: string[] | undefined;
 }, {
     id: string;
@@ -125,9 +125,11 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
     machineKey: string;
     nodeKey: string;
     blocksIncomingConnections: boolean;
-    enabledRoutes: string[];
-    advertisedRoutes: string[];
-    clientConnectivity: {
+    addresses: string[];
+    user: string;
+    enabledRoutes?: string[] | undefined;
+    advertisedRoutes?: string[] | undefined;
+    clientConnectivity?: {
         endpoints: string[];
         derp: string;
         mappingVariesByDestIP: boolean;
@@ -140,9 +142,7 @@ export declare const TailscaleDeviceSchema: z.ZodObject<{
             upnp: boolean;
         };
         latency?: Record<string, number> | undefined;
-    };
-    addresses: string[];
-    user: string;
+    } | undefined;
     tags?: string[] | undefined;
 }>;
 export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
@@ -162,9 +162,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: z.ZodString;
         nodeKey: z.ZodString;
         blocksIncomingConnections: z.ZodBoolean;
-        enabledRoutes: z.ZodArray<z.ZodString, "many">;
-        advertisedRoutes: z.ZodArray<z.ZodString, "many">;
-        clientConnectivity: z.ZodObject<{
+        enabledRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+        advertisedRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+        clientConnectivity: z.ZodOptional<z.ZodObject<{
             endpoints: z.ZodArray<z.ZodString, "many">;
             derp: z.ZodString;
             mappingVariesByDestIP: z.ZodBoolean;
@@ -217,7 +217,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        }>;
+        }>>;
         addresses: z.ZodArray<z.ZodString, "many">;
         user: z.ZodString;
         tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -239,7 +239,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         blocksIncomingConnections: boolean;
         enabledRoutes: string[];
         advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -252,9 +254,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }, {
         id: string;
@@ -272,9 +272,11 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: string;
         nodeKey: string;
         blocksIncomingConnections: boolean;
-        enabledRoutes: string[];
-        advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        enabledRoutes?: string[] | undefined;
+        advertisedRoutes?: string[] | undefined;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -287,9 +289,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }>;
     magicDNSSuffix: z.ZodString;
@@ -324,9 +324,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: z.ZodString;
         nodeKey: z.ZodString;
         blocksIncomingConnections: z.ZodBoolean;
-        enabledRoutes: z.ZodArray<z.ZodString, "many">;
-        advertisedRoutes: z.ZodArray<z.ZodString, "many">;
-        clientConnectivity: z.ZodObject<{
+        enabledRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+        advertisedRoutes: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+        clientConnectivity: z.ZodOptional<z.ZodObject<{
             endpoints: z.ZodArray<z.ZodString, "many">;
             derp: z.ZodString;
             mappingVariesByDestIP: z.ZodBoolean;
@@ -379,7 +379,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        }>;
+        }>>;
         addresses: z.ZodArray<z.ZodString, "many">;
         user: z.ZodString;
         tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -401,7 +401,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         blocksIncomingConnections: boolean;
         enabledRoutes: string[];
         advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -414,9 +416,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }, {
         id: string;
@@ -434,9 +434,11 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: string;
         nodeKey: string;
         blocksIncomingConnections: boolean;
-        enabledRoutes: string[];
-        advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        enabledRoutes?: string[] | undefined;
+        advertisedRoutes?: string[] | undefined;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -449,9 +451,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
@@ -473,7 +473,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         blocksIncomingConnections: boolean;
         enabledRoutes: string[];
         advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -486,9 +488,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     };
     magicDNSSuffix: string;
@@ -517,7 +517,9 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         blocksIncomingConnections: boolean;
         enabledRoutes: string[];
         advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -530,9 +532,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }[];
 }, {
@@ -552,9 +552,11 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: string;
         nodeKey: string;
         blocksIncomingConnections: boolean;
-        enabledRoutes: string[];
-        advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        enabledRoutes?: string[] | undefined;
+        advertisedRoutes?: string[] | undefined;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -567,9 +569,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     };
     magicDNSSuffix: string;
@@ -596,9 +596,11 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
         machineKey: string;
         nodeKey: string;
         blocksIncomingConnections: boolean;
-        enabledRoutes: string[];
-        advertisedRoutes: string[];
-        clientConnectivity: {
+        addresses: string[];
+        user: string;
+        enabledRoutes?: string[] | undefined;
+        advertisedRoutes?: string[] | undefined;
+        clientConnectivity?: {
             endpoints: string[];
             derp: string;
             mappingVariesByDestIP: boolean;
@@ -611,9 +613,7 @@ export declare const TailscaleNetworkStatusSchema: z.ZodObject<{
                 upnp: boolean;
             };
             latency?: Record<string, number> | undefined;
-        };
-        addresses: string[];
-        user: string;
+        } | undefined;
         tags?: string[] | undefined;
     }[];
 }>;

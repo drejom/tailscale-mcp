@@ -6,7 +6,7 @@ export class TailscaleAPI {
     tailnet;
     constructor(config) {
         const apiKey = config.apiKey || process.env.TAILSCALE_API_KEY;
-        const tailnet = config.tailnet || process.env.TAILSCALE_TAILNET || 'default';
+        const tailnet = config.tailnet || process.env.TAILSCALE_TAILNET || '-';
         if (!apiKey) {
             logger.warn('No Tailscale API key provided. API operations will fail until TAILSCALE_API_KEY is set.');
         }
