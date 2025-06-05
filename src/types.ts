@@ -214,6 +214,63 @@ export type DNSRequest = z.infer<typeof DNSRequestSchema>;
 export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
 export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
 
+// File Sharing Types
+export const FileSharingRequestSchema = z.object({
+  operation: z.enum(['get_status', 'enable', 'disable']),
+  deviceId: z.string().optional()
+});
+
+// Exit Node Types
+export const ExitNodeRequestSchema = z.object({
+  operation: z.enum(['list', 'set', 'clear', 'advertise', 'stop_advertising']),
+  deviceId: z.string().optional(),
+  routes: z.array(z.string()).optional()
+});
+
+// Network Lock Types
+export const NetworkLockRequestSchema = z.object({
+  operation: z.enum(['status', 'enable', 'disable', 'add_key', 'remove_key', 'list_keys']),
+  publicKey: z.string().optional(),
+  keyId: z.string().optional()
+});
+
+// Subnet Router Types
+export const SubnetRouterRequestSchema = z.object({
+  operation: z.enum(['list_routes', 'advertise_routes', 'accept_routes', 'remove_routes']),
+  deviceId: z.string().optional(),
+  routes: z.array(z.string()).optional()
+});
+
+// Webhook Management Types
+export const WebhookRequestSchema = z.object({
+  operation: z.enum(['list', 'create', 'delete', 'test']),
+  webhookId: z.string().optional(),
+  config: z.object({
+    endpointUrl: z.string(),
+    secret: z.string().optional(),
+    events: z.array(z.string()),
+    description: z.string().optional()
+  }).optional()
+});
+
+// Policy File Types
+export const PolicyFileRequestSchema = z.object({
+  operation: z.enum(['get', 'update', 'test_access']),
+  policy: z.string().optional(),
+  testRequest: z.object({
+    src: z.string(),
+    dst: z.string(),
+    proto: z.string().optional()
+  }).optional()
+});
+
+export type FileSharingRequest = z.infer<typeof FileSharingRequestSchema>;
+export type ExitNodeRequest = z.infer<typeof ExitNodeRequestSchema>;
+export type NetworkLockRequest = z.infer<typeof NetworkLockRequestSchema>;
+export type SubnetRouterRequest = z.infer<typeof SubnetRouterRequestSchema>;
+export type WebhookRequest = z.infer<typeof WebhookRequestSchema>;
+export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
+
 // API Response types
 export interface TailscaleAPIResponse<T> {
   success: boolean;

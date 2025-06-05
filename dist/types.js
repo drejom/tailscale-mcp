@@ -176,6 +176,50 @@ export const KeyManagementRequestSchema = z.object({
 export const TailnetInfoRequestSchema = z.object({
     includeDetails: z.boolean().optional()
 });
+// File Sharing Types
+export const FileSharingRequestSchema = z.object({
+    operation: z.enum(['get_status', 'enable', 'disable']),
+    deviceId: z.string().optional()
+});
+// Exit Node Types
+export const ExitNodeRequestSchema = z.object({
+    operation: z.enum(['list', 'set', 'clear', 'advertise', 'stop_advertising']),
+    deviceId: z.string().optional(),
+    routes: z.array(z.string()).optional()
+});
+// Network Lock Types
+export const NetworkLockRequestSchema = z.object({
+    operation: z.enum(['status', 'enable', 'disable', 'add_key', 'remove_key', 'list_keys']),
+    publicKey: z.string().optional(),
+    keyId: z.string().optional()
+});
+// Subnet Router Types
+export const SubnetRouterRequestSchema = z.object({
+    operation: z.enum(['list_routes', 'advertise_routes', 'accept_routes', 'remove_routes']),
+    deviceId: z.string().optional(),
+    routes: z.array(z.string()).optional()
+});
+// Webhook Management Types
+export const WebhookRequestSchema = z.object({
+    operation: z.enum(['list', 'create', 'delete', 'test']),
+    webhookId: z.string().optional(),
+    config: z.object({
+        endpointUrl: z.string(),
+        secret: z.string().optional(),
+        events: z.array(z.string()),
+        description: z.string().optional()
+    }).optional()
+});
+// Policy File Types
+export const PolicyFileRequestSchema = z.object({
+    operation: z.enum(['get', 'update', 'test_access']),
+    policy: z.string().optional(),
+    testRequest: z.object({
+        src: z.string(),
+        dst: z.string(),
+        proto: z.string().optional()
+    }).optional()
+});
 // Error types
 export class TailscaleError extends Error {
     code;

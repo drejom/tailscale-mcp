@@ -314,6 +314,132 @@ class TailscaleMCPServer {
                                 }
                             }
                         }
+                    },
+                    {
+                        name: 'manage_file_sharing',
+                        description: 'Manage Tailscale file sharing settings',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_status', 'enable', 'disable'],
+                                    description: 'File sharing operation to perform'
+                                },
+                                deviceId: {
+                                    type: 'string',
+                                    description: 'Device ID (for device-specific operations)'
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_exit_nodes',
+                        description: 'Manage Tailscale exit nodes and routing',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['list', 'set', 'clear', 'advertise', 'stop_advertising'],
+                                    description: 'Exit node operation to perform'
+                                },
+                                deviceId: {
+                                    type: 'string',
+                                    description: 'Device ID for exit node operations'
+                                },
+                                routes: {
+                                    type: 'array',
+                                    items: { type: 'string' },
+                                    description: 'Routes to advertise (e.g., ["0.0.0.0/0", "::/0"] for full exit node)'
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_network_lock',
+                        description: 'Manage Tailscale network lock (key authority) for enhanced security',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['status', 'enable', 'disable', 'add_key', 'remove_key', 'list_keys'],
+                                    description: 'Network lock operation to perform'
+                                },
+                                publicKey: {
+                                    type: 'string',
+                                    description: 'Public key for add/remove operations'
+                                },
+                                keyId: {
+                                    type: 'string',
+                                    description: 'Key ID for remove operations'
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_webhooks',
+                        description: 'Manage Tailscale webhooks for event notifications',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['list', 'create', 'delete', 'test'],
+                                    description: 'Webhook operation to perform'
+                                },
+                                webhookId: {
+                                    type: 'string',
+                                    description: 'Webhook ID for delete/test operations'
+                                },
+                                config: {
+                                    type: 'object',
+                                    description: 'Webhook configuration for create operation',
+                                    properties: {
+                                        endpointUrl: { type: 'string' },
+                                        secret: { type: 'string' },
+                                        events: {
+                                            type: 'array',
+                                            items: { type: 'string' }
+                                        },
+                                        description: { type: 'string' }
+                                    }
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_policy_file',
+                        description: 'Manage policy files and test ACL access rules',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get', 'update', 'test_access'],
+                                    description: 'Policy file operation to perform'
+                                },
+                                policy: {
+                                    type: 'string',
+                                    description: 'Policy content (HuJSON format) for update operation'
+                                },
+                                testRequest: {
+                                    type: 'object',
+                                    description: 'Access test parameters for test_access operation',
+                                    properties: {
+                                        src: { type: 'string' },
+                                        dst: { type: 'string' },
+                                        proto: { type: 'string' }
+                                    }
+                                }
+                            },
+                            required: ['operation']
+                        }
                     }
                 ]
             };
@@ -360,6 +486,21 @@ class TailscaleMCPServer {
                         break;
                     case 'get_tailnet_info':
                         result = await this.tools.getTailnetInfo(args || {});
+                        break;
+                    case 'manage_file_sharing':
+                        result = await this.tools.manageFileSharing(args || {});
+                        break;
+                    case 'manage_exit_nodes':
+                        result = await this.tools.manageExitNodes(args || {});
+                        break;
+                    case 'manage_network_lock':
+                        result = await this.tools.manageNetworkLock(args || {});
+                        break;
+                    case 'manage_webhooks':
+                        result = await this.tools.manageWebhooks(args || {});
+                        break;
+                    case 'manage_policy_file':
+                        result = await this.tools.managePolicyFile(args || {});
                         break;
                     default:
                         throw new Error(`Unknown tool: ${name}`);

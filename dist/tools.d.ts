@@ -53,5 +53,25 @@ export declare class TailscaleTools {
      * Get detailed tailnet information
      */
     getTailnetInfo(args: any): Promise<CallToolResult>;
+    /**
+     * Manage file sharing settings
+     */
+    manageFileSharing(args: any): Promise<CallToolResult>;
+    /**
+     * Manage exit nodes
+     */
+    manageExitNodes(args: any): Promise<CallToolResult>;
+    /**
+     * Manage network lock (key authority)
+     */
+    manageNetworkLock(args: any): Promise<CallToolResult>;
+    /**
+     * Manage webhooks
+     */
+    manageWebhooks(args: any): Promise<CallToolResult>;
+    /**
+     * Manage policy files and ACL testing
+     */
+    managePolicyFile(args: any): Promise<CallToolResult>;
 }
 //# sourceMappingURL=tools.d.ts.map

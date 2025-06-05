@@ -1310,6 +1310,132 @@ export type ACLRequest = z.infer<typeof ACLRequestSchema>;
 export type DNSRequest = z.infer<typeof DNSRequestSchema>;
 export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
 export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
+export declare const FileSharingRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_status", "enable", "disable"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    operation: "enable" | "disable" | "get_status";
+    deviceId?: string | undefined;
+}, {
+    operation: "enable" | "disable" | "get_status";
+    deviceId?: string | undefined;
+}>;
+export declare const ExitNodeRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["list", "set", "clear", "advertise", "stop_advertising"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    routes: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    operation: "set" | "list" | "clear" | "advertise" | "stop_advertising";
+    deviceId?: string | undefined;
+    routes?: string[] | undefined;
+}, {
+    operation: "set" | "list" | "clear" | "advertise" | "stop_advertising";
+    deviceId?: string | undefined;
+    routes?: string[] | undefined;
+}>;
+export declare const NetworkLockRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["status", "enable", "disable", "add_key", "remove_key", "list_keys"]>;
+    publicKey: z.ZodOptional<z.ZodString>;
+    keyId: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    operation: "status" | "enable" | "disable" | "add_key" | "remove_key" | "list_keys";
+    publicKey?: string | undefined;
+    keyId?: string | undefined;
+}, {
+    operation: "status" | "enable" | "disable" | "add_key" | "remove_key" | "list_keys";
+    publicKey?: string | undefined;
+    keyId?: string | undefined;
+}>;
+export declare const SubnetRouterRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["list_routes", "advertise_routes", "accept_routes", "remove_routes"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    routes: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    operation: "list_routes" | "advertise_routes" | "accept_routes" | "remove_routes";
+    deviceId?: string | undefined;
+    routes?: string[] | undefined;
+}, {
+    operation: "list_routes" | "advertise_routes" | "accept_routes" | "remove_routes";
+    deviceId?: string | undefined;
+    routes?: string[] | undefined;
+}>;
+export declare const WebhookRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["list", "create", "delete", "test"]>;
+    webhookId: z.ZodOptional<z.ZodString>;
+    config: z.ZodOptional<z.ZodObject<{
+        endpointUrl: z.ZodString;
+        secret: z.ZodOptional<z.ZodString>;
+        events: z.ZodArray<z.ZodString, "many">;
+        description: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        endpointUrl: string;
+        events: string[];
+        description?: string | undefined;
+        secret?: string | undefined;
+    }, {
+        endpointUrl: string;
+        events: string[];
+        description?: string | undefined;
+        secret?: string | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "delete" | "create" | "list" | "test";
+    webhookId?: string | undefined;
+    config?: {
+        endpointUrl: string;
+        events: string[];
+        description?: string | undefined;
+        secret?: string | undefined;
+    } | undefined;
+}, {
+    operation: "delete" | "create" | "list" | "test";
+    webhookId?: string | undefined;
+    config?: {
+        endpointUrl: string;
+        events: string[];
+        description?: string | undefined;
+        secret?: string | undefined;
+    } | undefined;
+}>;
+export declare const PolicyFileRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get", "update", "test_access"]>;
+    policy: z.ZodOptional<z.ZodString>;
+    testRequest: z.ZodOptional<z.ZodObject<{
+        src: z.ZodString;
+        dst: z.ZodString;
+        proto: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        src: string;
+        dst: string;
+        proto?: string | undefined;
+    }, {
+        src: string;
+        dst: string;
+        proto?: string | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get" | "update" | "test_access";
+    policy?: string | undefined;
+    testRequest?: {
+        src: string;
+        dst: string;
+        proto?: string | undefined;
+    } | undefined;
+}, {
+    operation: "get" | "update" | "test_access";
+    policy?: string | undefined;
+    testRequest?: {
+        src: string;
+        dst: string;
+        proto?: string | undefined;
+    } | undefined;
+}>;
+export type FileSharingRequest = z.infer<typeof FileSharingRequestSchema>;
+export type ExitNodeRequest = z.infer<typeof ExitNodeRequestSchema>;
+export type NetworkLockRequest = z.infer<typeof NetworkLockRequestSchema>;
+export type SubnetRouterRequest = z.infer<typeof SubnetRouterRequestSchema>;
+export type WebhookRequest = z.infer<typeof WebhookRequestSchema>;
+export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
 export interface TailscaleAPIResponse<T> {
     success: boolean;
     data?: T;

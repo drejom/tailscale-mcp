@@ -396,6 +396,175 @@ export class TailscaleAPI {
             return this.handleError(error);
         }
     }
+    /**
+     * Get file sharing status for tailnet
+     */
+    async getFileSharingStatus() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/settings`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Set file sharing status for tailnet
+     */
+    async setFileSharingStatus(enabled) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/settings`, {
+                fileSharing: enabled
+            });
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Set device as exit node
+     */
+    async setDeviceExitNode(deviceId, routes) {
+        try {
+            const response = await this.client.post(`/device/${deviceId}/routes`, {
+                routes: routes
+            });
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get device routes (including exit node status)
+     */
+    async getDeviceRoutes(deviceId) {
+        try {
+            const response = await this.client.get(`/device/${deviceId}/routes`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get network lock status
+     */
+    async getNetworkLockStatus() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/network-lock`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Enable network lock
+     */
+    async enableNetworkLock() {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/network-lock`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Disable network lock
+     */
+    async disableNetworkLock() {
+        try {
+            const response = await this.client.delete(`/tailnet/${this.tailnet}/network-lock`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * List webhooks
+     */
+    async listWebhooks() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/webhooks`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Create webhook
+     */
+    async createWebhook(config) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/webhooks`, config);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Delete webhook
+     */
+    async deleteWebhook(webhookId) {
+        try {
+            const response = await this.client.delete(`/tailnet/${this.tailnet}/webhooks/${webhookId}`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Test webhook
+     */
+    async testWebhook(webhookId) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/webhooks/${webhookId}/test`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get policy file (ACL in HuJSON format)
+     */
+    async getPolicyFile() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/acl`, {
+                headers: {
+                    'Accept': 'application/hujson'
+                }
+            });
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Test ACL access
+     */
+    async testACLAccess(src, dst, proto) {
+        try {
+            const params = new URLSearchParams({
+                src,
+                dst,
+                ...(proto && { proto })
+            });
+            const response = await this.client.get(`/tailnet/${this.tailnet}/acl/test?${params}`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
 }
 // Export factory function for creating API instances
 export function createTailscaleAPI(config = {}) {

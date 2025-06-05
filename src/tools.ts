@@ -6,7 +6,13 @@ import {
   ACLRequestSchema,
   DNSRequestSchema,
   KeyManagementRequestSchema,
-  TailnetInfoRequestSchema
+  TailnetInfoRequestSchema,
+  FileSharingRequestSchema,
+  ExitNodeRequestSchema,
+  NetworkLockRequestSchema,
+  SubnetRouterRequestSchema,
+  WebhookRequestSchema,
+  PolicyFileRequestSchema
 } from './types.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { TailscaleAPI } from './tailscale-api.js';
@@ -822,6 +828,452 @@ ${validatedArgs.includeDetails ? `
       logger.error('Error getting tailnet info:', error);
       return {
         content: [{ type: 'text', text: `Error getting tailnet info: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Manage file sharing settings
+   */
+  async manageFileSharing(args: any): Promise<CallToolResult> {
+    try {
+      const validatedArgs = FileSharingRequestSchema.parse(args);
+      logger.info('Managing file sharing:', validatedArgs);
+
+      switch (validatedArgs.operation) {
+        case 'get_status': {
+          const result = await this.api.getFileSharingStatus();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to get file sharing status: ${result.error}` }],
+              isError: true
+            };
+          }
+          
+          return {
+            content: [{ 
+              type: 'text', 
+              text: `File Sharing Status: ${result.data?.fileSharing ? 'Enabled' : 'Disabled'}` 
+            }]
+          };
+        }
+
+        case 'enable': {
+          const result = await this.api.setFileSharingStatus(true);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to enable file sharing: ${result.error}` }],
+              isError: true
+            };
+          }
+          
+          return {
+            content: [{ type: 'text', text: 'File sharing enabled successfully' }]
+          };
+        }
+
+        case 'disable': {
+          const result = await this.api.setFileSharingStatus(false);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to disable file sharing: ${result.error}` }],
+              isError: true
+            };
+          }
+          
+          return {
+            content: [{ type: 'text', text: 'File sharing disabled successfully' }]
+          };
+        }
+
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid file sharing operation. Use: get_status, enable, or disable' }],
+            isError: true
+          };
+      }
+    } catch (error: any) {
+      logger.error('Error managing file sharing:', error);
+      return {
+        content: [{ type: 'text', text: `Error managing file sharing: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Manage exit nodes
+   */
+  async manageExitNodes(args: any): Promise<CallToolResult> {
+    try {
+      const validatedArgs = ExitNodeRequestSchema.parse(args);
+      logger.info('Managing exit nodes:', validatedArgs);
+
+      switch (validatedArgs.operation) {
+        case 'list': {
+          const devicesResult = await this.api.listDevices();
+          if (!devicesResult.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to list devices: ${devicesResult.error}` }],
+              isError: true
+            };
+          }
+
+          const devices = devicesResult.data || [];
+          const exitNodes = devices.filter((device: any) => 
+            device.advertisedRoutes?.includes('0.0.0.0/0') || 
+            device.advertisedRoutes?.includes('::/0')
+          );
+
+          if (exitNodes.length === 0) {
+            return {
+              content: [{ type: 'text', text: 'No exit nodes found in the network' }]
+            };
+          }
+
+          const exitNodeList = exitNodes.map((node: any) => {
+            return `**${node.name}** (${node.hostname})
+  - ID: ${node.id}
+  - OS: ${node.os}
+  - Routes: ${node.advertisedRoutes?.join(', ') || 'None'}
+  - Status: ${node.authorized ? 'Authorized' : 'Unauthorized'}`;
+          }).join('\n\n');
+
+          return {
+            content: [{ type: 'text', text: `Exit Nodes (${exitNodes.length}):\n\n${exitNodeList}` }]
+          };
+        }
+
+        case 'advertise': {
+          if (!validatedArgs.deviceId || !validatedArgs.routes) {
+            return {
+              content: [{ type: 'text', text: 'Device ID and routes are required for advertise operation' }],
+              isError: true
+            };
+          }
+
+          const result = await this.api.setDeviceExitNode(validatedArgs.deviceId, validatedArgs.routes);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to advertise exit node: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: `Device ${validatedArgs.deviceId} is now advertising routes: ${validatedArgs.routes.join(', ')}` }]
+          };
+        }
+
+        case 'set': {
+          const cliResult = await this.cli.setExitNode(validatedArgs.deviceId);
+          if (!cliResult.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to set exit node: ${cliResult.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: `Exit node set to: ${validatedArgs.deviceId || 'auto'}` }]
+          };
+        }
+
+        case 'clear': {
+          const cliResult = await this.cli.setExitNode();
+          if (!cliResult.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to clear exit node: ${cliResult.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: 'Exit node cleared successfully' }]
+          };
+        }
+
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid exit node operation. Use: list, set, clear, advertise' }],
+            isError: true
+          };
+      }
+    } catch (error: any) {
+      logger.error('Error managing exit nodes:', error);
+      return {
+        content: [{ type: 'text', text: `Error managing exit nodes: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Manage network lock (key authority)
+   */
+  async manageNetworkLock(args: any): Promise<CallToolResult> {
+    try {
+      const validatedArgs = NetworkLockRequestSchema.parse(args);
+      logger.info('Managing network lock:', validatedArgs);
+
+      switch (validatedArgs.operation) {
+        case 'status': {
+          const result = await this.api.getNetworkLockStatus();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to get network lock status: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          const status = result.data;
+          return {
+            content: [{ 
+              type: 'text', 
+              text: `Network Lock Status:
+  - Enabled: ${status?.enabled ? 'Yes' : 'No'}
+  - Node Key: ${status?.nodeKey || 'Not available'}
+  - Trusted Keys: ${status?.trustedKeys?.length || 0}`
+            }]
+          };
+        }
+
+        case 'enable': {
+          const result = await this.api.enableNetworkLock();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to enable network lock: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ 
+              type: 'text', 
+              text: `Network lock enabled successfully. Key: ${result.data?.key || 'Generated'}`
+            }]
+          };
+        }
+
+        case 'disable': {
+          const result = await this.api.disableNetworkLock();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to disable network lock: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: 'Network lock disabled successfully' }]
+          };
+        }
+
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid network lock operation. Use: status, enable, or disable' }],
+            isError: true
+          };
+      }
+    } catch (error: any) {
+      logger.error('Error managing network lock:', error);
+      return {
+        content: [{ type: 'text', text: `Error managing network lock: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Manage webhooks
+   */
+  async manageWebhooks(args: any): Promise<CallToolResult> {
+    try {
+      const validatedArgs = WebhookRequestSchema.parse(args);
+      logger.info('Managing webhooks:', validatedArgs);
+
+      switch (validatedArgs.operation) {
+        case 'list': {
+          const result = await this.api.listWebhooks();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to list webhooks: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          const webhooks = result.data?.webhooks || [];
+          if (webhooks.length === 0) {
+            return {
+              content: [{ type: 'text', text: 'No webhooks configured' }]
+            };
+          }
+
+          const webhookList = webhooks.map((webhook: any, index: number) => {
+            return `**Webhook ${index + 1}**
+  - ID: ${webhook.id}
+  - URL: ${webhook.endpointUrl}
+  - Events: ${webhook.events?.join(', ') || 'None'}
+  - Description: ${webhook.description || 'No description'}
+  - Created: ${webhook.created}`;
+          }).join('\n\n');
+
+          return {
+            content: [{ type: 'text', text: `Found ${webhooks.length} webhooks:\n\n${webhookList}` }]
+          };
+        }
+
+        case 'create': {
+          if (!validatedArgs.config) {
+            return {
+              content: [{ type: 'text', text: 'Webhook configuration is required for create operation' }],
+              isError: true
+            };
+          }
+
+          const result = await this.api.createWebhook(validatedArgs.config);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to create webhook: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ 
+              type: 'text', 
+              text: `Webhook created successfully:
+  - ID: ${result.data?.id}
+  - URL: ${result.data?.endpointUrl}
+  - Events: ${result.data?.events?.join(', ')}`
+            }]
+          };
+        }
+
+        case 'delete': {
+          if (!validatedArgs.webhookId) {
+            return {
+              content: [{ type: 'text', text: 'Webhook ID is required for delete operation' }],
+              isError: true
+            };
+          }
+
+          const result = await this.api.deleteWebhook(validatedArgs.webhookId);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to delete webhook: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: `Webhook ${validatedArgs.webhookId} deleted successfully` }]
+          };
+        }
+
+        case 'test': {
+          if (!validatedArgs.webhookId) {
+            return {
+              content: [{ type: 'text', text: 'Webhook ID is required for test operation' }],
+              isError: true
+            };
+          }
+
+          const result = await this.api.testWebhook(validatedArgs.webhookId);
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to test webhook: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: `Webhook test successful. Response: ${JSON.stringify(result.data, null, 2)}` }]
+          };
+        }
+
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid webhook operation. Use: list, create, delete, or test' }],
+            isError: true
+          };
+      }
+    } catch (error: any) {
+      logger.error('Error managing webhooks:', error);
+      return {
+        content: [{ type: 'text', text: `Error managing webhooks: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Manage policy files and ACL testing
+   */
+  async managePolicyFile(args: any): Promise<CallToolResult> {
+    try {
+      const validatedArgs = PolicyFileRequestSchema.parse(args);
+      logger.info('Managing policy file:', validatedArgs);
+
+      switch (validatedArgs.operation) {
+        case 'get': {
+          const result = await this.api.getPolicyFile();
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to get policy file: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          return {
+            content: [{ type: 'text', text: `Policy File (HuJSON format):\n\n${result.data}` }]
+          };
+        }
+
+        case 'test_access': {
+          if (!validatedArgs.testRequest) {
+            return {
+              content: [{ type: 'text', text: 'Test request parameters are required for test_access operation' }],
+              isError: true
+            };
+          }
+
+          const { src, dst, proto } = validatedArgs.testRequest;
+          const result = await this.api.testACLAccess(src, dst, proto);
+          
+          if (!result.success) {
+            return {
+              content: [{ type: 'text', text: `Failed to test ACL access: ${result.error}` }],
+              isError: true
+            };
+          }
+
+          const testResult = result.data;
+          return {
+            content: [{ 
+              type: 'text', 
+              text: `ACL Access Test Result:
+  - Source: ${src}
+  - Destination: ${dst}
+  - Protocol: ${proto || 'any'}
+  - Result: ${testResult?.allowed ? 'ALLOWED' : 'DENIED'}
+  - Rule: ${testResult?.rule || 'No matching rule'}
+  - Match: ${testResult?.match || 'N/A'}`
+            }]
+          };
+        }
+
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid policy operation. Use: get or test_access' }],
+            isError: true
+          };
+      }
+    } catch (error: any) {
+      logger.error('Error managing policy file:', error);
+      return {
+        content: [{ type: 'text', text: `Error managing policy file: ${error.message}` }],
         isError: true
       };
     }

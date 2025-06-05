@@ -113,6 +113,62 @@ export declare class TailscaleAPI {
      * Get detailed tailnet information
      */
     getDetailedTailnetInfo(): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get file sharing status for tailnet
+     */
+    getFileSharingStatus(): Promise<TailscaleAPIResponse<{
+        fileSharing: boolean;
+    }>>;
+    /**
+     * Set file sharing status for tailnet
+     */
+    setFileSharingStatus(enabled: boolean): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Set device as exit node
+     */
+    setDeviceExitNode(deviceId: string, routes: string[]): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Get device routes (including exit node status)
+     */
+    getDeviceRoutes(deviceId: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get network lock status
+     */
+    getNetworkLockStatus(): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Enable network lock
+     */
+    enableNetworkLock(): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Disable network lock
+     */
+    disableNetworkLock(): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * List webhooks
+     */
+    listWebhooks(): Promise<TailscaleAPIResponse<{
+        webhooks: any[];
+    }>>;
+    /**
+     * Create webhook
+     */
+    createWebhook(config: any): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Delete webhook
+     */
+    deleteWebhook(webhookId: string): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Test webhook
+     */
+    testWebhook(webhookId: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get policy file (ACL in HuJSON format)
+     */
+    getPolicyFile(): Promise<TailscaleAPIResponse<string>>;
+    /**
+     * Test ACL access
+     */
+    testACLAccess(src: string, dst: string, proto?: string): Promise<TailscaleAPIResponse<any>>;
 }
 export declare function createTailscaleAPI(config?: TailscaleConfig): TailscaleAPI;
 //# sourceMappingURL=tailscale-api.d.ts.map
