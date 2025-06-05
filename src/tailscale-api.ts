@@ -251,6 +251,176 @@ export class TailscaleAPI {
       return this.handleError(error);
     }
   }
+
+  /**
+   * Get ACL configuration
+   */
+  async getACL(): Promise<TailscaleAPIResponse<string>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}/acl`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Update ACL configuration
+   */
+  async updateACL(aclConfig: string): Promise<TailscaleAPIResponse<void>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/acl`, aclConfig, {
+        headers: {
+          'Content-Type': 'application/hujson'
+        }
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Validate ACL configuration
+   */
+  async validateACL(aclConfig: string): Promise<TailscaleAPIResponse<any>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/acl/validate`, aclConfig, {
+        headers: {
+          'Content-Type': 'application/hujson'
+        }
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Get DNS nameservers
+   */
+  async getDNSNameservers(): Promise<TailscaleAPIResponse<{ dns: string[] }>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}/dns/nameservers`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Set DNS nameservers
+   */
+  async setDNSNameservers(nameservers: string[]): Promise<TailscaleAPIResponse<void>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/dns/nameservers`, {
+        dns: nameservers
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Get DNS preferences
+   */
+  async getDNSPreferences(): Promise<TailscaleAPIResponse<{ magicDNS: boolean }>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}/dns/preferences`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Set DNS preferences
+   */
+  async setDNSPreferences(magicDNS: boolean): Promise<TailscaleAPIResponse<void>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/dns/preferences`, {
+        magicDNS
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Get DNS search paths
+   */
+  async getDNSSearchPaths(): Promise<TailscaleAPIResponse<{ searchPaths: string[] }>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}/dns/searchpaths`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Set DNS search paths
+   */
+  async setDNSSearchPaths(searchPaths: string[]): Promise<TailscaleAPIResponse<void>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/dns/searchpaths`, {
+        searchPaths
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * List auth keys
+   */
+  async listAuthKeys(): Promise<TailscaleAPIResponse<{ keys: any[] }>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}/keys`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Create auth key
+   */
+  async createAuthKey(keyConfig: any): Promise<TailscaleAPIResponse<any>> {
+    try {
+      const response = await this.client.post(`/tailnet/${this.tailnet}/keys`, keyConfig);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Delete auth key
+   */
+  async deleteAuthKey(keyId: string): Promise<TailscaleAPIResponse<void>> {
+    try {
+      const response = await this.client.delete(`/tailnet/${this.tailnet}/keys/${keyId}`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Get detailed tailnet information
+   */
+  async getDetailedTailnetInfo(): Promise<TailscaleAPIResponse<any>> {
+    try {
+      const response = await this.client.get(`/tailnet/${this.tailnet}`);
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
 }
 
 // Export factory function for creating API instances

@@ -37,5 +37,21 @@ export declare class TailscaleTools {
      * Get Tailscale version
      */
     getVersion(): Promise<CallToolResult>;
+    /**
+     * Manage ACL configuration
+     */
+    manageACL(args: any): Promise<CallToolResult>;
+    /**
+     * Manage DNS configuration
+     */
+    manageDNS(args: any): Promise<CallToolResult>;
+    /**
+     * Manage authentication keys
+     */
+    manageKeys(args: any): Promise<CallToolResult>;
+    /**
+     * Get detailed tailnet information
+     */
+    getTailnetInfo(args: any): Promise<CallToolResult>;
 }
 //# sourceMappingURL=tools.d.ts.map

@@ -115,6 +115,105 @@ export type DeviceActionRequest = z.infer<typeof DeviceActionRequestSchema>;
 export type NetworkStatusRequest = z.infer<typeof NetworkStatusRequestSchema>;
 export type RouteActionRequest = z.infer<typeof RouteActionRequestSchema>;
 
+// ACL Types
+export const ACLRuleSchema = z.object({
+  action: z.enum(['accept', 'drop']),
+  src: z.array(z.string()),
+  dst: z.array(z.string()),
+  proto: z.string().optional()
+});
+
+export const ACLConfigSchema = z.object({
+  groups: z.record(z.array(z.string())).optional(),
+  tagOwners: z.record(z.array(z.string())).optional(),
+  acls: z.array(ACLRuleSchema),
+  tests: z.array(z.any()).optional(),
+  ssh: z.array(z.any()).optional()
+});
+
+// DNS Types
+export const DNSConfigSchema = z.object({
+  dns: z.array(z.string()),
+  magicDNS: z.boolean().optional(),
+  nameservers: z.object({
+    global: z.array(z.string()).optional(),
+    restricted: z.record(z.array(z.string())).optional()
+  }).optional()
+});
+
+export const SearchPathSchema = z.object({
+  searchPaths: z.array(z.string())
+});
+
+// Key Management Types
+export const AuthKeySchema = z.object({
+  id: z.string(),
+  key: z.string(),
+  description: z.string().optional(),
+  created: z.string(),
+  expires: z.string(),
+  revoked: z.boolean(),
+  capabilities: z.object({
+    devices: z.object({
+      create: z.object({
+        reusable: z.boolean(),
+        ephemeral: z.boolean(),
+        preauthorized: z.boolean(),
+        tags: z.array(z.string()).optional()
+      })
+    })
+  })
+});
+
+export const CreateAuthKeyRequestSchema = z.object({
+  capabilities: z.object({
+    devices: z.object({
+      create: z.object({
+        reusable: z.boolean().optional(),
+        ephemeral: z.boolean().optional(),
+        preauthorized: z.boolean().optional(),
+        tags: z.array(z.string()).optional()
+      })
+    })
+  }),
+  expirySeconds: z.number().optional(),
+  description: z.string().optional()
+});
+
+// Request schemas for new tools
+export const ACLRequestSchema = z.object({
+  operation: z.enum(['get', 'update', 'validate']),
+  aclConfig: ACLConfigSchema.optional()
+});
+
+export const DNSRequestSchema = z.object({
+  operation: z.enum(['get_nameservers', 'set_nameservers', 'get_preferences', 'set_preferences', 'get_searchpaths', 'set_searchpaths']),
+  nameservers: z.array(z.string()).optional(),
+  magicDNS: z.boolean().optional(),
+  searchPaths: z.array(z.string()).optional()
+});
+
+export const KeyManagementRequestSchema = z.object({
+  operation: z.enum(['list', 'create', 'delete']),
+  keyId: z.string().optional(),
+  keyConfig: CreateAuthKeyRequestSchema.optional()
+});
+
+export const TailnetInfoRequestSchema = z.object({
+  includeDetails: z.boolean().optional()
+});
+
+export type ACLRule = z.infer<typeof ACLRuleSchema>;
+export type ACLConfig = z.infer<typeof ACLConfigSchema>;
+export type DNSConfig = z.infer<typeof DNSConfigSchema>;
+export type SearchPath = z.infer<typeof SearchPathSchema>;
+export type AuthKey = z.infer<typeof AuthKeySchema>;
+export type CreateAuthKeyRequest = z.infer<typeof CreateAuthKeyRequestSchema>;
+export type ACLRequest = z.infer<typeof ACLRequestSchema>;
+export type DNSRequest = z.infer<typeof DNSRequestSchema>;
+export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
+export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
+
 // API Response types
 export interface TailscaleAPIResponse<T> {
   success: boolean;

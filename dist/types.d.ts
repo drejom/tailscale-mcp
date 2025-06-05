@@ -811,6 +811,505 @@ export type ListDevicesRequest = z.infer<typeof ListDevicesRequestSchema>;
 export type DeviceActionRequest = z.infer<typeof DeviceActionRequestSchema>;
 export type NetworkStatusRequest = z.infer<typeof NetworkStatusRequestSchema>;
 export type RouteActionRequest = z.infer<typeof RouteActionRequestSchema>;
+export declare const ACLRuleSchema: z.ZodObject<{
+    action: z.ZodEnum<["accept", "drop"]>;
+    src: z.ZodArray<z.ZodString, "many">;
+    dst: z.ZodArray<z.ZodString, "many">;
+    proto: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    action: "accept" | "drop";
+    src: string[];
+    dst: string[];
+    proto?: string | undefined;
+}, {
+    action: "accept" | "drop";
+    src: string[];
+    dst: string[];
+    proto?: string | undefined;
+}>;
+export declare const ACLConfigSchema: z.ZodObject<{
+    groups: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    tagOwners: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    acls: z.ZodArray<z.ZodObject<{
+        action: z.ZodEnum<["accept", "drop"]>;
+        src: z.ZodArray<z.ZodString, "many">;
+        dst: z.ZodArray<z.ZodString, "many">;
+        proto: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        action: "accept" | "drop";
+        src: string[];
+        dst: string[];
+        proto?: string | undefined;
+    }, {
+        action: "accept" | "drop";
+        src: string[];
+        dst: string[];
+        proto?: string | undefined;
+    }>, "many">;
+    tests: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+    ssh: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+}, "strip", z.ZodTypeAny, {
+    acls: {
+        action: "accept" | "drop";
+        src: string[];
+        dst: string[];
+        proto?: string | undefined;
+    }[];
+    groups?: Record<string, string[]> | undefined;
+    tagOwners?: Record<string, string[]> | undefined;
+    tests?: any[] | undefined;
+    ssh?: any[] | undefined;
+}, {
+    acls: {
+        action: "accept" | "drop";
+        src: string[];
+        dst: string[];
+        proto?: string | undefined;
+    }[];
+    groups?: Record<string, string[]> | undefined;
+    tagOwners?: Record<string, string[]> | undefined;
+    tests?: any[] | undefined;
+    ssh?: any[] | undefined;
+}>;
+export declare const DNSConfigSchema: z.ZodObject<{
+    dns: z.ZodArray<z.ZodString, "many">;
+    magicDNS: z.ZodOptional<z.ZodBoolean>;
+    nameservers: z.ZodOptional<z.ZodObject<{
+        global: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        restricted: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    }, "strip", z.ZodTypeAny, {
+        global?: string[] | undefined;
+        restricted?: Record<string, string[]> | undefined;
+    }, {
+        global?: string[] | undefined;
+        restricted?: Record<string, string[]> | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    dns: string[];
+    magicDNS?: boolean | undefined;
+    nameservers?: {
+        global?: string[] | undefined;
+        restricted?: Record<string, string[]> | undefined;
+    } | undefined;
+}, {
+    dns: string[];
+    magicDNS?: boolean | undefined;
+    nameservers?: {
+        global?: string[] | undefined;
+        restricted?: Record<string, string[]> | undefined;
+    } | undefined;
+}>;
+export declare const SearchPathSchema: z.ZodObject<{
+    searchPaths: z.ZodArray<z.ZodString, "many">;
+}, "strip", z.ZodTypeAny, {
+    searchPaths: string[];
+}, {
+    searchPaths: string[];
+}>;
+export declare const AuthKeySchema: z.ZodObject<{
+    id: z.ZodString;
+    key: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    created: z.ZodString;
+    expires: z.ZodString;
+    revoked: z.ZodBoolean;
+    capabilities: z.ZodObject<{
+        devices: z.ZodObject<{
+            create: z.ZodObject<{
+                reusable: z.ZodBoolean;
+                ephemeral: z.ZodBoolean;
+                preauthorized: z.ZodBoolean;
+                tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            }, "strip", z.ZodTypeAny, {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            }, {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        }, {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        devices: {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        };
+    }, {
+        devices: {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        };
+    }>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    created: string;
+    expires: string;
+    capabilities: {
+        devices: {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        };
+    };
+    key: string;
+    revoked: boolean;
+    description?: string | undefined;
+}, {
+    id: string;
+    created: string;
+    expires: string;
+    capabilities: {
+        devices: {
+            create: {
+                reusable: boolean;
+                ephemeral: boolean;
+                preauthorized: boolean;
+                tags?: string[] | undefined;
+            };
+        };
+    };
+    key: string;
+    revoked: boolean;
+    description?: string | undefined;
+}>;
+export declare const CreateAuthKeyRequestSchema: z.ZodObject<{
+    capabilities: z.ZodObject<{
+        devices: z.ZodObject<{
+            create: z.ZodObject<{
+                reusable: z.ZodOptional<z.ZodBoolean>;
+                ephemeral: z.ZodOptional<z.ZodBoolean>;
+                preauthorized: z.ZodOptional<z.ZodBoolean>;
+                tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            }, "strip", z.ZodTypeAny, {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            }, {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        }, {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        devices: {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        };
+    }, {
+        devices: {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        };
+    }>;
+    expirySeconds: z.ZodOptional<z.ZodNumber>;
+    description: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    capabilities: {
+        devices: {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        };
+    };
+    description?: string | undefined;
+    expirySeconds?: number | undefined;
+}, {
+    capabilities: {
+        devices: {
+            create: {
+                tags?: string[] | undefined;
+                reusable?: boolean | undefined;
+                ephemeral?: boolean | undefined;
+                preauthorized?: boolean | undefined;
+            };
+        };
+    };
+    description?: string | undefined;
+    expirySeconds?: number | undefined;
+}>;
+export declare const ACLRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get", "update", "validate"]>;
+    aclConfig: z.ZodOptional<z.ZodObject<{
+        groups: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+        tagOwners: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+        acls: z.ZodArray<z.ZodObject<{
+            action: z.ZodEnum<["accept", "drop"]>;
+            src: z.ZodArray<z.ZodString, "many">;
+            dst: z.ZodArray<z.ZodString, "many">;
+            proto: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }, {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }>, "many">;
+        tests: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+        ssh: z.ZodOptional<z.ZodArray<z.ZodAny, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        acls: {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }[];
+        groups?: Record<string, string[]> | undefined;
+        tagOwners?: Record<string, string[]> | undefined;
+        tests?: any[] | undefined;
+        ssh?: any[] | undefined;
+    }, {
+        acls: {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }[];
+        groups?: Record<string, string[]> | undefined;
+        tagOwners?: Record<string, string[]> | undefined;
+        tests?: any[] | undefined;
+        ssh?: any[] | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get" | "update" | "validate";
+    aclConfig?: {
+        acls: {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }[];
+        groups?: Record<string, string[]> | undefined;
+        tagOwners?: Record<string, string[]> | undefined;
+        tests?: any[] | undefined;
+        ssh?: any[] | undefined;
+    } | undefined;
+}, {
+    operation: "get" | "update" | "validate";
+    aclConfig?: {
+        acls: {
+            action: "accept" | "drop";
+            src: string[];
+            dst: string[];
+            proto?: string | undefined;
+        }[];
+        groups?: Record<string, string[]> | undefined;
+        tagOwners?: Record<string, string[]> | undefined;
+        tests?: any[] | undefined;
+        ssh?: any[] | undefined;
+    } | undefined;
+}>;
+export declare const DNSRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_nameservers", "set_nameservers", "get_preferences", "set_preferences", "get_searchpaths", "set_searchpaths"]>;
+    nameservers: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    magicDNS: z.ZodOptional<z.ZodBoolean>;
+    searchPaths: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get_nameservers" | "set_nameservers" | "get_preferences" | "set_preferences" | "get_searchpaths" | "set_searchpaths";
+    magicDNS?: boolean | undefined;
+    nameservers?: string[] | undefined;
+    searchPaths?: string[] | undefined;
+}, {
+    operation: "get_nameservers" | "set_nameservers" | "get_preferences" | "set_preferences" | "get_searchpaths" | "set_searchpaths";
+    magicDNS?: boolean | undefined;
+    nameservers?: string[] | undefined;
+    searchPaths?: string[] | undefined;
+}>;
+export declare const KeyManagementRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["list", "create", "delete"]>;
+    keyId: z.ZodOptional<z.ZodString>;
+    keyConfig: z.ZodOptional<z.ZodObject<{
+        capabilities: z.ZodObject<{
+            devices: z.ZodObject<{
+                create: z.ZodObject<{
+                    reusable: z.ZodOptional<z.ZodBoolean>;
+                    ephemeral: z.ZodOptional<z.ZodBoolean>;
+                    preauthorized: z.ZodOptional<z.ZodBoolean>;
+                    tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+                }, "strip", z.ZodTypeAny, {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                }, {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                }>;
+            }, "strip", z.ZodTypeAny, {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            }, {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            }>;
+        }, "strip", z.ZodTypeAny, {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        }, {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        }>;
+        expirySeconds: z.ZodOptional<z.ZodNumber>;
+        description: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        capabilities: {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        };
+        description?: string | undefined;
+        expirySeconds?: number | undefined;
+    }, {
+        capabilities: {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        };
+        description?: string | undefined;
+        expirySeconds?: number | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "delete" | "create" | "list";
+    keyId?: string | undefined;
+    keyConfig?: {
+        capabilities: {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        };
+        description?: string | undefined;
+        expirySeconds?: number | undefined;
+    } | undefined;
+}, {
+    operation: "delete" | "create" | "list";
+    keyId?: string | undefined;
+    keyConfig?: {
+        capabilities: {
+            devices: {
+                create: {
+                    tags?: string[] | undefined;
+                    reusable?: boolean | undefined;
+                    ephemeral?: boolean | undefined;
+                    preauthorized?: boolean | undefined;
+                };
+            };
+        };
+        description?: string | undefined;
+        expirySeconds?: number | undefined;
+    } | undefined;
+}>;
+export declare const TailnetInfoRequestSchema: z.ZodObject<{
+    includeDetails: z.ZodOptional<z.ZodBoolean>;
+}, "strip", z.ZodTypeAny, {
+    includeDetails?: boolean | undefined;
+}, {
+    includeDetails?: boolean | undefined;
+}>;
+export type ACLRule = z.infer<typeof ACLRuleSchema>;
+export type ACLConfig = z.infer<typeof ACLConfigSchema>;
+export type DNSConfig = z.infer<typeof DNSConfigSchema>;
+export type SearchPath = z.infer<typeof SearchPathSchema>;
+export type AuthKey = z.infer<typeof AuthKeySchema>;
+export type CreateAuthKeyRequest = z.infer<typeof CreateAuthKeyRequestSchema>;
+export type ACLRequest = z.infer<typeof ACLRequestSchema>;
+export type DNSRequest = z.infer<typeof DNSRequestSchema>;
+export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
+export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
 export interface TailscaleAPIResponse<T> {
     success: boolean;
     data?: T;
