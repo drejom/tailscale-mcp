@@ -4,8 +4,8 @@ import {
   TailscaleCLIStatus,
   TailscaleCLIStatusSchema,
   CLIResponse,
-} from "./types.js";
-import { logger } from "./logger.js";
+} from "../types.js";
+import { logger } from "../logger.js";
 
 const execAsync = promisify(exec);
 
@@ -92,8 +92,8 @@ export class TailscaleCLI {
       };
     }
 
-    const peers = statusResult.data!.Peer
-      ? Object.values(statusResult.data!.Peer).map((peer: any) => peer.HostName)
+    const peers = statusResult.data?.Peer
+      ? Object.values(statusResult.data.Peer).map((p: any) => p.HostName)
       : [];
 
     return {

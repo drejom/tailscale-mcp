@@ -1,309 +1,390 @@
-# Tailscale MCP Server
+# 🌐 Tailscale MCP Server
 
-A Model Context Protocol (MCP) server that provides seamless integration with Tailscale's CLI commands and REST API, enabling automated network management and monitoring through a standardized interface.
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Tailscale](https://img.shields.io/badge/Tailscale-000000?style=for-the-badge&logo=tailscale&logoColor=white)](https://tailscale.com/)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-blue?style=for-the-badge)](https://modelcontextprotocol.io/)
 
-## Features
+A powerful **Model Context Protocol (MCP) server** that provides seamless integration with Tailscale's CLI commands and REST API. Manage your entire Tailscale network programmatically through a standardized interface with full type safety and comprehensive error handling.
 
-- **MCP Server Implementation**: Full compliance with the Model Context Protocol specification
-- **Tailscale CLI Integration**: Execute Tailscale CLI commands programmatically
-- **REST API Integration**: Manage devices and network settings via Tailscale's API
-- **Comprehensive Tool Set**: 8 tools covering common network operations
-- **Error Handling**: Robust error handling with detailed debugging information
-- **TypeScript**: Full type safety with Zod validation
-- **Logging**: Structured logging with configurable levels
+## ✨ Features
 
-## Available Tools
+- 🔌 **Full MCP Compliance**: Complete Model Context Protocol implementation
+- 🛠️ **Dual Integration**: Both Tailscale CLI and REST API support
+- 🎯 **25+ Tools**: Comprehensive network management capabilities
+- 🔒 **Enterprise Ready**: Advanced features like network lock, ACLs, and device posture
+- 🛡️ **Type Safe**: Full TypeScript implementation with Zod validation
+- 📊 **Rich Monitoring**: Network statistics, audit logs, and real-time status
+- 🔄 **Auto-Discovery**: Intelligent device and network discovery
+- 📝 **Structured Logging**: Configurable logging with detailed debugging
 
-### Device Management
-- **`list_devices`**: List all devices in the Tailscale network with optional route information
-- **`device_action`**: Authorize, deauthorize, delete, or expire keys for devices
-- **`manage_routes`**: Enable or disable subnet routes for specific devices
+## 🚀 Quick Start
 
-### Network Operations
-- **`get_network_status`**: Get comprehensive network status (JSON or summary format)
-- **`connect_network`**: Connect to Tailscale with configurable options
-- **`disconnect_network`**: Disconnect from the Tailscale network
-- **`ping_peer`**: Ping other devices in the network
-- **`get_version`**: Get Tailscale version information
+### Prerequisites
 
-## Prerequisites
+1. **Tailscale CLI** installed and authenticated:
 
-1. **Tailscale CLI**: Install the Tailscale CLI tool on your system
    ```bash
    # macOS
    brew install tailscale
-   
+
    # Ubuntu/Debian
    curl -fsSL https://tailscale.com/install.sh | sh
-   
-   # Windows
-   # Download from https://tailscale.com/download
+
+   # Windows - Download from https://tailscale.com/download
    ```
 
-2. **Tailscale API Key** (Optional for API operations):
-   - Generate an API key from [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys)
-   - Set the environment variable: `export TAILSCALE_API_KEY=your_api_key_here`
+2. **Node.js 18+** with ES module support
 
-3. **Node.js**: Requires Node.js 18+ with ES module support
+3. **Tailscale API Key** (optional, for advanced features):
 
-## Installation
-
-1. Clone or download the project
-2. Install dependencies:
    ```bash
-   npm install
+   export TAILSCALE_API_KEY="tskey-api-xxxxxxxxx"
    ```
 
-3. Build the TypeScript code:
-   ```bash
-   npx tsc
-   ```
+### Installation & Setup
 
-## Usage
-
-### Starting the MCP Server
-
-The server can be started in two ways:
-
-#### Method 1: Direct execution
 ```bash
-node dist/index.js
+# Clone the repository
+git clone <repository-url>
+cd tailscale-mcp
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Start the MCP server
+npm start
 ```
 
-#### Method 2: Using npm scripts (if available)
+### Development Mode
+
 ```bash
-npm run build && npm start
+# Start with auto-rebuild on file changes
+npm run dev:watch
+
+# Or build once and run
+npm run dev
 ```
 
-### Configuration
+## 🔧 MCP Client Integration
 
-#### Environment Variables
+### Claude Desktop Configuration
 
-- `TAILSCALE_API_KEY`: Your Tailscale API key for device management operations
-- `TAILSCALE_TAILNET`: Your tailnet name (defaults to 'default')
-- `LOG_LEVEL`: Logging level (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR)
-
-#### Example Configuration
-```bash
-export TAILSCALE_API_KEY="tskey-api-xxxxxxxxx"
-export TAILSCALE_TAILNET="mytailnet.com"
-export LOG_LEVEL=1
-node dist/index.js
-```
-
-## MCP Client Integration
-
-This server implements the Model Context Protocol and can be used with any MCP-compatible client. The server communicates via stdio and provides tools for Tailscale network management.
-
-### Example MCP Client Configuration
+Add to your Claude Desktop MCP configuration (`~/.config/claude-desktop/mcp.json`):
 
 ```json
 {
   "mcpServers": {
     "tailscale": {
       "command": "node",
-      "args": ["/path/to/tailscale-mcp-server/dist/index.js"],
+      "args": ["dist/index.js"],
+      "cwd": "/path/to/tailscale-mcp",
       "env": {
-        "TAILSCALE_API_KEY": "your_api_key_here"
+        "TAILSCALE_API_KEY": "your_api_key_here",
+        "LOG_LEVEL": "1"
       }
     }
   }
 }
 ```
 
-## Tool Reference
+### VS Code/Cursor Integration
 
-### Device Management Tools
+For development environments, you can integrate through:
 
-#### `list_devices`
-Lists all devices in your Tailscale network.
+- GitHub Copilot with MCP support
+- Custom MCP client implementations
+- Direct stdio communication
 
-**Parameters:**
-- `includeRoutes` (boolean, optional): Include subnet route information
+## 🛠️ Available Tools
 
-**Example:**
-```json
-{
-  "name": "list_devices",
-  "arguments": {
-    "includeRoutes": true
-  }
-}
-```
+### 📱 Device Management
 
-#### `device_action`
-Perform management actions on specific devices.
+| Tool                    | Description              | Key Features                                |
+| ----------------------- | ------------------------ | ------------------------------------------- |
+| `list_devices`          | List all network devices | Route info, online status, device details   |
+| `device_action`         | Manage device lifecycle  | Authorize, deauthorize, delete, expire keys |
+| `manage_routes`         | Control subnet routing   | Enable/disable routes, CIDR management      |
+| `manage_device_tags`    | Organize with tags       | Tag-based organization and ACL targeting    |
+| `manage_device_posture` | Device compliance        | OS version checks, software requirements    |
 
-**Parameters:**
-- `deviceId` (string, required): The device ID
-- `action` (string, required): One of "authorize", "deauthorize", "delete", "expire-key"
+### 🌐 Network Operations
 
-**Example:**
-```json
-{
-  "name": "device_action",
-  "arguments": {
-    "deviceId": "device-123",
-    "action": "authorize"
-  }
-}
-```
+| Tool                 | Description                  | Key Features                             |
+| -------------------- | ---------------------------- | ---------------------------------------- |
+| `get_network_status` | Real-time network status     | JSON/summary formats, peer information   |
+| `connect_network`    | Network connection           | Custom options, route advertising        |
+| `disconnect_network` | Network disconnection        | Graceful shutdown                        |
+| `ping_peer`          | Network connectivity testing | Latency testing, connection verification |
+| `get_version`        | Version information          | CLI and daemon versions                  |
 
-#### `manage_routes`
-Enable or disable subnet routes for devices.
+### 🚪 Exit Node & Routing
 
-**Parameters:**
-- `deviceId` (string, required): The device ID
-- `routes` (array, required): Array of CIDR routes
-- `action` (string, required): "enable" or "disable"
+| Tool                | Description          | Key Features                         |
+| ------------------- | -------------------- | ------------------------------------ |
+| `manage_exit_nodes` | Exit node management | Set, clear, advertise routes         |
+| `get_tailnet_info`  | Network information  | Detailed configuration, capabilities |
 
-**Example:**
-```json
-{
-  "name": "manage_routes",
-  "arguments": {
-    "deviceId": "device-123",
-    "routes": ["10.0.1.0/24", "192.168.1.0/24"],
-    "action": "enable"
-  }
-}
-```
+### 🔐 Security & Access Control
 
-### Network Operations
+| Tool                  | Description          | Key Features                     |
+| --------------------- | -------------------- | -------------------------------- |
+| `manage_acl`          | Access Control Lists | Rule management, validation      |
+| `manage_network_lock` | Network security     | Key authority, enhanced security |
+| `manage_policy_file`  | Policy management    | HuJSON policies, access testing  |
+| `manage_ssh`          | SSH configuration    | Remote access settings           |
 
-#### `get_network_status`
-Get current network status from Tailscale CLI.
+### 🔑 Authentication & Keys
 
-**Parameters:**
-- `format` (string, optional): "json" or "summary" (default: "json")
+| Tool           | Description        | Key Features                       |
+| -------------- | ------------------ | ---------------------------------- |
+| `manage_keys`  | API key management | Create, list, delete auth keys     |
+| `manage_users` | User management    | Roles, permissions, user lifecycle |
 
-**Example:**
-```json
+### 🌍 DNS & Networking
+
+| Tool                  | Description           | Key Features                        |
+| --------------------- | --------------------- | ----------------------------------- |
+| `manage_dns`          | DNS configuration     | MagicDNS, nameservers, search paths |
+| `manage_file_sharing` | File sharing settings | Enable/disable file sharing         |
+
+### 📊 Monitoring & Analytics
+
+| Tool                | Description           | Key Features                          |
+| ------------------- | --------------------- | ------------------------------------- |
+| `get_network_stats` | Network statistics    | Traffic analysis, performance metrics |
+| `manage_logging`    | Logging configuration | Audit logs, log levels                |
+| `manage_webhooks`   | Event notifications   | Webhook management, event streaming   |
+
+## 💡 Usage Examples
+
+### Basic Network Status
+
+```typescript
+// Get comprehensive network overview
 {
   "name": "get_network_status",
-  "arguments": {
-    "format": "summary"
-  }
+  "arguments": { "format": "summary" }
 }
 ```
 
-#### `connect_network`
-Connect to the Tailscale network with options.
+### Device Management
 
-**Parameters:**
-- `acceptRoutes` (boolean, optional): Accept subnet routes
-- `acceptDNS` (boolean, optional): Accept DNS configuration
-- `hostname` (string, optional): Custom hostname
-- `advertiseRoutes` (array, optional): Routes to advertise
-- `authKey` (string, optional): Authentication key
-- `loginServer` (string, optional): Custom coordination server
-
-**Example:**
-```json
+```typescript
+// List all devices with route information
 {
-  "name": "connect_network",
-  "arguments": {
-    "acceptRoutes": true,
-    "acceptDNS": true,
-    "advertiseRoutes": ["10.0.1.0/24"]
-  }
+  "name": "list_devices",
+  "arguments": { "includeRoutes": true }
 }
-```
 
-#### `disconnect_network`
-Disconnect from the Tailscale network.
-
-**Parameters:** None
-
-#### `ping_peer`
-Ping another device in the network.
-
-**Parameters:**
-- `target` (string, required): Hostname or IP address
-- `count` (number, optional): Number of packets (default: 4)
-
-**Example:**
-```json
+// Set up exit node
 {
-  "name": "ping_peer",
+  "name": "manage_exit_nodes",
   "arguments": {
-    "target": "server1.tailnet.ts.net",
-    "count": 5
+    "operation": "set",
+    "deviceId": "100.71.164.75"
   }
 }
 ```
 
-#### `get_version`
-Get Tailscale version information.
+### Advanced Security
 
-**Parameters:** None
+```typescript
+// Enable network lock for enhanced security
+{
+  "name": "manage_network_lock",
+  "arguments": { "operation": "enable" }
+}
 
-## Error Handling
+// Configure device posture policy
+{
+  "name": "manage_device_posture",
+  "arguments": {
+    "operation": "set_posture_policy",
+    "deviceId": "device-123",
+    "policy": {
+      "requireUpdate": true,
+      "allowedOSVersions": ["macOS 14+", "Ubuntu 22.04+"]
+    }
+  }
+}
+```
 
-The server provides comprehensive error handling:
+### Network Analytics
 
-- **Missing API Key**: CLI operations work without API key, but API operations will fail with helpful error messages
-- **Network Issues**: Automatic retry and timeout handling
-- **Invalid Parameters**: Schema validation with descriptive error messages
-- **Tailscale CLI Issues**: Graceful degradation when CLI is unavailable
+```typescript
+// Get network statistics
+{
+  "name": "get_network_stats",
+  "arguments": {
+    "operation": "get_network_overview",
+    "timeRange": "24h"
+  }
+}
+```
 
-## Security Considerations
+## ⚙️ Configuration
 
-- API keys are handled securely and not logged
-- All network operations require proper authentication
-- Input validation prevents injection attacks
-- Minimal required permissions for API operations
+### Environment Variables
 
-## Development
+| Variable            | Description                             | Default   | Required |
+| ------------------- | --------------------------------------- | --------- | -------- |
+| `TAILSCALE_API_KEY` | Tailscale API key for advanced features | -         | No\*     |
+| `TAILSCALE_TAILNET` | Your tailnet name                       | `default` | No       |
+| `LOG_LEVEL`         | Logging verbosity (0-3)                 | `1`       | No       |
 
-### Project Structure
+\*Required for API-based operations like device management and advanced features.
+
+### Script Commands
+
+| Command                 | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `npm run dev`           | Build (dev) and start development server |
+| `npm run dev:watch`     | Build with auto-rebuild on file changes  |
+| `npm run dev:tsx`       | Run TypeScript directly with tsx         |
+| `npm run build`         | Build for production with esbuild        |
+| `npm run build:dev`     | Build for development with esbuild       |
+| `npm run build:watch`   | Build with watch mode using esbuild      |
+| `npm run build:tsc`     | Build with TypeScript compiler           |
+| `npm run start`         | Start production server                  |
+| `npm run clean`         | Remove build artifacts (cross-platform)  |
+| `npm run type-check`    | Type check without building              |
+| `npm test`              | Run test suite with Jest                 |
+| `npm run test:watch`    | Run tests in watch mode                  |
+| `npm run test:coverage` | Run tests with coverage report           |
+| `npm run test:ci`       | Run tests for CI/CD environments         |
+
+## 🏗️ Architecture
+
 ```
 src/
-├── index.ts          # Main MCP server implementation
-├── tailscale-api.ts  # Tailscale REST API client
-├── tailscale-cli.ts  # Tailscale CLI wrapper
-├── tools.ts          # MCP tool implementations
-├── types.ts          # TypeScript type definitions
-└── logger.ts         # Structured logging
+├── index.ts          # 🎯 Main MCP server implementation
+├── tailscale-api.ts  # 🌐 REST API client with full feature support
+├── tailscale-cli.ts  # 💻 CLI wrapper with error handling
+├── tools.ts          # 🛠️ 25+ MCP tool implementations
+├── types.ts          # 📝 TypeScript definitions & Zod schemas
+└── logger.ts         # 📊 Structured logging system
 ```
 
-### Building from Source
-```bash
-# Install dependencies
-npm install
+## 🔒 Security Features
 
-# Build TypeScript
-npx tsc
+- 🔐 **Secure API Key Handling**: Keys never logged or exposed
+- 🛡️ **Input Validation**: Comprehensive Zod schema validation
+- 🔒 **Network Lock Support**: Enhanced security with key authority
+- 👥 **Role-Based Access**: User management with granular permissions
+- 📋 **Device Posture**: Compliance policies and enforcement
+- 🔍 **Audit Logging**: Comprehensive activity tracking
 
-# Run the server
-node dist/index.js
-```
-
-### Testing
-```bash
-# Test server startup
-timeout 3s node dist/index.js 2>&1
-
-# Test with API key
-TAILSCALE_API_KEY=your_key node dist/index.js
-```
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **"Module not found" errors**: Ensure `"type": "module"` is in package.json
-2. **API authentication failures**: Verify your TAILSCALE_API_KEY is valid
-3. **CLI command failures**: Check Tailscale CLI installation and login status
-4. **Permission errors**: Ensure proper tailnet permissions for API operations
+| Issue                       | Solution                                                |
+| --------------------------- | ------------------------------------------------------- |
+| Module not found errors     | Ensure `"type": "module"` in package.json               |
+| API authentication failures | Verify `TAILSCALE_API_KEY` is valid and has permissions |
+| CLI command failures        | Check Tailscale CLI installation: `tailscale status`    |
+| Permission errors           | Ensure proper tailnet admin permissions                 |
 
 ### Debug Mode
-Enable debug logging:
+
 ```bash
-LOG_LEVEL=0 node dist/index.js
+LOG_LEVEL=0 npm start  # Enable verbose debugging
 ```
 
-## License
+### Health Check
 
-MIT License - see LICENSE file for details.
-   
+```bash
+# Test server startup
+timeout 3s npm start
+
+# Verify Tailscale connectivity
+tailscale status
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### Development Setup
+
+1. **Fork the repository** and clone your fork
+2. **Install dependencies**: `npm install`
+3. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+4. **Make your changes** with proper TypeScript types
+5. **Test thoroughly**: Ensure all tools work correctly
+6. **Commit with clear messages**: Follow conventional commits
+7. **Push and create a Pull Request**
+
+### Contribution Guidelines
+
+- 📝 **Code Style**: Follow existing TypeScript patterns
+- 🧪 **Testing**: Add tests for new features
+- 📚 **Documentation**: Update README and inline docs
+- 🔍 **Type Safety**: Maintain full TypeScript coverage
+- 🛡️ **Security**: Follow security best practices
+- 📊 **Logging**: Add appropriate logging for debugging
+
+### Areas for Contribution
+
+- 🆕 **New Tools**: Additional Tailscale API integrations
+- 🔧 **CLI Enhancements**: Better error handling and features
+- 📊 **Monitoring**: Enhanced statistics and analytics
+- 🎨 **UI/UX**: Better formatting and user experience
+- 📖 **Documentation**: Examples, tutorials, and guides
+- 🧪 **Testing**: Unit tests and integration tests
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2024 Tailscale MCP Server Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 🙏 Acknowledgments
+
+- **[Tailscale](https://tailscale.com/)** - For the amazing mesh VPN platform
+- **[Model Context Protocol](https://modelcontextprotocol.io/)** - For the standardized AI tool interface
+- **[Anthropic](https://anthropic.com/)** - For Claude and MCP development
+- **Open Source Community** - For continuous inspiration and contributions
+
+## 📞 Support
+
+- 📖 **Documentation**: Check this README and inline code comments
+- 🐛 **Issues**: Report bugs via GitHub Issues
+- 💬 **Discussions**: Join GitHub Discussions for questions
+- 🔧 **Development**: See Contributing section above
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the Tailscale and MCP communities**
+
+[⭐ Star this repo](https://github.com/HexSleeve/tailscale-mcp) • [🐛 Report Bug](https://github.com/HexSleeve/tailscale-mcp/issues) • [✨ Request Feature](https://github.com/HexSleeve/tailscale-mcp/issues)
+
+</div>

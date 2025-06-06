@@ -21,8 +21,8 @@ import {
   DevicePostureRequestSchema,
 } from "./types.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { TailscaleAPI } from "./tailscale-api.js";
-import { TailscaleCLI } from "./tailscale-cli.js";
+import { TailscaleAPI } from "./tailscale/tailscale-api.js";
+import { TailscaleCLI } from "./tailscale/tailscale-cli.js";
 import { logger } from "./logger.js";
 
 export class TailscaleTools {
@@ -215,7 +215,7 @@ export class TailscaleTools {
           break;
         case "expire-key":
           result = await this.api.expireDeviceKey(request.deviceId);
-          actionName = "expire key for";
+          actionName = "expired key for";
           break;
         default:
           return {

@@ -5,10 +5,9 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { createTailscaleAPI } from "./tailscale-api.js";
-import { TailscaleCLI } from "./tailscale-cli.js";
-import { TailscaleTools } from "./tools.js";
-import { logger } from "./logger.js";
+import { createTailscaleAPI, TailscaleCLI } from "./tailscale/index";
+import { TailscaleTools } from "./tools";
+import { logger } from "./logger";
 
 class TailscaleMCPServer {
   private server: Server;
@@ -773,35 +772,17 @@ class TailscaleMCPServer {
     logger.info("Tailscale MCP Server started ");
   }
 
-  // Alternative HTTP server implementation
+  /**
+   * HTTP server implementation (placeholder for future feature)
+   * Currently not implemented - use stdio transport instead
+   *
+   * @param port - Port number for HTTP server (default: 3000)
+   * @throws Error indicating HTTP transport is not available
+   */
   async startHTTP(port: number = 3000): Promise<void> {
-    // Note: This would require additional HTTP transport implementation
-    // The MCP SDK supports SSE (Server-Sent Events) transport for HTTP
-    // You would need to implement an HTTP server with SSE support
-
-    // Example structure (would need actual SSE transport implementation):
-    /*
-    import express from 'express';
-    import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-
-    const app = express();
-
-    app.get('/sse', (req, res) => {
-      const transport = new SSEServerTransport('/messages', res);
-      this.server.connect(transport);
-    });
-
-    app.post('/messages', (req, res) => {
-      // Handle POST messages
-    });
-
-    app.listen(port, () => {
-      logger.info(`Tailscale MCP Server started on http://localhost:${port}`);
-    });
-    */
-
-    logger.warn(
-      "HTTP transport not implemented - use stdio transport with MCP clients"
+    throw new Error(
+      `HTTP transport not implemented. Use stdio transport with MCP clients instead. ` +
+        `Planned for future release - would listen on port ${port}`
     );
   }
 }

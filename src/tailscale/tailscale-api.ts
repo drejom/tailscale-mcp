@@ -5,8 +5,8 @@ import {
   TailscaleAPIResponse,
   TailscaleError,
   TailscaleConfig,
-} from "./types.js";
-import { logger } from "./logger.js";
+} from "../types";
+import { logger } from "../logger";
 
 export class TailscaleAPI {
   private client: AxiosInstance;
@@ -117,20 +117,21 @@ export class TailscaleAPI {
       );
 
       // Validate and parse devices
-      const devices =
-        response.data.devices
-          ?.map((device: any) => {
-            try {
-              return TailscaleDeviceSchema.parse(device);
-            } catch (parseError) {
-              logger.warn("Failed to parse device:", {
-                device,
-                error: parseError,
-              });
-              return null;
-            }
-          })
-          .filter((device: any) => device !== null) || [];
+      const devices = response.data.devices
+        ?.map((device: any) => {
+          try {
+            return TailscaleDeviceSchema.parse(device);
+          } catch (parseError) {
+            logger.warn("Failed to parse device:", {
+              device,
+              error: parseError,
+            });
+            return null;
+          }
+        })
+        .filter(
+          (d: TailscaleDevice | null): d is TailscaleDevice => d !== null
+        );
 
       return this.handleResponse({ ...response, data: devices });
     } catch (error) {
