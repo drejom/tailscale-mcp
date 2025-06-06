@@ -26,7 +26,12 @@
     "noUnusedParameters": false,
     "exactOptionalPropertyTypes": false,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "src/**/*"

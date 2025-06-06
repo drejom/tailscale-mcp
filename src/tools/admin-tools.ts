@@ -32,7 +32,7 @@ const ExitNodeSchema = z.object({
     .describe("Device ID for exit node operations"),
   routes: z
     .array(z.string())
-    .optional()
+    .min(1, "At least one route must be specified")
     .describe(
       'Routes to advertise (e.g., ["0.0.0.0/0", "::/0"] for full exit node)'
     ),
@@ -407,7 +407,8 @@ async function manageExitNodes(
       }
 
       case "set": {
-        const cliResult = await context.cli.setExitNode(args.deviceId);
+        const nodeId = args.deviceId ?? "";
+        const cliResult = await context.cli.setExitNode(nodeId);
         if (!cliResult.success) {
           return {
             content: [

@@ -1,17 +1,22 @@
 import { build } from "esbuild";
 import { readFileSync } from "fs";
+import { resolve } from "path";
 
 // Read package.json to get dependencies
-let dependencies = [];
+let packageJson = {
+  dependencies: {},
+  peerDependencies: {},
+  optionalDependencies: {},
+};
+
 try {
-  const packageJson = JSON.parse(readFileSync("./package.json", "utf8"));
-  dependencies = Object.keys(packageJson.dependencies || {});
+  const packageJsonPath = resolve(process.cwd(), "package.json");
+  packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 } catch (error) {
   console.warn(
     "Warning: Could not read package.json dependencies:",
     error.message
   );
-  dependencies = [];
 }
 
 const baseConfig = {
@@ -19,27 +24,44 @@ const baseConfig = {
   bundle: true,
   platform: "node",
   target: "node18",
-  format: "esm",
-  outfile: "dist/index.js",
   sourcemap: true,
   minify: false,
   // External dependencies (don't bundle them)
-  external: dependencies,
+  external: [
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+    ...Object.keys(packageJson.optionalDependencies ?? {}),
+  ],
   // Handle TypeScript path mapping
   resolveExtensions: [".ts", ".js"],
   // Preserve JSX and other settings
   jsx: "preserve",
   // Define environment
   // NODE_ENV defined in specific configs
+};
+
+// ESM config (main executable)
+const esmConfig = {
+  ...baseConfig,
+  format: "esm",
+  outfile: "dist/index.js",
   // Banner to add shebang for executable
   banner: {
     js: "#!/usr/bin/env node\n// Tailscale MCP Server - Built with esbuild",
   },
 };
 
-// Development config
-export const devConfig = {
+// CommonJS config (for require() compatibility)
+const cjsConfig = {
   ...baseConfig,
+  format: "cjs",
+  outfile: "dist/index.cjs",
+  // No shebang for CJS version as it's not the main executable
+};
+
+// Development configs
+export const devEsmConfig = {
+  ...esmConfig,
   minify: false,
   sourcemap: true,
   define: {
@@ -47,9 +69,18 @@ export const devConfig = {
   },
 };
 
-// Production config
-export const prodConfig = {
-  ...baseConfig,
+export const devCjsConfig = {
+  ...cjsConfig,
+  minify: false,
+  sourcemap: true,
+  define: {
+    "process.env.NODE_ENV": '"development"',
+  },
+};
+
+// Production configs
+export const prodEsmConfig = {
+  ...esmConfig,
   minify: true,
   sourcemap: false,
   define: {
@@ -57,9 +88,18 @@ export const prodConfig = {
   },
 };
 
-// Watch config
+export const prodCjsConfig = {
+  ...cjsConfig,
+  minify: true,
+  sourcemap: false,
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
+};
+
+// Watch config (only ESM for development)
 export const watchConfig = {
-  ...devConfig,
+  ...devEsmConfig,
   watch: {
     onRebuild(error, result) {
       if (error) {
@@ -72,23 +112,28 @@ export const watchConfig = {
 };
 
 // Build function
-export async function buildProject(config = prodConfig) {
+export async function buildProject(configs = [prodEsmConfig, prodCjsConfig]) {
   try {
-    const result = await build(config);
+    // Ensure configs is an array
+    const configArray = Array.isArray(configs) ? configs : [configs];
+
+    // Build all configurations
+    const results = await Promise.all(
+      configArray.map((config) => build(config))
+    );
+
     console.log("✅ Build completed successfully");
 
-    // Make the output executable
-    if (config === prodConfig || config === devConfig) {
-      const { chmodSync } = await import("fs");
-      try {
-        chmodSync("dist/index.js", 0o755);
-        console.log("✅ Made output executable");
-      } catch (error) {
-        console.warn("⚠️ Could not make output executable:", error.message);
-      }
+    // Make the ESM output executable (only the main entry point)
+    const { chmodSync } = await import("fs");
+    try {
+      chmodSync("dist/index.js", 0o755);
+      console.log("✅ Made output executable");
+    } catch (error) {
+      console.warn("⚠️ Could not make output executable:", error.message);
     }
 
-    return result;
+    return results;
   } catch (error) {
     console.error("❌ Build failed:", error);
     process.exit(1);
@@ -107,14 +152,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   switch (mode) {
     case "dev":
-      await buildProject(devConfig);
+      await buildProject([devEsmConfig, devCjsConfig]);
       break;
     case "watch":
       await buildProject(watchConfig);
       break;
     case "build":
     default:
-      await buildProject(prodConfig);
+      await buildProject([prodEsmConfig, prodCjsConfig]);
       break;
   }
 }

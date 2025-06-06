@@ -42,6 +42,9 @@ const PingPeerSchema = z.object({
   target: z.string().describe("Hostname or IP address of the target device"),
   count: z
     .number()
+    .int()
+    .min(1)
+    .max(100)
     .optional()
     .default(4)
     .describe("Number of ping packets to send"),
@@ -76,7 +79,7 @@ async function getNetworkStatus(
       output += `Version: ${status.Version}\n`;
       output += `Backend state: ${status.BackendState}\n`;
       output += `TUN interface: ${status.TUN ? "Active" : "Inactive"}\n`;
-      output += `Tailscale IPs: ${status.TailscaleIPs.join(", ")}\n\n`;
+      output += `Tailscale IPs: ${(status.TailscaleIPs ?? []).join(", ")}\n\n`;
 
       output += `**This device:**\n`;
       output += `  - Hostname: ${status.Self.HostName}\n`;
@@ -149,7 +152,7 @@ async function connectNetwork(
   try {
     const options = {
       acceptRoutes: args.acceptRoutes || false,
-      acceptDns: args.acceptDNS || false,
+      acceptDNS: args.acceptDNS ?? false,
       hostname: args.hostname,
       advertiseRoutes: args.advertiseRoutes || [],
       authKey: args.authKey,

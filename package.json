@@ -14,13 +14,20 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "tailscale-mcp-server": "dist/index.js"
+    "tailscale-mcp-server": "./dist/index.js"
   },
   "files": [
     "dist/**/*",
     "README.md",
     "LICENSE"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "clean": "rimraf dist",
     "build": "node esbuild.config.js build",

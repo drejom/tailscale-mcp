@@ -1,5 +1,6 @@
 import { startServer } from "./server.js";
 import { logger } from "./logger.js";
+import { fileURLToPath } from "node:url";
 
 async function main() {
   try {
@@ -10,6 +11,11 @@ async function main() {
     process.exit(1);
   }
 }
+
+process.on("unhandledRejection", (err) => {
+  logger.error("Unhandled rejection:", err);
+  process.exit(1);
+});
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {
@@ -22,7 +28,21 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Check if this file is being run directly (works in both ESM and CJS)
+const isMainModule = (() => {
+  try {
+    // ESM check
+    if (import.meta.url) {
+      return process.argv[1] === fileURLToPath(import.meta.url);
+    }
+  } catch {
+    // CJS fallback - this will be handled by the build process
+    return true; // In CJS build, we always want to run main
+  }
+  return false;
+})();
+
+if (isMainModule) {
   main().catch((error) => {
     logger.error("Unhandled error:", error);
     process.exit(1);

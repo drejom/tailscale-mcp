@@ -48,6 +48,11 @@ export class ToolRegistry {
   }
 
   register(tool: ToolDefinition): void {
+    if (this.tools.has(tool.name)) {
+      logger.warn(
+        `Duplicate tool name detected: "${tool.name}" – overriding previous definition`
+      );
+    }
     this.tools.set(tool.name, tool);
   }
 

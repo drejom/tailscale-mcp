@@ -12,7 +12,7 @@ const execFileAsync = promisify(execFile);
 // Validate target format (hostname, IP, or Tailscale node name)
 // Hostname/IP pattern: no leading/trailing dots or hyphens, no consecutive dots
 export const VALID_TARGET_PATTERN =
-  /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/;
+  /^(([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*)|([0-9a-fA-F:]+))$/;
 
 // CIDR validation
 export const cidrPattern =
@@ -371,7 +371,7 @@ export class TailscaleCLI {
       const result = await this.executeCommand(["version"]);
       return result.success;
     } catch (error) {
-      logger.debug("CLI availability check failed:", error);
+      logger.error("tailscale CLI not found:", error);
       return false;
     }
   }

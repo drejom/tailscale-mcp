@@ -61,11 +61,19 @@ async function listDevices(
       output += `  - Last seen: ${device.lastSeen}\n`;
       output += `  - Client version: ${device.clientVersion}\n`;
 
-      if (args.includeRoutes && device.advertisedRoutes.length > 0) {
+      if (
+        args.includeRoutes &&
+        Array.isArray(device.advertisedRoutes) &&
+        device.advertisedRoutes.length > 0
+      ) {
         output += `  - Advertised routes: ${device.advertisedRoutes.join(
           ", "
         )}\n`;
-        output += `  - Enabled routes: ${device.enabledRoutes.join(", ")}\n`;
+        output += `  - Enabled routes: ${
+          Array.isArray(device.enabledRoutes)
+            ? device.enabledRoutes.join(", ")
+            : "—"
+        }\n`;
       }
 
       output += "\n";
