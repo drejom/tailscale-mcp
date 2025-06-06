@@ -440,6 +440,159 @@ class TailscaleMCPServer {
                             },
                             required: ['operation']
                         }
+                    },
+                    {
+                        name: 'manage_device_tags',
+                        description: 'Manage device tags for organization and ACL targeting',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_tags', 'set_tags', 'add_tags', 'remove_tags'],
+                                    description: 'Device tagging operation to perform'
+                                },
+                                deviceId: {
+                                    type: 'string',
+                                    description: 'Device ID for tagging operations'
+                                },
+                                tags: {
+                                    type: 'array',
+                                    items: { type: 'string' },
+                                    description: 'Array of tags to manage (e.g., ["tag:server", "tag:production"])'
+                                }
+                            },
+                            required: ['operation', 'deviceId']
+                        }
+                    },
+                    {
+                        name: 'manage_ssh',
+                        description: 'Manage SSH access settings and configurations',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_ssh_settings', 'update_ssh_settings'],
+                                    description: 'SSH management operation to perform'
+                                },
+                                sshSettings: {
+                                    type: 'object',
+                                    description: 'SSH configuration settings for update operation',
+                                    properties: {
+                                        enabled: { type: 'boolean' },
+                                        checkPeriod: { type: 'string' }
+                                    }
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'get_network_stats',
+                        description: 'Get network and device statistics and monitoring data',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_network_overview', 'get_device_stats'],
+                                    description: 'Statistics operation to perform'
+                                },
+                                deviceId: {
+                                    type: 'string',
+                                    description: 'Device ID for device-specific statistics'
+                                },
+                                timeRange: {
+                                    type: 'string',
+                                    enum: ['1h', '24h', '7d', '30d'],
+                                    description: 'Time range for statistics'
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_users',
+                        description: 'Manage tailnet users and their permissions',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['list_users', 'get_user', 'update_user_role'],
+                                    description: 'User management operation to perform'
+                                },
+                                userId: {
+                                    type: 'string',
+                                    description: 'User ID for specific user operations'
+                                },
+                                role: {
+                                    type: 'string',
+                                    enum: ['admin', 'user', 'auditor'],
+                                    description: 'User role for role update operations'
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_device_posture',
+                        description: 'Manage device posture and compliance policies',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_posture', 'set_posture_policy', 'check_compliance'],
+                                    description: 'Device posture operation to perform'
+                                },
+                                deviceId: {
+                                    type: 'string',
+                                    description: 'Device ID for posture operations'
+                                },
+                                policy: {
+                                    type: 'object',
+                                    description: 'Posture policy configuration',
+                                    properties: {
+                                        requireUpdate: { type: 'boolean' },
+                                        allowedOSVersions: {
+                                            type: 'array',
+                                            items: { type: 'string' }
+                                        },
+                                        requiredSoftware: {
+                                            type: 'array',
+                                            items: { type: 'string' }
+                                        }
+                                    }
+                                }
+                            },
+                            required: ['operation']
+                        }
+                    },
+                    {
+                        name: 'manage_logging',
+                        description: 'Manage logging configuration and audit capabilities',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                operation: {
+                                    type: 'string',
+                                    enum: ['get_log_config', 'set_log_level', 'get_audit_logs'],
+                                    description: 'Logging operation to perform'
+                                },
+                                logLevel: {
+                                    type: 'string',
+                                    enum: ['debug', 'info', 'warn', 'error'],
+                                    description: 'Log level for set_log_level operation'
+                                },
+                                component: {
+                                    type: 'string',
+                                    description: 'Specific component for targeted logging'
+                                }
+                            },
+                            required: ['operation']
+                        }
                     }
                 ]
             };
@@ -501,6 +654,24 @@ class TailscaleMCPServer {
                         break;
                     case 'manage_policy_file':
                         result = await this.tools.managePolicyFile(args || {});
+                        break;
+                    case 'manage_device_tags':
+                        result = await this.tools.manageDeviceTags(args || {});
+                        break;
+                    case 'manage_ssh':
+                        result = await this.tools.manageSSH(args || {});
+                        break;
+                    case 'get_network_stats':
+                        result = await this.tools.getNetworkStats(args || {});
+                        break;
+                    case 'manage_users':
+                        result = await this.tools.manageUsers(args || {});
+                        break;
+                    case 'manage_device_posture':
+                        result = await this.tools.manageDevicePosture(args || {});
+                        break;
+                    case 'manage_logging':
+                        result = await this.tools.manageLogging(args || {});
                         break;
                     default:
                         throw new Error(`Unknown tool: ${name}`);

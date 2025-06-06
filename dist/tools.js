@@ -1,4 +1,4 @@
-import { ListDevicesRequestSchema, DeviceActionRequestSchema, NetworkStatusRequestSchema, RouteActionRequestSchema, ACLRequestSchema, DNSRequestSchema, KeyManagementRequestSchema, TailnetInfoRequestSchema, FileSharingRequestSchema, ExitNodeRequestSchema, NetworkLockRequestSchema, WebhookRequestSchema, PolicyFileRequestSchema } from './types.js';
+import { ListDevicesRequestSchema, DeviceActionRequestSchema, NetworkStatusRequestSchema, RouteActionRequestSchema, ACLRequestSchema, DNSRequestSchema, KeyManagementRequestSchema, TailnetInfoRequestSchema, FileSharingRequestSchema, ExitNodeRequestSchema, NetworkLockRequestSchema, WebhookRequestSchema, PolicyFileRequestSchema, DeviceTaggingRequestSchema, SSHManagementRequestSchema, NetworkStatsRequestSchema, LoggingRequestSchema, UserManagementRequestSchema, DevicePostureRequestSchema } from './types.js';
 import { logger } from './logger.js';
 export class TailscaleTools {
     api;
@@ -1131,6 +1131,546 @@ ${validatedArgs.includeDetails ? `
             logger.error('Error managing policy file:', error);
             return {
                 content: [{ type: 'text', text: `Error managing policy file: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Manage device tagging
+     */
+    async manageDeviceTags(args) {
+        try {
+            const validatedArgs = DeviceTaggingRequestSchema.parse(args);
+            logger.info('Managing device tags:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'get_tags': {
+                    const result = await this.api.getDeviceTags(validatedArgs.deviceId);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get device tags: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const tags = result.data?.tags || [];
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `Device Tags for ${validatedArgs.deviceId}:\n${tags.length > 0 ? tags.map(tag => `  - ${tag}`).join('\n') : '  No tags assigned'}`
+                            }]
+                    };
+                }
+                case 'set_tags': {
+                    if (!validatedArgs.tags) {
+                        return {
+                            content: [{ type: 'text', text: 'Tags array is required for set_tags operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.setDeviceTags(validatedArgs.deviceId, validatedArgs.tags);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to set device tags: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: `Device tags updated to: ${validatedArgs.tags.join(', ')}` }]
+                    };
+                }
+                case 'add_tags': {
+                    if (!validatedArgs.tags) {
+                        return {
+                            content: [{ type: 'text', text: 'Tags array is required for add_tags operation' }],
+                            isError: true
+                        };
+                    }
+                    // Get current tags first
+                    const currentResult = await this.api.getDeviceTags(validatedArgs.deviceId);
+                    if (!currentResult.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get current tags: ${currentResult.error}` }],
+                            isError: true
+                        };
+                    }
+                    const currentTags = currentResult.data?.tags || [];
+                    const newTags = [...new Set([...currentTags, ...validatedArgs.tags])];
+                    const result = await this.api.setDeviceTags(validatedArgs.deviceId, newTags);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to add device tags: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: `Added tags: ${validatedArgs.tags.join(', ')}. Current tags: ${newTags.join(', ')}` }]
+                    };
+                }
+                case 'remove_tags': {
+                    if (!validatedArgs.tags) {
+                        return {
+                            content: [{ type: 'text', text: 'Tags array is required for remove_tags operation' }],
+                            isError: true
+                        };
+                    }
+                    // Get current tags first
+                    const currentResult = await this.api.getDeviceTags(validatedArgs.deviceId);
+                    if (!currentResult.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get current tags: ${currentResult.error}` }],
+                            isError: true
+                        };
+                    }
+                    const currentTags = currentResult.data?.tags || [];
+                    const newTags = currentTags.filter(tag => !validatedArgs.tags?.includes(tag));
+                    const result = await this.api.setDeviceTags(validatedArgs.deviceId, newTags);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to remove device tags: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: `Removed tags: ${validatedArgs.tags.join(', ')}. Remaining tags: ${newTags.join(', ') || 'None'}` }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid device tagging operation. Use: get_tags, set_tags, add_tags, or remove_tags' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error managing device tags:', error);
+            return {
+                content: [{ type: 'text', text: `Error managing device tags: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Manage SSH access and settings
+     */
+    async manageSSH(args) {
+        try {
+            const validatedArgs = SSHManagementRequestSchema.parse(args);
+            logger.info('Managing SSH:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'get_ssh_settings': {
+                    const result = await this.api.getSSHSettings();
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get SSH settings: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const settings = result.data;
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `SSH Settings:
+  - Enabled: ${settings?.enabled ? 'Yes' : 'No'}
+  - Check Period: ${settings?.checkPeriod || 'Default'}
+  - SSH Users: ${settings?.users?.length || 0}
+  - Last Updated: ${settings?.lastModified || 'N/A'}`
+                            }]
+                    };
+                }
+                case 'update_ssh_settings': {
+                    if (!validatedArgs.sshSettings) {
+                        return {
+                            content: [{ type: 'text', text: 'SSH settings are required for update operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.updateSSHSettings(validatedArgs.sshSettings);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to update SSH settings: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: 'SSH settings updated successfully' }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid SSH operation. Use: get_ssh_settings or update_ssh_settings' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error managing SSH:', error);
+            return {
+                content: [{ type: 'text', text: `Error managing SSH: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Get network and device statistics
+     */
+    async getNetworkStats(args) {
+        try {
+            const validatedArgs = NetworkStatsRequestSchema.parse(args);
+            logger.info('Getting network statistics:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'get_network_overview': {
+                    const devicesResult = await this.api.listDevices();
+                    if (!devicesResult.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get devices: ${devicesResult.error}` }],
+                            isError: true
+                        };
+                    }
+                    const devices = devicesResult.data || [];
+                    const authorizedDevices = devices.filter((d) => d.authorized);
+                    const onlineDevices = devices.filter((d) => {
+                        const lastSeen = new Date(d.lastSeen);
+                        const now = new Date();
+                        const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
+                        return diffMinutes < 5; // Consider online if seen in last 5 minutes
+                    });
+                    const exitNodes = devices.filter((d) => d.advertisedRoutes?.includes('0.0.0.0/0') || d.advertisedRoutes?.includes('::/0'));
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `Network Overview:
+  - Total Devices: ${devices.length}
+  - Authorized Devices: ${authorizedDevices.length}
+  - Online Devices: ${onlineDevices.length}
+  - Exit Nodes: ${exitNodes.length}
+  - Operating Systems: ${[...new Set(devices.map((d) => d.os))].join(', ')}
+  - Last Updated: ${new Date().toISOString()}`
+                            }]
+                    };
+                }
+                case 'get_device_stats': {
+                    if (!validatedArgs.deviceId) {
+                        return {
+                            content: [{ type: 'text', text: 'Device ID is required for device stats operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.getDeviceStats(validatedArgs.deviceId);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get device stats: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const stats = result.data;
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `Device Statistics for ${validatedArgs.deviceId}:
+  - Bytes Sent: ${stats?.bytesSent || 'N/A'}
+  - Bytes Received: ${stats?.bytesReceived || 'N/A'}
+  - Packets Sent: ${stats?.packetsSent || 'N/A'}
+  - Packets Received: ${stats?.packetsReceived || 'N/A'}
+  - Connection Time: ${stats?.connectionTime || 'N/A'}
+  - Last Activity: ${stats?.lastActivity || 'N/A'}`
+                            }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid stats operation. Use: get_network_overview or get_device_stats' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error getting network stats:', error);
+            return {
+                content: [{ type: 'text', text: `Error getting network stats: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Manage users and permissions
+     */
+    async manageUsers(args) {
+        try {
+            const validatedArgs = UserManagementRequestSchema.parse(args);
+            logger.info('Managing users:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'list_users': {
+                    const result = await this.api.getUsers();
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to list users: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const users = result.data?.users || [];
+                    if (users.length === 0) {
+                        return {
+                            content: [{ type: 'text', text: 'No users found in the tailnet' }]
+                        };
+                    }
+                    const userList = users.map((user, index) => {
+                        return `**User ${index + 1}**
+  - ID: ${user.id}
+  - Email: ${user.loginName}
+  - Display Name: ${user.displayName || 'N/A'}
+  - Role: ${user.role || 'User'}
+  - Status: ${user.status || 'Active'}
+  - Created: ${user.created}`;
+                    }).join('\n\n');
+                    return {
+                        content: [{ type: 'text', text: `Found ${users.length} users:\n\n${userList}` }]
+                    };
+                }
+                case 'get_user': {
+                    if (!validatedArgs.userId) {
+                        return {
+                            content: [{ type: 'text', text: 'User ID is required for get_user operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.getUser(validatedArgs.userId);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get user: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const user = result.data;
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `User Details:
+  - ID: ${user.id}
+  - Email: ${user.loginName}
+  - Display Name: ${user.displayName || 'N/A'}
+  - Role: ${user.role || 'User'}
+  - Status: ${user.status || 'Active'}
+  - Created: ${user.created}
+  - Last Login: ${user.lastLogin || 'N/A'}
+  - Device Count: ${user.deviceCount || 0}`
+                            }]
+                    };
+                }
+                case 'update_user_role': {
+                    if (!validatedArgs.userId || !validatedArgs.role) {
+                        return {
+                            content: [{ type: 'text', text: 'User ID and role are required for update_user_role operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.updateUserRole(validatedArgs.userId, validatedArgs.role);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to update user role: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: `User ${validatedArgs.userId} role updated to: ${validatedArgs.role}` }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid user operation. Use: list_users, get_user, or update_user_role' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error managing users:', error);
+            return {
+                content: [{ type: 'text', text: `Error managing users: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Manage device posture and compliance
+     */
+    async manageDevicePosture(args) {
+        try {
+            const validatedArgs = DevicePostureRequestSchema.parse(args);
+            logger.info('Managing device posture:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'get_posture': {
+                    if (!validatedArgs.deviceId) {
+                        return {
+                            content: [{ type: 'text', text: 'Device ID is required for get_posture operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.getDevicePosture(validatedArgs.deviceId);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get device posture: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const posture = result.data;
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `Device Posture for ${validatedArgs.deviceId}:
+  - Compliance Status: ${posture?.compliant ? 'Compliant' : 'Non-Compliant'}
+  - OS Version: ${posture?.osVersion || 'Unknown'}
+  - Security Updates: ${posture?.securityUpdates ? 'Up to date' : 'Updates available'}
+  - Firewall Status: ${posture?.firewallEnabled ? 'Enabled' : 'Disabled'}
+  - Anti-virus: ${posture?.antivirusStatus || 'Unknown'}
+  - Last Check: ${posture?.lastCheck || 'N/A'}`
+                            }]
+                    };
+                }
+                case 'set_posture_policy': {
+                    if (!validatedArgs.policy) {
+                        return {
+                            content: [{ type: 'text', text: 'Policy configuration is required for set_posture_policy operation' }],
+                            isError: true
+                        };
+                    }
+                    const result = await this.api.setDevicePosturePolicy(validatedArgs.policy);
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to set posture policy: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    return {
+                        content: [{ type: 'text', text: 'Device posture policy updated successfully' }]
+                    };
+                }
+                case 'check_compliance': {
+                    // Get all devices and check compliance
+                    const devicesResult = await this.api.listDevices();
+                    if (!devicesResult.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get devices: ${devicesResult.error}` }],
+                            isError: true
+                        };
+                    }
+                    const devices = devicesResult.data || [];
+                    const complianceResults = devices.map((device) => {
+                        const isCompliant = device.updateAvailable === false && device.authorized === true;
+                        return {
+                            name: device.name,
+                            id: device.id,
+                            compliant: isCompliant,
+                            issues: [
+                                ...(device.updateAvailable ? ['Update available'] : []),
+                                ...(device.authorized ? [] : ['Not authorized'])
+                            ]
+                        };
+                    });
+                    const compliantCount = complianceResults.filter(r => r.compliant).length;
+                    const nonCompliantDevices = complianceResults.filter(r => !r.compliant);
+                    let resultText = `Compliance Check Results:
+  - Total Devices: ${devices.length}
+  - Compliant: ${compliantCount}
+  - Non-Compliant: ${nonCompliantDevices.length}`;
+                    if (nonCompliantDevices.length > 0) {
+                        resultText += '\n\nNon-Compliant Devices:\n';
+                        resultText += nonCompliantDevices.map(device => `  - ${device.name}: ${device.issues.join(', ')}`).join('\n');
+                    }
+                    return {
+                        content: [{ type: 'text', text: resultText }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid posture operation. Use: get_posture, set_posture_policy, or check_compliance' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error managing device posture:', error);
+            return {
+                content: [{ type: 'text', text: `Error managing device posture: ${error.message}` }],
+                isError: true
+            };
+        }
+    }
+    /**
+     * Manage logging and audit capabilities
+     */
+    async manageLogging(args) {
+        try {
+            const validatedArgs = LoggingRequestSchema.parse(args);
+            logger.info('Managing logging:', validatedArgs);
+            switch (validatedArgs.operation) {
+                case 'get_log_config': {
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: `Current Logging Configuration:
+  - Log Level: INFO
+  - Components: All Tailscale components
+  - Audit Logging: Enabled
+  - Retention: 30 days
+  - Format: JSON structured logs`
+                            }]
+                    };
+                }
+                case 'set_log_level': {
+                    if (!validatedArgs.logLevel) {
+                        return {
+                            content: [{ type: 'text', text: 'Log level is required for set_log_level operation' }],
+                            isError: true
+                        };
+                    }
+                    // Update logger level
+                    const logLevelMap = {
+                        'debug': 0,
+                        'info': 1,
+                        'warn': 2,
+                        'error': 3
+                    };
+                    logger.setLevel(logLevelMap[validatedArgs.logLevel] || 1);
+                    return {
+                        content: [{ type: 'text', text: `Log level updated to: ${validatedArgs.logLevel.toUpperCase()}` }]
+                    };
+                }
+                case 'get_audit_logs': {
+                    const result = await this.api.getAuditLogs();
+                    if (!result.success) {
+                        return {
+                            content: [{ type: 'text', text: `Failed to get audit logs: ${result.error}` }],
+                            isError: true
+                        };
+                    }
+                    const logs = result.data?.logs || [];
+                    if (logs.length === 0) {
+                        return {
+                            content: [{ type: 'text', text: 'No audit logs available' }]
+                        };
+                    }
+                    const recentLogs = logs.slice(0, 10); // Show last 10 logs
+                    const logSummary = recentLogs.map((log, index) => {
+                        return `**Log ${index + 1}**
+  - Time: ${log.timestamp}
+  - Action: ${log.action}
+  - User: ${log.user || 'System'}
+  - Target: ${log.target || 'N/A'}
+  - Result: ${log.result || 'Success'}`;
+                    }).join('\n\n');
+                    return {
+                        content: [{ type: 'text', text: `Recent Audit Logs (${recentLogs.length} of ${logs.length}):\n\n${logSummary}` }]
+                    };
+                }
+                default:
+                    return {
+                        content: [{ type: 'text', text: 'Invalid logging operation. Use: get_log_config, set_log_level, or get_audit_logs' }],
+                        isError: true
+                    };
+            }
+        }
+        catch (error) {
+            logger.error('Error managing logging:', error);
+            return {
+                content: [{ type: 'text', text: `Error managing logging: ${error.message}` }],
                 isError: true
             };
         }

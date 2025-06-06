@@ -31,6 +31,10 @@ args = "Tailscale MCP Server"
 task = "workflow.run"
 args = "Enterprise Tailscale MCP Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Complete Tailscale MCP Server"
+
 [[workflows.workflow]]
 name = "MCP Server"
 author = "agent"
@@ -65,6 +69,14 @@ args = "npx tsc && node dist/index.js"
 
 [[workflows.workflow]]
 name = "Enterprise Tailscale MCP Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc && node dist/index.js"
+
+[[workflows.workflow]]
+name = "Complete Tailscale MCP Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]

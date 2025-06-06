@@ -73,5 +73,29 @@ export declare class TailscaleTools {
      * Manage policy files and ACL testing
      */
     managePolicyFile(args: any): Promise<CallToolResult>;
+    /**
+     * Manage device tagging
+     */
+    manageDeviceTags(args: any): Promise<CallToolResult>;
+    /**
+     * Manage SSH access and settings
+     */
+    manageSSH(args: any): Promise<CallToolResult>;
+    /**
+     * Get network and device statistics
+     */
+    getNetworkStats(args: any): Promise<CallToolResult>;
+    /**
+     * Manage users and permissions
+     */
+    manageUsers(args: any): Promise<CallToolResult>;
+    /**
+     * Manage device posture and compliance
+     */
+    manageDevicePosture(args: any): Promise<CallToolResult>;
+    /**
+     * Manage logging and audit capabilities
+     */
+    manageLogging(args: any): Promise<CallToolResult>;
 }
 //# sourceMappingURL=tools.d.ts.map

@@ -687,6 +687,30 @@ class TailscaleMCPServer {
             result = await this.tools.managePolicyFile(args || {});
             break;
           
+          case 'manage_device_tags':
+            result = await this.tools.manageDeviceTags(args || {});
+            break;
+          
+          case 'manage_ssh':
+            result = await this.tools.manageSSH(args || {});
+            break;
+          
+          case 'get_network_stats':
+            result = await this.tools.getNetworkStats(args || {});
+            break;
+          
+          case 'manage_users':
+            result = await this.tools.manageUsers(args || {});
+            break;
+          
+          case 'manage_device_posture':
+            result = await this.tools.manageDevicePosture(args || {});
+            break;
+          
+          case 'manage_logging':
+            result = await this.tools.manageLogging(args || {});
+            break;
+          
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
