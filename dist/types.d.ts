@@ -1436,6 +1436,128 @@ export type NetworkLockRequest = z.infer<typeof NetworkLockRequestSchema>;
 export type SubnetRouterRequest = z.infer<typeof SubnetRouterRequestSchema>;
 export type WebhookRequest = z.infer<typeof WebhookRequestSchema>;
 export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
+export declare const DeviceTaggingRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_tags", "set_tags", "add_tags", "remove_tags"]>;
+    deviceId: z.ZodString;
+    tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    deviceId: string;
+    operation: "get_tags" | "set_tags" | "add_tags" | "remove_tags";
+    tags?: string[] | undefined;
+}, {
+    deviceId: string;
+    operation: "get_tags" | "set_tags" | "add_tags" | "remove_tags";
+    tags?: string[] | undefined;
+}>;
+export declare const SSHManagementRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_ssh_users", "add_ssh_user", "remove_ssh_user", "get_ssh_settings", "update_ssh_settings"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    username: z.ZodOptional<z.ZodString>;
+    sshSettings: z.ZodOptional<z.ZodObject<{
+        checkPeriod: z.ZodOptional<z.ZodString>;
+        enabled: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        checkPeriod?: string | undefined;
+        enabled?: boolean | undefined;
+    }, {
+        checkPeriod?: string | undefined;
+        enabled?: boolean | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get_ssh_users" | "add_ssh_user" | "remove_ssh_user" | "get_ssh_settings" | "update_ssh_settings";
+    deviceId?: string | undefined;
+    username?: string | undefined;
+    sshSettings?: {
+        checkPeriod?: string | undefined;
+        enabled?: boolean | undefined;
+    } | undefined;
+}, {
+    operation: "get_ssh_users" | "add_ssh_user" | "remove_ssh_user" | "get_ssh_settings" | "update_ssh_settings";
+    deviceId?: string | undefined;
+    username?: string | undefined;
+    sshSettings?: {
+        checkPeriod?: string | undefined;
+        enabled?: boolean | undefined;
+    } | undefined;
+}>;
+export declare const NetworkStatsRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_device_stats", "get_network_overview", "get_traffic_stats"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    timeRange: z.ZodOptional<z.ZodEnum<["1h", "24h", "7d", "30d"]>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get_device_stats" | "get_network_overview" | "get_traffic_stats";
+    deviceId?: string | undefined;
+    timeRange?: "1h" | "24h" | "7d" | "30d" | undefined;
+}, {
+    operation: "get_device_stats" | "get_network_overview" | "get_traffic_stats";
+    deviceId?: string | undefined;
+    timeRange?: "1h" | "24h" | "7d" | "30d" | undefined;
+}>;
+export declare const LoggingRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_log_config", "set_log_level", "get_audit_logs"]>;
+    logLevel: z.ZodOptional<z.ZodEnum<["debug", "info", "warn", "error"]>>;
+    component: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get_log_config" | "set_log_level" | "get_audit_logs";
+    logLevel?: "debug" | "info" | "warn" | "error" | undefined;
+    component?: string | undefined;
+}, {
+    operation: "get_log_config" | "set_log_level" | "get_audit_logs";
+    logLevel?: "debug" | "info" | "warn" | "error" | undefined;
+    component?: string | undefined;
+}>;
+export declare const UserManagementRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["list_users", "get_user", "update_user_role"]>;
+    userId: z.ZodOptional<z.ZodString>;
+    role: z.ZodOptional<z.ZodEnum<["admin", "user", "auditor"]>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "list_users" | "get_user" | "update_user_role";
+    userId?: string | undefined;
+    role?: "user" | "admin" | "auditor" | undefined;
+}, {
+    operation: "list_users" | "get_user" | "update_user_role";
+    userId?: string | undefined;
+    role?: "user" | "admin" | "auditor" | undefined;
+}>;
+export declare const DevicePostureRequestSchema: z.ZodObject<{
+    operation: z.ZodEnum<["get_posture", "set_posture_policy", "check_compliance"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    policy: z.ZodOptional<z.ZodObject<{
+        requireUpdate: z.ZodOptional<z.ZodBoolean>;
+        allowedOSVersions: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        requiredSoftware: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        requireUpdate?: boolean | undefined;
+        allowedOSVersions?: string[] | undefined;
+        requiredSoftware?: string[] | undefined;
+    }, {
+        requireUpdate?: boolean | undefined;
+        allowedOSVersions?: string[] | undefined;
+        requiredSoftware?: string[] | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    operation: "get_posture" | "set_posture_policy" | "check_compliance";
+    deviceId?: string | undefined;
+    policy?: {
+        requireUpdate?: boolean | undefined;
+        allowedOSVersions?: string[] | undefined;
+        requiredSoftware?: string[] | undefined;
+    } | undefined;
+}, {
+    operation: "get_posture" | "set_posture_policy" | "check_compliance";
+    deviceId?: string | undefined;
+    policy?: {
+        requireUpdate?: boolean | undefined;
+        allowedOSVersions?: string[] | undefined;
+        requiredSoftware?: string[] | undefined;
+    } | undefined;
+}>;
+export type DeviceTaggingRequest = z.infer<typeof DeviceTaggingRequestSchema>;
+export type SSHManagementRequest = z.infer<typeof SSHManagementRequestSchema>;
+export type NetworkStatsRequest = z.infer<typeof NetworkStatsRequestSchema>;
+export type LoggingRequest = z.infer<typeof LoggingRequestSchema>;
+export type UserManagementRequest = z.infer<typeof UserManagementRequestSchema>;
+export type DevicePostureRequest = z.infer<typeof DevicePostureRequestSchema>;
 export interface TailscaleAPIResponse<T> {
     success: boolean;
     data?: T;

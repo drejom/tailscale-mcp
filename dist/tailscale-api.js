@@ -565,6 +565,158 @@ export class TailscaleAPI {
             return this.handleError(error);
         }
     }
+    /**
+     * Get device tags
+     */
+    async getDeviceTags(deviceId) {
+        try {
+            const response = await this.client.get(`/device/${deviceId}`);
+            const device = response.data;
+            return this.handleResponse({
+                ...response,
+                data: { tags: device.tags || [] }
+            });
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Set device tags
+     */
+    async setDeviceTags(deviceId, tags) {
+        try {
+            const response = await this.client.post(`/device/${deviceId}/tags`, {
+                tags: tags
+            });
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get SSH settings for tailnet
+     */
+    async getSSHSettings() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/ssh`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Update SSH settings
+     */
+    async updateSSHSettings(settings) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/ssh`, settings);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get network statistics
+     */
+    async getNetworkStats() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/stats`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get device statistics
+     */
+    async getDeviceStats(deviceId) {
+        try {
+            const response = await this.client.get(`/device/${deviceId}/stats`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get user list
+     */
+    async getUsers() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/users`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get specific user
+     */
+    async getUser(userId) {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/users/${userId}`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Update user role
+     */
+    async updateUserRole(userId, role) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/users/${userId}`, {
+                role: role
+            });
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get audit logs
+     */
+    async getAuditLogs() {
+        try {
+            const response = await this.client.get(`/tailnet/${this.tailnet}/logs`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Get device posture information
+     */
+    async getDevicePosture(deviceId) {
+        try {
+            const response = await this.client.get(`/device/${deviceId}/posture`);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
+    /**
+     * Set device posture policy
+     */
+    async setDevicePosturePolicy(policy) {
+        try {
+            const response = await this.client.post(`/tailnet/${this.tailnet}/posture-policy`, policy);
+            return this.handleResponse(response);
+        }
+        catch (error) {
+            return this.handleError(error);
+        }
+    }
 }
 // Export factory function for creating API instances
 export function createTailscaleAPI(config = {}) {

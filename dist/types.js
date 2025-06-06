@@ -220,6 +220,50 @@ export const PolicyFileRequestSchema = z.object({
         proto: z.string().optional()
     }).optional()
 });
+// Device Tagging Types
+export const DeviceTaggingRequestSchema = z.object({
+    operation: z.enum(['get_tags', 'set_tags', 'add_tags', 'remove_tags']),
+    deviceId: z.string(),
+    tags: z.array(z.string()).optional()
+});
+// SSH Management Types  
+export const SSHManagementRequestSchema = z.object({
+    operation: z.enum(['get_ssh_users', 'add_ssh_user', 'remove_ssh_user', 'get_ssh_settings', 'update_ssh_settings']),
+    deviceId: z.string().optional(),
+    username: z.string().optional(),
+    sshSettings: z.object({
+        checkPeriod: z.string().optional(),
+        enabled: z.boolean().optional()
+    }).optional()
+});
+// Network Statistics Types
+export const NetworkStatsRequestSchema = z.object({
+    operation: z.enum(['get_device_stats', 'get_network_overview', 'get_traffic_stats']),
+    deviceId: z.string().optional(),
+    timeRange: z.enum(['1h', '24h', '7d', '30d']).optional()
+});
+// Logging Configuration Types
+export const LoggingRequestSchema = z.object({
+    operation: z.enum(['get_log_config', 'set_log_level', 'get_audit_logs']),
+    logLevel: z.enum(['debug', 'info', 'warn', 'error']).optional(),
+    component: z.string().optional()
+});
+// User Management Types
+export const UserManagementRequestSchema = z.object({
+    operation: z.enum(['list_users', 'get_user', 'update_user_role']),
+    userId: z.string().optional(),
+    role: z.enum(['admin', 'user', 'auditor']).optional()
+});
+// Device Posture Types
+export const DevicePostureRequestSchema = z.object({
+    operation: z.enum(['get_posture', 'set_posture_policy', 'check_compliance']),
+    deviceId: z.string().optional(),
+    policy: z.object({
+        requireUpdate: z.boolean().optional(),
+        allowedOSVersions: z.array(z.string()).optional(),
+        requiredSoftware: z.array(z.string()).optional()
+    }).optional()
+});
 // Error types
 export class TailscaleError extends Error {
     code;

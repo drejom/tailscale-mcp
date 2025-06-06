@@ -12,7 +12,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "axios": "^1.9.0",
-    "zod": "^3.25.51"
+    "zod": "^3.25.53"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",

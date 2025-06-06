@@ -169,6 +169,60 @@ export declare class TailscaleAPI {
      * Test ACL access
      */
     testACLAccess(src: string, dst: string, proto?: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get device tags
+     */
+    getDeviceTags(deviceId: string): Promise<TailscaleAPIResponse<{
+        tags: string[];
+    }>>;
+    /**
+     * Set device tags
+     */
+    setDeviceTags(deviceId: string, tags: string[]): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Get SSH settings for tailnet
+     */
+    getSSHSettings(): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Update SSH settings
+     */
+    updateSSHSettings(settings: any): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Get network statistics
+     */
+    getNetworkStats(): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get device statistics
+     */
+    getDeviceStats(deviceId: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Get user list
+     */
+    getUsers(): Promise<TailscaleAPIResponse<{
+        users: any[];
+    }>>;
+    /**
+     * Get specific user
+     */
+    getUser(userId: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Update user role
+     */
+    updateUserRole(userId: string, role: string): Promise<TailscaleAPIResponse<void>>;
+    /**
+     * Get audit logs
+     */
+    getAuditLogs(): Promise<TailscaleAPIResponse<{
+        logs: any[];
+    }>>;
+    /**
+     * Get device posture information
+     */
+    getDevicePosture(deviceId: string): Promise<TailscaleAPIResponse<any>>;
+    /**
+     * Set device posture policy
+     */
+    setDevicePosturePolicy(policy: any): Promise<TailscaleAPIResponse<void>>;
 }
 export declare function createTailscaleAPI(config?: TailscaleConfig): TailscaleAPI;
 //# sourceMappingURL=tailscale-api.d.ts.map
