@@ -9,6 +9,7 @@ This document covers the comprehensive advanced features implemented in your Tai
 Complete ACL management for network security and access control.
 
 #### Get Current ACL Configuration
+
 ```json
 {
   "name": "manage_acl",
@@ -19,6 +20,7 @@ Complete ACL management for network security and access control.
 ```
 
 #### Update ACL Configuration
+
 ```json
 {
   "name": "manage_acl",
@@ -40,7 +42,7 @@ Complete ACL management for network security and access control.
           "dst": ["tag:development:*"]
         },
         {
-          "action": "accept", 
+          "action": "accept",
           "src": ["group:admins"],
           "dst": ["*:*"]
         }
@@ -51,6 +53,7 @@ Complete ACL management for network security and access control.
 ```
 
 #### Validate ACL Configuration
+
 ```json
 {
   "name": "manage_acl",
@@ -78,6 +81,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 #### DNS Nameservers
 
 **Get Current Nameservers:**
+
 ```json
 {
   "name": "manage_dns",
@@ -88,6 +92,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 ```
 
 **Set Custom Nameservers:**
+
 ```json
 {
   "name": "manage_dns",
@@ -101,6 +106,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 #### MagicDNS Configuration
 
 **Get MagicDNS Status:**
+
 ```json
 {
   "name": "manage_dns",
@@ -111,6 +117,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 ```
 
 **Enable MagicDNS:**
+
 ```json
 {
   "name": "manage_dns",
@@ -124,6 +131,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 #### DNS Search Paths
 
 **Get Search Paths:**
+
 ```json
 {
   "name": "manage_dns",
@@ -134,6 +142,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 ```
 
 **Set Search Paths:**
+
 ```json
 {
   "name": "manage_dns",
@@ -151,6 +160,7 @@ Complete DNS configuration management including nameservers, MagicDNS, and searc
 Comprehensive authentication key management for device onboarding and automation.
 
 #### List All Authentication Keys
+
 ```json
 {
   "name": "manage_keys",
@@ -163,6 +173,7 @@ Comprehensive authentication key management for device onboarding and automation
 #### Create Authentication Keys
 
 **Basic Single-Use Key:**
+
 ```json
 {
   "name": "manage_keys",
@@ -186,6 +197,7 @@ Comprehensive authentication key management for device onboarding and automation
 ```
 
 **Reusable Server Key with Tags:**
+
 ```json
 {
   "name": "manage_keys",
@@ -210,6 +222,7 @@ Comprehensive authentication key management for device onboarding and automation
 ```
 
 **Ephemeral Development Key:**
+
 ```json
 {
   "name": "manage_keys",
@@ -234,6 +247,7 @@ Comprehensive authentication key management for device onboarding and automation
 ```
 
 #### Delete Authentication Key
+
 ```json
 {
   "name": "manage_keys",
@@ -251,6 +265,7 @@ Comprehensive authentication key management for device onboarding and automation
 Retrieve comprehensive information about your Tailscale network configuration.
 
 #### Basic Network Information
+
 ```json
 {
   "name": "get_tailnet_info",
@@ -261,6 +276,7 @@ Retrieve comprehensive information about your Tailscale network configuration.
 ```
 
 #### Detailed Network Information
+
 ```json
 {
   "name": "get_tailnet_info",
@@ -365,11 +381,13 @@ Then enable MagicDNS for automatic device name resolution:
 ### CI/CD Pipeline Integration
 
 1. **Create deployment key:**
+
 ```bash
 echo '{"name": "manage_keys", "arguments": {"operation": "create", "keyConfig": {"capabilities": {"devices": {"create": {"reusable": true, "preauthorized": true}}}}}}' | node dist/index.js
 ```
 
 2. **Deploy with key:**
+
 ```bash
 # Use the returned key in your deployment script
 tailscale up --authkey="tskey-auth-xxxxxxxxx"
@@ -385,7 +403,9 @@ Use the ACL management to maintain network policies:
   "arguments": {
     "operation": "validate",
     "aclConfig": {
-      "acls": [/* your ACL configuration */]
+      "acls": [
+        /* your ACL configuration */
+      ]
     }
   }
 }

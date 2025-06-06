@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Tailscale Device Schema
 export const TailscaleDeviceSchema = z.object({
@@ -19,23 +19,25 @@ export const TailscaleDeviceSchema = z.object({
   blocksIncomingConnections: z.boolean(),
   enabledRoutes: z.array(z.string()).optional().default([]),
   advertisedRoutes: z.array(z.string()).optional().default([]),
-  clientConnectivity: z.object({
-    endpoints: z.array(z.string()),
-    derp: z.string(),
-    mappingVariesByDestIP: z.boolean(),
-    latency: z.record(z.number()).optional(),
-    clientSupports: z.object({
-      hairPinning: z.boolean(),
-      ipv6: z.boolean(),
-      pcp: z.boolean(),
-      pmp: z.boolean(),
-      udp: z.boolean(),
-      upnp: z.boolean()
+  clientConnectivity: z
+    .object({
+      endpoints: z.array(z.string()),
+      derp: z.string(),
+      mappingVariesByDestIP: z.boolean(),
+      latency: z.record(z.number()).optional(),
+      clientSupports: z.object({
+        hairPinning: z.boolean(),
+        ipv6: z.boolean(),
+        pcp: z.boolean(),
+        pmp: z.boolean(),
+        udp: z.boolean(),
+        upnp: z.boolean(),
+      }),
     })
-  }).optional(),
+    .optional(),
   addresses: z.array(z.string()),
   user: z.string(),
-  tags: z.array(z.string()).optional()
+  tags: z.array(z.string()).optional(),
 });
 
 export const TailscaleNetworkStatusSchema = z.object({
@@ -46,69 +48,96 @@ export const TailscaleNetworkStatusSchema = z.object({
   currentTailnet: z.object({
     name: z.string(),
     magicDNSSuffix: z.string(),
-    magicDNSEnabled: z.boolean()
+    magicDNSEnabled: z.boolean(),
   }),
-  peers: z.array(TailscaleDeviceSchema)
+  peers: z.array(TailscaleDeviceSchema),
 });
 
 export const TailscaleCLIStatusSchema = z.object({
-  version: z.string(),
-  tun: z.boolean(),
-  backendState: z.string(),
-  authURL: z.string().optional(),
-  tailscaleIPs: z.array(z.string()),
-  self: z.object({
-    id: z.string(),
-    publicKey: z.string(),
-    hostName: z.string(),
-    dnsName: z.string(),
-    os: z.string(),
-    userID: z.number(),
-    tailscaleIPs: z.array(z.string()),
-    capabilities: z.array(z.string()).optional()
+  Version: z.string(),
+  TUN: z.boolean(),
+  BackendState: z.string(),
+  AuthURL: z.string().optional(),
+  TailscaleIPs: z.array(z.string()),
+  Self: z.object({
+    ID: z.string(),
+    PublicKey: z.string(),
+    HostName: z.string(),
+    DNSName: z.string(),
+    OS: z.string(),
+    UserID: z.number(),
+    TailscaleIPs: z.array(z.string()),
+    Capabilities: z.array(z.string()).optional(),
+    Online: z.boolean().optional(),
+    ExitNode: z.boolean().optional(),
+    ExitNodeOption: z.boolean().optional(),
+    Active: z.boolean().optional(),
   }),
-  peers: z.array(z.object({
-    id: z.string(),
-    publicKey: z.string(),
-    hostName: z.string(),
-    dnsName: z.string(),
-    os: z.string(),
-    userID: z.number(),
-    tailscaleIPs: z.array(z.string()),
-    connType: z.string().optional(),
-    derp: z.string().optional(),
-    lastWrite: z.string().optional(),
-    lastSeen: z.string().optional(),
-    online: z.boolean().optional(),
-    exitNode: z.boolean().optional(),
-    exitNodeOption: z.boolean().optional(),
-    active: z.boolean().optional()
-  })).optional()
+  Peer: z
+    .record(
+      z.object({
+        ID: z.string(),
+        PublicKey: z.string(),
+        HostName: z.string(),
+        DNSName: z.string(),
+        OS: z.string(),
+        UserID: z.number(),
+        TailscaleIPs: z.array(z.string()),
+        CurAddr: z.string().optional(),
+        Relay: z.string().optional(),
+        LastWrite: z.string().optional(),
+        LastSeen: z.string().optional(),
+        Online: z.boolean().optional(),
+        ExitNode: z.boolean().optional(),
+        ExitNodeOption: z.boolean().optional(),
+        Active: z.boolean().optional(),
+        RxBytes: z.number().optional(),
+        TxBytes: z.number().optional(),
+      })
+    )
+    .optional(),
+  ExitNodeStatus: z
+    .object({
+      ID: z.string(),
+      Online: z.boolean(),
+      TailscaleIPs: z.array(z.string()),
+    })
+    .optional(),
+  MagicDNSSuffix: z.string().optional(),
+  CurrentTailnet: z
+    .object({
+      Name: z.string(),
+      MagicDNSSuffix: z.string(),
+      MagicDNSEnabled: z.boolean(),
+    })
+    .optional(),
 });
 
 // Tool request/response schemas
 export const ListDevicesRequestSchema = z.object({
-  includeRoutes: z.boolean().optional().default(false)
+  includeRoutes: z.boolean().optional().default(false),
 });
 
 export const DeviceActionRequestSchema = z.object({
   deviceId: z.string(),
-  action: z.enum(['authorize', 'deauthorize', 'delete', 'expire-key'])
+  action: z.enum(["authorize", "deauthorize", "delete", "expire-key"]),
 });
 
 export const NetworkStatusRequestSchema = z.object({
-  format: z.enum(['json', 'summary']).optional().default('json')
+  format: z.enum(["json", "summary"]).optional().default("json"),
 });
 
 export const RouteActionRequestSchema = z.object({
   deviceId: z.string(),
   routes: z.array(z.string()),
-  action: z.enum(['enable', 'disable'])
+  action: z.enum(["enable", "disable"]),
 });
 
 // Type exports
 export type TailscaleDevice = z.infer<typeof TailscaleDeviceSchema>;
-export type TailscaleNetworkStatus = z.infer<typeof TailscaleNetworkStatusSchema>;
+export type TailscaleNetworkStatus = z.infer<
+  typeof TailscaleNetworkStatusSchema
+>;
 export type TailscaleCLIStatus = z.infer<typeof TailscaleCLIStatusSchema>;
 export type ListDevicesRequest = z.infer<typeof ListDevicesRequestSchema>;
 export type DeviceActionRequest = z.infer<typeof DeviceActionRequestSchema>;
@@ -117,10 +146,10 @@ export type RouteActionRequest = z.infer<typeof RouteActionRequestSchema>;
 
 // ACL Types
 export const ACLRuleSchema = z.object({
-  action: z.enum(['accept', 'drop']),
+  action: z.enum(["accept", "drop"]),
   src: z.array(z.string()),
   dst: z.array(z.string()),
-  proto: z.string().optional()
+  proto: z.string().optional(),
 });
 
 export const ACLConfigSchema = z.object({
@@ -128,21 +157,23 @@ export const ACLConfigSchema = z.object({
   tagOwners: z.record(z.array(z.string())).optional(),
   acls: z.array(ACLRuleSchema),
   tests: z.array(z.any()).optional(),
-  ssh: z.array(z.any()).optional()
+  ssh: z.array(z.any()).optional(),
 });
 
 // DNS Types
 export const DNSConfigSchema = z.object({
   dns: z.array(z.string()),
   magicDNS: z.boolean().optional(),
-  nameservers: z.object({
-    global: z.array(z.string()).optional(),
-    restricted: z.record(z.array(z.string())).optional()
-  }).optional()
+  nameservers: z
+    .object({
+      global: z.array(z.string()).optional(),
+      restricted: z.record(z.array(z.string())).optional(),
+    })
+    .optional(),
 });
 
 export const SearchPathSchema = z.object({
-  searchPaths: z.array(z.string())
+  searchPaths: z.array(z.string()),
 });
 
 // Key Management Types
@@ -159,10 +190,10 @@ export const AuthKeySchema = z.object({
         reusable: z.boolean(),
         ephemeral: z.boolean(),
         preauthorized: z.boolean(),
-        tags: z.array(z.string()).optional()
-      })
-    })
-  })
+        tags: z.array(z.string()).optional(),
+      }),
+    }),
+  }),
 });
 
 export const CreateAuthKeyRequestSchema = z.object({
@@ -172,35 +203,42 @@ export const CreateAuthKeyRequestSchema = z.object({
         reusable: z.boolean().optional(),
         ephemeral: z.boolean().optional(),
         preauthorized: z.boolean().optional(),
-        tags: z.array(z.string()).optional()
-      })
-    })
+        tags: z.array(z.string()).optional(),
+      }),
+    }),
   }),
   expirySeconds: z.number().optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
 });
 
 // Request schemas for new tools
 export const ACLRequestSchema = z.object({
-  operation: z.enum(['get', 'update', 'validate']),
-  aclConfig: ACLConfigSchema.optional()
+  operation: z.enum(["get", "update", "validate"]),
+  aclConfig: ACLConfigSchema.optional(),
 });
 
 export const DNSRequestSchema = z.object({
-  operation: z.enum(['get_nameservers', 'set_nameservers', 'get_preferences', 'set_preferences', 'get_searchpaths', 'set_searchpaths']),
+  operation: z.enum([
+    "get_nameservers",
+    "set_nameservers",
+    "get_preferences",
+    "set_preferences",
+    "get_searchpaths",
+    "set_searchpaths",
+  ]),
   nameservers: z.array(z.string()).optional(),
   magicDNS: z.boolean().optional(),
-  searchPaths: z.array(z.string()).optional()
+  searchPaths: z.array(z.string()).optional(),
 });
 
 export const KeyManagementRequestSchema = z.object({
-  operation: z.enum(['list', 'create', 'delete']),
+  operation: z.enum(["list", "create", "delete"]),
   keyId: z.string().optional(),
-  keyConfig: CreateAuthKeyRequestSchema.optional()
+  keyConfig: CreateAuthKeyRequestSchema.optional(),
 });
 
 export const TailnetInfoRequestSchema = z.object({
-  includeDetails: z.boolean().optional()
+  includeDetails: z.boolean().optional(),
 });
 
 export type ACLRule = z.infer<typeof ACLRuleSchema>;
@@ -216,52 +254,68 @@ export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
 
 // File Sharing Types
 export const FileSharingRequestSchema = z.object({
-  operation: z.enum(['get_status', 'enable', 'disable']),
-  deviceId: z.string().optional()
+  operation: z.enum(["get_status", "enable", "disable"]),
+  deviceId: z.string().optional(),
 });
 
 // Exit Node Types
 export const ExitNodeRequestSchema = z.object({
-  operation: z.enum(['list', 'set', 'clear', 'advertise', 'stop_advertising']),
+  operation: z.enum(["list", "set", "clear", "advertise", "stop_advertising"]),
   deviceId: z.string().optional(),
-  routes: z.array(z.string()).optional()
+  routes: z.array(z.string()).optional(),
 });
 
 // Network Lock Types
 export const NetworkLockRequestSchema = z.object({
-  operation: z.enum(['status', 'enable', 'disable', 'add_key', 'remove_key', 'list_keys']),
+  operation: z.enum([
+    "status",
+    "enable",
+    "disable",
+    "add_key",
+    "remove_key",
+    "list_keys",
+  ]),
   publicKey: z.string().optional(),
-  keyId: z.string().optional()
+  keyId: z.string().optional(),
 });
 
 // Subnet Router Types
 export const SubnetRouterRequestSchema = z.object({
-  operation: z.enum(['list_routes', 'advertise_routes', 'accept_routes', 'remove_routes']),
+  operation: z.enum([
+    "list_routes",
+    "advertise_routes",
+    "accept_routes",
+    "remove_routes",
+  ]),
   deviceId: z.string().optional(),
-  routes: z.array(z.string()).optional()
+  routes: z.array(z.string()).optional(),
 });
 
 // Webhook Management Types
 export const WebhookRequestSchema = z.object({
-  operation: z.enum(['list', 'create', 'delete', 'test']),
+  operation: z.enum(["list", "create", "delete", "test"]),
   webhookId: z.string().optional(),
-  config: z.object({
-    endpointUrl: z.string(),
-    secret: z.string().optional(),
-    events: z.array(z.string()),
-    description: z.string().optional()
-  }).optional()
+  config: z
+    .object({
+      endpointUrl: z.string(),
+      secret: z.string().optional(),
+      events: z.array(z.string()),
+      description: z.string().optional(),
+    })
+    .optional(),
 });
 
 // Policy File Types
 export const PolicyFileRequestSchema = z.object({
-  operation: z.enum(['get', 'update', 'test_access']),
+  operation: z.enum(["get", "update", "test_access"]),
   policy: z.string().optional(),
-  testRequest: z.object({
-    src: z.string(),
-    dst: z.string(),
-    proto: z.string().optional()
-  }).optional()
+  testRequest: z
+    .object({
+      src: z.string(),
+      dst: z.string(),
+      proto: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type FileSharingRequest = z.infer<typeof FileSharingRequestSchema>;
@@ -273,52 +327,66 @@ export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
 
 // Device Tagging Types
 export const DeviceTaggingRequestSchema = z.object({
-  operation: z.enum(['get_tags', 'set_tags', 'add_tags', 'remove_tags']),
+  operation: z.enum(["get_tags", "set_tags", "add_tags", "remove_tags"]),
   deviceId: z.string(),
-  tags: z.array(z.string()).optional()
+  tags: z.array(z.string()).optional(),
 });
 
-// SSH Management Types  
+// SSH Management Types
 export const SSHManagementRequestSchema = z.object({
-  operation: z.enum(['get_ssh_users', 'add_ssh_user', 'remove_ssh_user', 'get_ssh_settings', 'update_ssh_settings']),
+  operation: z.enum([
+    "get_ssh_users",
+    "add_ssh_user",
+    "remove_ssh_user",
+    "get_ssh_settings",
+    "update_ssh_settings",
+  ]),
   deviceId: z.string().optional(),
   username: z.string().optional(),
-  sshSettings: z.object({
-    checkPeriod: z.string().optional(),
-    enabled: z.boolean().optional()
-  }).optional()
+  sshSettings: z
+    .object({
+      checkPeriod: z.string().optional(),
+      enabled: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 // Network Statistics Types
 export const NetworkStatsRequestSchema = z.object({
-  operation: z.enum(['get_device_stats', 'get_network_overview', 'get_traffic_stats']),
+  operation: z.enum([
+    "get_device_stats",
+    "get_network_overview",
+    "get_traffic_stats",
+  ]),
   deviceId: z.string().optional(),
-  timeRange: z.enum(['1h', '24h', '7d', '30d']).optional()
+  timeRange: z.enum(["1h", "24h", "7d", "30d"]).optional(),
 });
 
 // Logging Configuration Types
 export const LoggingRequestSchema = z.object({
-  operation: z.enum(['get_log_config', 'set_log_level', 'get_audit_logs']),
-  logLevel: z.enum(['debug', 'info', 'warn', 'error']).optional(),
-  component: z.string().optional()
+  operation: z.enum(["get_log_config", "set_log_level", "get_audit_logs"]),
+  logLevel: z.enum(["debug", "info", "warn", "error"]).optional(),
+  component: z.string().optional(),
 });
 
 // User Management Types
 export const UserManagementRequestSchema = z.object({
-  operation: z.enum(['list_users', 'get_user', 'update_user_role']),
+  operation: z.enum(["list_users", "get_user", "update_user_role"]),
   userId: z.string().optional(),
-  role: z.enum(['admin', 'user', 'auditor']).optional()
+  role: z.enum(["admin", "user", "auditor"]).optional(),
 });
 
 // Device Posture Types
 export const DevicePostureRequestSchema = z.object({
-  operation: z.enum(['get_posture', 'set_posture_policy', 'check_compliance']),
+  operation: z.enum(["get_posture", "set_posture_policy", "check_compliance"]),
   deviceId: z.string().optional(),
-  policy: z.object({
-    requireUpdate: z.boolean().optional(),
-    allowedOSVersions: z.array(z.string()).optional(),
-    requiredSoftware: z.array(z.string()).optional()
-  }).optional()
+  policy: z
+    .object({
+      requireUpdate: z.boolean().optional(),
+      allowedOSVersions: z.array(z.string()).optional(),
+      requiredSoftware: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export type DeviceTaggingRequest = z.infer<typeof DeviceTaggingRequestSchema>;
@@ -346,7 +414,7 @@ export interface CLIResponse<T> {
 // MCP Tool result types
 export interface ToolResult {
   content: Array<{
-    type: 'text';
+    type: "text";
     text: string;
   }>;
   isError?: boolean;
@@ -367,7 +435,7 @@ export class TailscaleError extends Error {
     public readonly statusCode?: number
   ) {
     super(message);
-    this.name = 'TailscaleError';
+    this.name = "TailscaleError";
   }
 }
 
@@ -378,6 +446,6 @@ export class CLIError extends Error {
     public readonly exitCode?: number
   ) {
     super(message);
-    this.name = 'CLIError';
+    this.name = "CLIError";
   }
 }

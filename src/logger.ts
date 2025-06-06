@@ -2,7 +2,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 class Logger {
@@ -21,7 +21,7 @@ class Logger {
       const timestamp = new Date().toISOString();
       const levelName = LogLevel[level];
       const prefix = `[${timestamp}] [${levelName}]`;
-      
+
       switch (level) {
         case LogLevel.DEBUG:
           console.debug(prefix, message, ...args);

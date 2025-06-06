@@ -1,14 +1,18 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { TailscaleCLIStatus, TailscaleCLIStatusSchema, CLIResponse } from './types.js';
-import { logger } from './logger.js';
+import { exec } from "child_process";
+import { promisify } from "util";
+import {
+  TailscaleCLIStatus,
+  TailscaleCLIStatusSchema,
+  CLIResponse,
+} from "./types.js";
+import { logger } from "./logger.js";
 
 const execAsync = promisify(exec);
 
 export class TailscaleCLI {
   private cliPath: string;
 
-  constructor(cliPath: string = 'tailscale') {
+  constructor(cliPath: string = "tailscale") {
     this.cliPath = cliPath;
   }
 
@@ -17,26 +21,28 @@ export class TailscaleCLI {
    */
   private async executeCommand(args: string[]): Promise<CLIResponse<string>> {
     try {
-      logger.debug(`Executing: ${this.cliPath} ${args.join(' ')}`);
-      
-      const { stdout, stderr } = await execAsync(`${this.cliPath} ${args.join(' ')}`);
-      
+      logger.debug(`Executing: ${this.cliPath} ${args.join(" ")}`);
+
+      const { stdout, stderr } = await execAsync(
+        `${this.cliPath} ${args.join(" ")}`
+      );
+
       if (stderr && stderr.trim()) {
-        logger.warn('CLI stderr:', stderr);
+        logger.warn("CLI stderr:", stderr);
       }
 
       return {
         success: true,
         data: stdout.trim(),
-        stderr: stderr?.trim()
+        stderr: stderr?.trim(),
       };
     } catch (error: any) {
-      logger.error('CLI command failed:', error);
-      
+      logger.error("CLI command failed:", error);
+
       return {
         success: false,
         error: error.message,
-        stderr: error.stderr
+        stderr: error.stderr,
       };
     }
   }
@@ -45,29 +51,29 @@ export class TailscaleCLI {
    * Get Tailscale status
    */
   async getStatus(): Promise<CLIResponse<TailscaleCLIStatus>> {
-    const result = await this.executeCommand(['status', '--json']);
-    
+    const result = await this.executeCommand(["status", "--json"]);
+
     if (!result.success) {
       return {
         success: false,
-        error: result.error || 'Unknown error',
-        stderr: result.stderr
+        error: result.error || "Unknown error",
+        stderr: result.stderr,
       };
     }
 
     try {
       const statusData = JSON.parse(result.data!);
       const validatedStatus = TailscaleCLIStatusSchema.parse(statusData);
-      
+
       return {
         success: true,
-        data: validatedStatus
+        data: validatedStatus,
       };
     } catch (error: any) {
-      logger.error('Failed to parse status JSON:', error);
+      logger.error("Failed to parse status JSON:", error);
       return {
         success: false,
-        error: `Failed to parse status data: ${error.message}`
+        error: `Failed to parse status data: ${error.message}`,
       };
     }
   }
@@ -77,58 +83,62 @@ export class TailscaleCLI {
    */
   async listPeers(): Promise<CLIResponse<string[]>> {
     const statusResult = await this.getStatus();
-    
+
     if (!statusResult.success) {
       return {
         success: false,
-        error: statusResult.error || 'Unknown error',
-        stderr: statusResult.stderr
+        error: statusResult.error || "Unknown error",
+        stderr: statusResult.stderr,
       };
     }
 
-    const peers = statusResult.data!.peers?.map(peer => peer.hostName) || [];
-    
+    const peers = statusResult.data!.Peer
+      ? Object.values(statusResult.data!.Peer).map((peer: any) => peer.HostName)
+      : [];
+
     return {
       success: true,
-      data: peers
+      data: peers,
     };
   }
 
   /**
    * Connect to Tailscale network
    */
-  async up(options: {
-    loginServer?: string;
-    acceptRoutes?: boolean;
-    acceptDns?: boolean;
-    hostname?: string;
-    advertiseRoutes?: string[];
-    authKey?: string;
-  } = {}): Promise<CLIResponse<string>> {
-    const args = ['up'];
-    
+  async up(
+    options: {
+      loginServer?: string;
+      acceptRoutes?: boolean;
+      acceptDns?: boolean;
+      hostname?: string;
+      advertiseRoutes?: string[];
+      authKey?: string;
+    } = {}
+  ): Promise<CLIResponse<string>> {
+    const args = ["up"];
+
     if (options.loginServer) {
-      args.push('--login-server', options.loginServer);
+      args.push("--login-server", options.loginServer);
     }
-    
+
     if (options.acceptRoutes) {
-      args.push('--accept-routes');
+      args.push("--accept-routes");
     }
-    
+
     if (options.acceptDns) {
-      args.push('--accept-dns');
+      args.push("--accept-dns");
     }
-    
+
     if (options.hostname) {
-      args.push('--hostname', options.hostname);
+      args.push("--hostname", options.hostname);
     }
-    
+
     if (options.advertiseRoutes && options.advertiseRoutes.length > 0) {
-      args.push('--advertise-routes', options.advertiseRoutes.join(','));
+      args.push("--advertise-routes", options.advertiseRoutes.join(","));
     }
-    
+
     if (options.authKey) {
-      args.push('--authkey', options.authKey);
+      args.push("--authkey", options.authKey);
     }
 
     return await this.executeCommand(args);
@@ -138,47 +148,47 @@ export class TailscaleCLI {
    * Disconnect from Tailscale network
    */
   async down(): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['down']);
+    return await this.executeCommand(["down"]);
   }
 
   /**
    * Ping a peer
    */
   async ping(target: string, count: number = 4): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['ping', target, '-c', count.toString()]);
+    return await this.executeCommand(["ping", target, "-c", count.toString()]);
   }
 
   /**
    * Get network check information
    */
   async netcheck(): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['netcheck']);
+    return await this.executeCommand(["netcheck"]);
   }
 
   /**
    * Get version information
    */
   async version(): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['version']);
+    return await this.executeCommand(["version"]);
   }
 
   /**
    * Logout from Tailscale
    */
   async logout(): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['logout']);
+    return await this.executeCommand(["logout"]);
   }
 
   /**
    * Set exit node
    */
   async setExitNode(nodeId?: string): Promise<CLIResponse<string>> {
-    const args = ['set', '--exit-node'];
-    
+    const args = ["set", "--exit-node"];
+
     if (nodeId) {
       args.push(nodeId);
     } else {
-      args.push('');  // Clear exit node
+      args.push(""); // Clear exit node
     }
 
     return await this.executeCommand(args);
@@ -188,7 +198,11 @@ export class TailscaleCLI {
    * Enable/disable shields up mode
    */
   async setShieldsUp(enabled: boolean): Promise<CLIResponse<string>> {
-    return await this.executeCommand(['set', '--shields-up', enabled ? 'true' : 'false']);
+    return await this.executeCommand([
+      "set",
+      "--shields-up",
+      enabled ? "true" : "false",
+    ]);
   }
 
   /**
@@ -196,7 +210,7 @@ export class TailscaleCLI {
    */
   async isAvailable(): Promise<boolean> {
     try {
-      const result = await this.executeCommand(['version']);
+      const result = await this.executeCommand(["version"]);
       return result.success;
     } catch {
       return false;

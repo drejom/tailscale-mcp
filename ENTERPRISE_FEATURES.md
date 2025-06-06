@@ -5,28 +5,33 @@ Your Tailscale MCP server now includes comprehensive enterprise-grade features f
 ## 🏢 Complete Feature Set
 
 ### Core Device Management (4 tools)
+
 - **Device Discovery**: List all network devices with detailed information
 - **Device Actions**: Authorize, deauthorize, delete, and expire device keys
 - **Route Management**: Enable/disable subnet routes for specific devices
 - **Network Status**: Real-time network status and connectivity monitoring
 
 ### Network Operations (4 tools)
+
 - **Network Connection**: Connect/disconnect from Tailscale with custom options
 - **Peer Communication**: Ping devices and test connectivity
 - **Version Information**: Get Tailscale CLI and client version details
 - **Network Monitoring**: Comprehensive status reporting and diagnostics
 
 ### Security & Access Control (4 tools)
+
 - **ACL Management**: Complete access control list configuration and validation
 - **Network Lock**: Key authority management for enhanced security
 - **Authentication Keys**: Create, manage, and delete device onboarding keys
 - **Policy Testing**: Test ACL rules and validate network access
 
 ### DNS & Network Configuration (2 tools)
+
 - **DNS Management**: Configure nameservers, MagicDNS, and search paths
 - **Network Information**: Detailed tailnet configuration and settings
 
 ### Advanced Enterprise Features (4 tools)
+
 - **File Sharing**: Control file sharing settings across the network
 - **Exit Nodes**: Manage exit node advertising and routing
 - **Webhooks**: Configure event notifications and integrations
@@ -35,7 +40,9 @@ Your Tailscale MCP server now includes comprehensive enterprise-grade features f
 ## 🔧 Enterprise Use Cases
 
 ### 1. Automated Infrastructure Management
+
 Create authentication keys for automated server deployment:
+
 ```json
 {
   "name": "manage_keys",
@@ -58,7 +65,9 @@ Create authentication keys for automated server deployment:
 ```
 
 ### 2. Network Segmentation & Security
+
 Implement zero-trust network policies:
+
 ```json
 {
   "name": "manage_acl",
@@ -87,7 +96,9 @@ Implement zero-trust network policies:
 ```
 
 ### 3. Exit Node Management
+
 Configure exit nodes for secure internet access:
+
 ```json
 {
   "name": "manage_exit_nodes",
@@ -100,7 +111,9 @@ Configure exit nodes for secure internet access:
 ```
 
 ### 4. DNS Configuration
+
 Set up custom DNS for internal services:
+
 ```json
 {
   "name": "manage_dns",
@@ -112,7 +125,9 @@ Set up custom DNS for internal services:
 ```
 
 ### 5. Event Monitoring
+
 Configure webhooks for infrastructure monitoring:
+
 ```json
 {
   "name": "manage_webhooks",
@@ -128,7 +143,9 @@ Configure webhooks for infrastructure monitoring:
 ```
 
 ### 6. Network Lock Security
+
 Enable network lock for maximum security:
+
 ```json
 {
   "name": "manage_network_lock",
@@ -141,18 +158,21 @@ Enable network lock for maximum security:
 ## 📊 Monitoring & Compliance
 
 ### Real-time Network Monitoring
+
 - Device status and connectivity tracking
 - Route advertisement and traffic flow monitoring
 - Exit node performance and availability
 - DNS resolution and MagicDNS status
 
 ### Security Compliance
+
 - Network lock status and key management
 - ACL rule validation and testing
 - Authentication key lifecycle management
 - File sharing policy enforcement
 
 ### Event Tracking
+
 - Webhook notifications for critical events
 - Device authorization/deauthorization logging
 - Route changes and network modifications
@@ -161,30 +181,37 @@ Enable network lock for maximum security:
 ## 🚀 Integration Capabilities
 
 ### CI/CD Pipeline Integration
+
 Automate device onboarding in deployment pipelines with pre-authorized keys and custom tags.
 
 ### Infrastructure as Code
+
 Manage network policies, DNS settings, and device configurations through version-controlled templates.
 
 ### Monitoring Systems
+
 Integrate with existing monitoring solutions through webhooks and real-time status APIs.
 
 ### Security Tools
+
 Connect with SIEM systems for network access logging and compliance reporting.
 
 ## 🔐 Security Features
 
 ### Zero Trust Architecture
+
 - Comprehensive ACL management with granular permissions
 - Network lock for cryptographic device verification
 - Policy-based access control with testing capabilities
 
 ### Device Security
+
 - Automated device authorization workflows
 - Key expiration and rotation management
 - Route-based network segmentation
 
 ### Monitoring & Auditing
+
 - Real-time device and network status monitoring
 - Webhook-based event notifications
 - Policy compliance testing and validation
@@ -192,6 +219,7 @@ Connect with SIEM systems for network access logging and compliance reporting.
 ## 📋 Current Network Status
 
 Your Tailscale MCP server is actively managing:
+
 - **4 active devices** across your network
 - **ACL configuration** with production rules and SSH access
 - **MagicDNS enabled** for seamless device resolution
