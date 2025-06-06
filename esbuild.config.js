@@ -1,33 +1,40 @@
-import { build } from 'esbuild';
-import { readFileSync } from 'fs';
+import { build } from "esbuild";
+import { readFileSync } from "fs";
 
 // Read package.json to get dependencies
-const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
-const dependencies = Object.keys(packageJson.dependencies || {});
+let dependencies = [];
+try {
+  const packageJson = JSON.parse(readFileSync("./package.json", "utf8"));
+  dependencies = Object.keys(packageJson.dependencies || {});
+} catch (error) {
+  console.warn(
+    "Warning: Could not read package.json dependencies:",
+    error.message
+  );
+  dependencies = [];
+}
 
 const baseConfig = {
-  entryPoints: ['src/index.ts'],
+  entryPoints: ["src/index.ts"],
   bundle: true,
-  platform: 'node',
-  target: 'node18',
-  format: 'esm',
-  outfile: 'dist/index.js',
+  platform: "node",
+  target: "node18",
+  format: "esm",
+  outfile: "dist/index.js",
   sourcemap: true,
   minify: false,
   // External dependencies (don't bundle them)
   external: dependencies,
   // Handle TypeScript path mapping
-  resolveExtensions: ['.ts', '.js'],
+  resolveExtensions: [".ts", ".js"],
   // Preserve JSX and other settings
-  jsx: 'preserve',
+  jsx: "preserve",
   // Define environment
-  define: {
-    'process.env.NODE_ENV': '"production"'
-  },
-  // Banner to add shebang or other content
+  // NODE_ENV defined in specific configs
+  // Banner to add shebang for executable
   banner: {
-    js: '// Tailscale MCP Server - Built with esbuild'
-  }
+    js: "#!/usr/bin/env node\n// Tailscale MCP Server - Built with esbuild",
+  },
 };
 
 // Development config
@@ -36,8 +43,8 @@ export const devConfig = {
   minify: false,
   sourcemap: true,
   define: {
-    'process.env.NODE_ENV': '"development"'
-  }
+    "process.env.NODE_ENV": '"development"',
+  },
 };
 
 // Production config
@@ -46,8 +53,8 @@ export const prodConfig = {
   minify: true,
   sourcemap: false,
   define: {
-    'process.env.NODE_ENV': '"production"'
-  }
+    "process.env.NODE_ENV": '"production"',
+  },
 };
 
 // Watch config
@@ -56,40 +63,58 @@ export const watchConfig = {
   watch: {
     onRebuild(error, result) {
       if (error) {
-        console.error('❌ Build failed:', error);
+        console.error("❌ Build failed:", error);
       } else {
-        console.log('✅ Build succeeded');
+        console.log("✅ Build succeeded");
       }
-    }
-  }
+    },
+  },
 };
 
 // Build function
 export async function buildProject(config = prodConfig) {
   try {
     const result = await build(config);
-    console.log('✅ Build completed successfully');
+    console.log("✅ Build completed successfully");
+
+    // Make the output executable
+    if (config === prodConfig || config === devConfig) {
+      const { chmodSync } = await import("fs");
+      try {
+        chmodSync("dist/index.js", 0o755);
+        console.log("✅ Made output executable");
+      } catch (error) {
+        console.warn("⚠️ Could not make output executable:", error.message);
+      }
+    }
+
     return result;
   } catch (error) {
-    console.error('❌ Build failed:', error);
+    console.error("❌ Build failed:", error);
     process.exit(1);
   }
 }
 
 // CLI handling
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const mode = process.argv[2] || 'build';
+  const mode = process.argv[2] || "build";
+
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
+    console.log("Usage: node esbuild.config.js [mode]");
+    console.log("Modes: dev, watch, build (default)");
+    process.exit(0);
+  }
 
   switch (mode) {
-    case 'dev':
-      buildProject(devConfig);
+    case "dev":
+      await buildProject(devConfig);
       break;
-    case 'watch':
-      buildProject(watchConfig);
+    case "watch":
+      await buildProject(watchConfig);
       break;
-    case 'build':
+    case "build":
     default:
-      buildProject(prodConfig);
+      await buildProject(prodConfig);
       break;
   }
 }

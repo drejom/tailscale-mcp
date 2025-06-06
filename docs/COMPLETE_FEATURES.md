@@ -44,7 +44,6 @@ Your Tailscale MCP server now includes the most comprehensive set of network man
 ### System & Monitoring (2 tools)
 
 23. **get_version** - Version information and system status
-24. **ping_peer** - Network connectivity diagnostics
 
 ## 📊 Live Network Status
 

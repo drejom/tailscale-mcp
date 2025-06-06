@@ -3,6 +3,9 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022",
       "ESNext"
     ],
     "outDir": "./dist",

@@ -12,7 +12,7 @@ export class TailscaleAPI {
   private client: AxiosInstance;
   private tailnet: string;
 
-  constructor(config: TailscaleConfig) {
+  constructor(config: TailscaleConfig = {}) {
     const apiKey = config.apiKey || process.env.TAILSCALE_API_KEY;
     const tailnet = config.tailnet || process.env.TAILSCALE_TAILNET || "-";
 
@@ -24,12 +24,12 @@ export class TailscaleAPI {
 
     this.tailnet = tailnet;
     this.client = axios.create({
+      timeout: 30000,
       baseURL: "https://api.tailscale.com/api/v2",
       headers: {
         Authorization: apiKey ? `Bearer ${apiKey}` : "",
         "Content-Type": "application/json",
       },
-      timeout: 30000,
     });
 
     // Add request/response interceptors for logging
@@ -41,7 +41,12 @@ export class TailscaleAPI {
         return config;
       },
       (error) => {
-        logger.error("API Request Error:", error);
+        logger.error("API Request Error:", {
+          url: error.config?.url,
+          method: error.config?.method,
+          status: error.response?.status,
+          message: error.message,
+        });
         return Promise.reject(error);
       }
     );
@@ -97,9 +102,9 @@ export class TailscaleAPI {
       return {
         success: false,
         error: "Network error: Unable to connect to Tailscale API",
+        statusCode: 0,
       };
     } else {
-      // Other error
       return {
         success: false,
         error: error.message || "Unknown error occurred",
@@ -133,7 +138,13 @@ export class TailscaleAPI {
           (d: TailscaleDevice | null): d is TailscaleDevice => d !== null
         );
 
-      return this.handleResponse({ ...response, data: devices });
+      return this.handleResponse<TailscaleDevice[]>({
+        data: devices,
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        config: response.config,
+      });
     } catch (error) {
       return this.handleError(error);
     }

@@ -1,4 +1,4 @@
-import { TailscaleCLIStatusSchema, TailscaleDeviceSchema } from "../src/types";
+import { TailscaleCLIStatusSchema, TailscaleDeviceSchema } from "../../types";
 
 describe("Type Schemas", () => {
   describe("TailscaleCLIStatusSchema", () => {

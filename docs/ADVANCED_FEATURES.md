@@ -390,7 +390,9 @@ echo '{"name": "manage_keys", "arguments": {"operation": "create", "keyConfig": 
 
 ```bash
 # Use the returned key in your deployment script
-tailscale up --authkey="tskey-auth-xxxxxxxxx"
+# Store key in environment variable for security
+export TAILSCALE_AUTHKEY="tskey-auth-xxxxxxxxx"
+tailscale up --authkey="$TAILSCALE_AUTHKEY"
 ```
 
 ### Infrastructure as Code
