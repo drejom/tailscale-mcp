@@ -204,10 +204,17 @@ main() {
 
   echo ""
   print_status "Select a version bump type:"
+
+  # Pre-calculate version bumps to avoid repeated npx semver calls
+  local patch_ver minor_ver major_ver
+  patch_ver=$(npx semver "$current_version" -i patch)
+  minor_ver=$(npx semver "$current_version" -i minor)
+  major_ver=$(npx semver "$current_version" -i major)
+
   local options=(
-    "patch ($(npx semver "$current_version" -i patch))"
-    "minor ($(npx semver "$current_version" -i minor))"
-    "major ($(npx semver "$current_version" -i major))"
+    "patch ($patch_ver)"
+    "minor ($minor_ver)"
+    "major ($major_ver)"
     "prerelease"
     "custom"
     "skip"
