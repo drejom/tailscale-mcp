@@ -69,22 +69,8 @@ export class TailscaleMCPServer {
     await this.server.connect(transport);
 
     // Keep the process alive - different strategies for different environments
-    if (process.stdin.isTTY) {
-      // Interactive terminal - use stdin
-      logger.debug("Interactive terminal detected, using stdin for keepalive");
-      process.stdin.resume();
-      process.stdin.setEncoding("utf8");
-
-      process.stdin.on("end", () => {
-        logger.info("stdin closed, shutting down MCP server");
-        process.exit(0);
-      });
-
-      process.stdin.on("error", (error) => {
-        logger.error("stdin error:", error);
-        process.exit(1);
-      });
-    } else {
+    // Note: Don't interfere with stdin when MCP transport is using it
+    if (!process.stdin.isTTY) {
       // Non-interactive (Docker) - use interval keepalive
       logger.debug(
         "Non-interactive environment detected, using interval keepalive"
@@ -97,14 +83,16 @@ export class TailscaleMCPServer {
       process.on("exit", () => {
         clearInterval(keepAliveInterval);
       });
+    } else {
+      // Interactive terminal - let MCP transport handle stdin
+      logger.debug(
+        "Interactive terminal detected, letting MCP transport handle stdin"
+      );
     }
 
     // Handle process termination gracefully
     const cleanup = () => {
       logger.info("MCP Server shutting down...");
-      if (process.stdin.isTTY) {
-        process.stdin.pause();
-      }
       process.exit(0);
     };
 
