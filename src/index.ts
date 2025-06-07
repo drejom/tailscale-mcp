@@ -1,12 +1,53 @@
 import "dotenv/config";
-import { startServer } from "./server.js";
+import { TailscaleMCPServer, ServerMode } from "./server.js";
 import { logger } from "./logger.js";
 import { fileURLToPath } from "node:url";
 
 async function main() {
   try {
+    // Parse command line arguments
+    const args = process.argv.slice(2);
+    let mode: ServerMode = "stdio";
+    let port = 3000;
+
+    // Check for --http flag
+    if (args.includes("--http")) {
+      mode = "http";
+
+      // Check for --port flag
+      const portIndex = args.indexOf("--port");
+      if (portIndex !== -1 && args[portIndex + 1]) {
+        const parsedPort = parseInt(args[portIndex + 1], 10);
+        if (!isNaN(parsedPort)) {
+          port = parsedPort;
+        }
+      }
+    }
+
+    // Check for --help flag
+    if (args.includes("--help") || args.includes("-h")) {
+      console.log(`
+Tailscale MCP Server
+
+Usage:
+  tailscale-mcp-server [options]
+
+Options:
+  --http              Start in HTTP mode (default: stdio mode)
+  --port <number>     Port for HTTP mode (default: 3000)
+  --help, -h          Show this help message
+
+Examples:
+  tailscale-mcp-server                    # Start in stdio mode (for MCP clients)
+  tailscale-mcp-server --http             # Start HTTP server on port 3000
+  tailscale-mcp-server --http --port 8080 # Start HTTP server on port 8080
+      `);
+      process.exit(0);
+    }
+
     logger.info("Starting Tailscale MCP Server...");
-    await startServer();
+    const server = new TailscaleMCPServer();
+    await server.start(mode, port);
   } catch (error) {
     logger.error("Failed to start server:", error);
     await gracefulShutdown(1);

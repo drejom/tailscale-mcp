@@ -1,17 +1,23 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import express from "express";
+import { randomUUID } from "node:crypto";
 
 import { createTailscaleAPI } from "./tailscale/index.js";
 import { ToolRegistry } from "./tools/index.js";
 import { logger } from "./logger.js";
 
+export type ServerMode = "stdio" | "http";
+
 export class TailscaleMCPServer {
   private server: Server;
   private toolRegistry!: ToolRegistry;
+  private httpServer?: any;
 
   constructor() {
     this.server = new Server(
@@ -54,17 +60,29 @@ export class TailscaleMCPServer {
     });
   }
 
-  async start(): Promise<void> {
+  async start(mode: ServerMode = "stdio", port: number = 3000): Promise<void> {
     await this.initialize();
 
     // Log server configuration
-    logger.info("Tailscale MCP Server starting...");
+    logger.info(`Tailscale MCP Server starting in ${mode} mode...`);
     if (process.env.MCP_SERVER_LOG_FILE) {
       logger.info("File logging enabled");
     } else {
       logger.debug("File logging disabled (set MCP_SERVER_LOG_FILE to enable)");
     }
 
+    if (mode === "http") {
+      await this.startHttpServer(port);
+    } else {
+      await this.startStdioServer();
+    }
+
+    logger.info(
+      `Tailscale MCP Server started successfully and listening for MCP messages (${mode} mode)`
+    );
+  }
+
+  private async startStdioServer(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
 
@@ -88,10 +106,135 @@ export class TailscaleMCPServer {
 
     process.on("SIGINT", cleanup);
     process.on("SIGTERM", cleanup);
+  }
 
-    logger.info(
-      "Tailscale MCP Server started successfully and listening for MCP messages"
-    );
+  private async startHttpServer(port: number): Promise<void> {
+    const app = express();
+
+    // Enable JSON parsing
+    app.use(express.json());
+
+    // Add CORS headers for testing
+    app.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      );
+      if (req.method === "OPTIONS") {
+        res.sendStatus(200);
+      } else {
+        next();
+      }
+    });
+
+    // Add a simple health check endpoint
+    app.get("/health", (req, res) => {
+      res.json({
+        status: "healthy",
+        server: "tailscale-mcp-server",
+        mode: "http",
+        tools: this.toolRegistry.getTools().length,
+      });
+    });
+
+    // Add a tools listing endpoint
+    app.get("/tools", (req, res) => {
+      res.json({ tools: this.toolRegistry.getTools() });
+    });
+
+    // Map to store transports by session ID
+    const transports: { [sessionId: string]: StreamableHTTPServerTransport } =
+      {};
+
+    // MCP POST endpoint handler
+    const mcpPostHandler = async (req: any, res: any) => {
+      try {
+        // Check for existing session ID
+        const sessionId = req.headers["mcp-session-id"] as string;
+        let transport: StreamableHTTPServerTransport;
+
+        if (sessionId && transports[sessionId]) {
+          // Reuse existing transport
+          transport = transports[sessionId];
+        } else if (!sessionId) {
+          // New session - create new transport
+          transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: () => randomUUID(),
+            onsessioninitialized: (sessionId: string) => {
+              logger.debug(`Session initialized with ID: ${sessionId}`);
+              transports[sessionId] = transport;
+            },
+          });
+
+          // Set up onclose handler to clean up transport when closed
+          transport.onclose = () => {
+            const sid = transport.sessionId;
+            if (sid && transports[sid]) {
+              logger.debug(
+                `Transport closed for session ${sid}, removing from transports map`
+              );
+              delete transports[sid];
+            }
+          };
+
+          // Connect the server to this transport
+          await this.server.connect(transport);
+        } else {
+          res.status(400).send("Invalid session ID");
+          return;
+        }
+
+        // Handle the request
+        await transport.handleRequest(req, res);
+      } catch (error) {
+        logger.error("Error handling MCP request:", error);
+        res.status(500).send("Internal server error");
+      }
+    };
+
+    // MCP GET endpoint handler (for SSE streams)
+    const mcpGetHandler = async (req: any, res: any) => {
+      const sessionId = req.headers["mcp-session-id"];
+      if (!sessionId || !transports[sessionId]) {
+        res.status(400).send("Invalid or missing session ID");
+        return;
+      }
+
+      const transport = transports[sessionId];
+      await transport.handleRequest(req, res);
+    };
+
+    // Set up MCP endpoints
+    app.post("/mcp", mcpPostHandler);
+    app.get("/mcp", mcpGetHandler);
+
+    // Start the HTTP server
+    this.httpServer = app.listen(port, () => {
+      logger.info(`HTTP server listening on port ${port}`);
+      logger.info(`Health check: http://localhost:${port}/health`);
+      logger.info(`Tools list: http://localhost:${port}/tools`);
+      logger.info(`MCP endpoint: http://localhost:${port}/mcp`);
+    });
+
+    // Handle process termination gracefully
+    const cleanup = () => {
+      logger.info("HTTP MCP Server shutting down...");
+      if (this.httpServer) {
+        this.httpServer.close(() => {
+          process.exit(0);
+        });
+      } else {
+        process.exit(0);
+      }
+    };
+
+    process.on("SIGINT", cleanup);
+    process.on("SIGTERM", cleanup);
   }
 }
 

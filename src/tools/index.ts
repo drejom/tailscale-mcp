@@ -1,7 +1,6 @@
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { TailscaleAPI } from "../tailscale/tailscale-api.js";
-// import { TailscaleCLI } from "../tailscale/tailscale-cli.js";
 
 // Import all tool modules
 import { logger } from "../logger.js";

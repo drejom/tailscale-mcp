@@ -40,7 +40,6 @@ const baseConfig = {
   // NODE_ENV defined in specific configs
 };
 
-const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 // ESM config (main executable)
 const esmConfig = {
   ...baseConfig,
@@ -48,7 +47,7 @@ const esmConfig = {
   outfile: "dist/index.js",
   // Banner to add shebang for executable
   banner: {
-    js: `#!/usr/bin/env node\n// Tailscale MCP Server - Built with esbuild - ${timestamp}`,
+    js: `#!/usr/bin/env node\n// Tailscale MCP Server - Built with esbuild`,
   },
 };
 
