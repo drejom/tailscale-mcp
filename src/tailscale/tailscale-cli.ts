@@ -227,7 +227,7 @@ export class TailscaleCLI {
       ? Object.values(statusResult.data.Peer)
           .map((p) => (p as any).HostName)
           .filter(
-            (hostname): hostname is string => typeof hostname === "string"
+            (hostname): hostname is string => typeof hostname === "string",
           )
       : [];
 
@@ -248,7 +248,7 @@ export class TailscaleCLI {
       hostname?: string;
       advertiseRoutes?: string[];
       authKey?: string;
-    } = {}
+    } = {},
   ): Promise<CLIResponse<string>> {
     const args = ["up"];
 
@@ -309,7 +309,7 @@ export class TailscaleCLI {
       count > TailscaleCLI.MAX_PING_COUNT
     ) {
       throw new Error(
-        `Count must be an integer between ${TailscaleCLI.MIN_PING_COUNT} and ${TailscaleCLI.MAX_PING_COUNT}`
+        `Count must be an integer between ${TailscaleCLI.MIN_PING_COUNT} and ${TailscaleCLI.MAX_PING_COUNT}`,
       );
     }
 

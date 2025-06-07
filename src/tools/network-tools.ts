@@ -53,7 +53,7 @@ const PingPeerSchema = z.object({
 // Tool handlers
 async function getNetworkStatus(
   args: z.infer<typeof NetworkStatusSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting network status with format:", args.format);
@@ -147,7 +147,7 @@ async function getNetworkStatus(
 
 async function connectNetwork(
   args: z.infer<typeof ConnectNetworkSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     const options = {
@@ -201,7 +201,7 @@ async function connectNetwork(
 
 async function disconnectNetwork(
   args: any,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Disconnecting from Tailscale network");
@@ -246,7 +246,7 @@ async function disconnectNetwork(
 
 async function pingPeer(
   args: z.infer<typeof PingPeerSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug(`Pinging ${args.target} (${args.count} packets)`);
@@ -291,7 +291,7 @@ async function pingPeer(
 
 async function getVersion(
   args: any,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting Tailscale version");

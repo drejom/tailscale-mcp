@@ -41,7 +41,7 @@ export class HttpMCPServer {
         capabilities: {
           tools: {},
         },
-      }
+      },
     );
 
     this.setupHandlers();
@@ -71,7 +71,7 @@ export class HttpMCPServer {
   private validateSession(
     sessionId: string,
     authToken: string,
-    clientIp?: string
+    clientIp?: string,
   ): SessionInfo | null {
     const session = this.sessions[sessionId];
     if (!session) {
@@ -81,7 +81,7 @@ export class HttpMCPServer {
 
     if (session.authToken !== authToken) {
       logger.warn(
-        `Session validation failed: Invalid auth token for session ${sessionId} from IP ${clientIp}`
+        `Session validation failed: Invalid auth token for session ${sessionId} from IP ${clientIp}`,
       );
       return null;
     }
@@ -97,7 +97,7 @@ export class HttpMCPServer {
       session.clientInfo.ip !== clientIp
     ) {
       logger.warn(
-        `Session validation failed: IP mismatch for session ${sessionId}. Expected ${session.clientInfo.ip}, got ${clientIp}`
+        `Session validation failed: IP mismatch for session ${sessionId}. Expected ${session.clientInfo.ip}, got ${clientIp}`,
       );
       return null;
     }
@@ -157,13 +157,13 @@ export class HttpMCPServer {
     // MCP POST endpoint handler with secure session management
     const mcpPostHandler = async (
       req: express.Request,
-      res: express.Response
+      res: express.Response,
     ) => {
       try {
         const sessionId = req.headers["mcp-session-id"] as string;
         const authToken = req.headers["authorization"]?.replace(
           "Bearer ",
-          ""
+          "",
         ) as string;
         const clientIp = req.ip || req.socket.remoteAddress;
         const userAgent = req.headers["user-agent"];
@@ -175,7 +175,7 @@ export class HttpMCPServer {
           const validatedSession = this.validateSession(
             sessionId,
             authToken,
-            clientIp
+            clientIp,
           );
           if (!validatedSession) {
             res.status(401).json({
@@ -193,7 +193,7 @@ export class HttpMCPServer {
             onsessioninitialized: (newSessionId: string) => {
               // Changed from info to debug
               logger.debug(
-                `New authenticated session initialized: ${newSessionId} from IP ${clientIp}`
+                `New authenticated session initialized: ${newSessionId} from IP ${clientIp}`,
               );
 
               sessionInfo = {
@@ -220,7 +220,7 @@ export class HttpMCPServer {
             const sid = transport.sessionId;
             if (sid && this.sessions[sid]) {
               logger.debug(
-                `Transport closed for session ${sid}, removing from sessions`
+                `Transport closed for session ${sid}, removing from sessions`,
               );
               delete this.sessions[sid];
             }
@@ -261,13 +261,13 @@ export class HttpMCPServer {
     // MCP GET endpoint handler (for SSE streams) with secure session validation
     const mcpGetHandler = async (
       req: express.Request,
-      res: express.Response
+      res: express.Response,
     ) => {
       try {
         const sessionId = req.headers["mcp-session-id"] as string;
         const authToken = req.headers["authorization"]?.replace(
           "Bearer ",
-          ""
+          "",
         ) as string;
         const clientIp = req.ip || req.socket.remoteAddress;
 
@@ -283,7 +283,7 @@ export class HttpMCPServer {
         const sessionInfo = this.validateSession(
           sessionId,
           authToken,
-          clientIp
+          clientIp,
         );
         if (!sessionInfo) {
           res.status(401).json({
@@ -328,11 +328,11 @@ export class HttpMCPServer {
       res.header("Access-Control-Allow-Credentials", "true");
       res.header(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
+        "GET, POST, PUT, DELETE, OPTIONS",
       );
       res.header(
         "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization, mcp-session-id"
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization, mcp-session-id",
       );
       if (req.method === "OPTIONS") {
         res.sendStatus(200);
@@ -347,7 +347,7 @@ export class HttpMCPServer {
     // Run cleanup every 15 minutes
     this.cleanupInterval = setInterval(
       () => this.cleanupExpiredSessions(),
-      TIMEOUT_MS
+      TIMEOUT_MS,
     );
 
     // Start the HTTP server
@@ -369,7 +369,7 @@ export class HttpMCPServer {
     process.on("SIGTERM", cleanup);
 
     logger.debug(
-      "HTTP MCP Server started successfully and listening for MCP messages"
+      "HTTP MCP Server started successfully and listening for MCP messages",
     );
   }
 
@@ -388,7 +388,7 @@ export class HttpMCPServer {
 
     if (this.httpServer) {
       await new Promise<void>((resolve) =>
-        this.httpServer!.close(() => resolve())
+        this.httpServer!.close(() => resolve()),
       );
       this.httpServer = undefined;
     }

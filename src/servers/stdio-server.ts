@@ -26,7 +26,7 @@ export class StdioMCPServer {
         capabilities: {
           tools: {},
         },
-      }
+      },
     );
 
     this.setupHandlers();
@@ -64,7 +64,7 @@ export class StdioMCPServer {
 
     this.keepAliveInterval = setInterval(
       () => logger.debug("Stdio MCP Server keepalive heartbeat"),
-      KEEP_ALIVE_INTERVAL
+      KEEP_ALIVE_INTERVAL,
     ).unref(); // allow Node to exit naturally
 
     // Handle process termination gracefully
@@ -78,7 +78,7 @@ export class StdioMCPServer {
     process.on("SIGTERM", cleanup);
 
     logger.debug(
-      "Stdio MCP Server started successfully and listening for MCP messages"
+      "Stdio MCP Server started successfully and listening for MCP messages",
     );
   }
 

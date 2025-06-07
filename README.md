@@ -271,24 +271,256 @@ npm run build:watch
 # Run in development mode with auto-restart
 npm run dev
 
-# Run tests
+# Run with auto-rebuild (watch mode)
+npm run dev:watch
+
+# Run directly with tsx (fastest for development)
+npm run dev:direct
+
+# Run all tests
 npm test
+
+# Run unit tests only
+npm run test:unit
+
+# Run integration tests only (requires Tailscale CLI)
+npm run test:integration
 
 # Run tests in watch mode
 npm run test:watch
+npm run test:unit:watch
+npm run test:integration:watch
 
 # Run tests with coverage
 npm run test:coverage
+npm run test:unit:coverage
+npm run test:integration:coverage
+
+# Run tests for CI (non-interactive)
+npm run test:ci
+npm run test:unit:ci
+npm run test:integration:ci
 
 # Test with MCP Inspector
 npm run inspector
 
-# Lint code
+# Quality assurance (typecheck + unit tests + lint)
+npm run qa
+
+# Full quality assurance (typecheck + all tests + lint)
+npm run qa:full
+
+# Type checking
+npm run typecheck
+
+# Lint code (placeholder - needs setup)
 npm run lint
 
-# Format code
+# Format code (placeholder - needs setup)
 npm run format
 ```
+
+### Testing Strategy
+
+This project uses a comprehensive testing strategy with separate unit and integration test suites:
+
+#### Unit Tests
+
+- **Purpose**: Test individual components in isolation
+- **Location**: `src/__test__/**/*.test.ts`
+- **Configuration**: `jest.config.unit.ts`
+- **Requirements**: No external dependencies
+- **Speed**: Fast execution
+- **Coverage**: Focus on business logic, utilities, and pure functions
+
+#### Integration Tests
+
+- **Purpose**: Test CLI integration and real Tailscale interactions
+- **Location**: `src/__test__/**/*.integration.test.ts`
+- **Configuration**: `jest.config.integration.ts`
+- **Requirements**: Tailscale CLI installed
+- **Speed**: Slower execution
+- **Coverage**: End-to-end workflows and CLI security
+
+#### Running Tests Locally
+
+**Prerequisites for Integration Tests:**
+
+```bash
+# Install Tailscale CLI (macOS)
+brew install tailscale
+
+# Install Tailscale CLI (Ubuntu/Debian)
+curl -fsSL https://tailscale.com/install.sh | sh
+
+# Verify installation
+tailscale version
+```
+
+**Test Execution:**
+
+```bash
+# Quick unit tests (no external dependencies)
+npm run test:unit
+
+# Full integration tests (requires Tailscale CLI)
+npm run test:integration
+
+# All tests with coverage report
+npm run test:coverage
+```
+
+#### CI/CD Testing
+
+The project uses GitHub Actions with separate jobs for different test types:
+
+1. **Unit Tests**: Run on Node.js 18, 20, and 22
+2. **Integration Tests**: Run with Tailscale CLI installed and configured
+3. **Security Tests**: Validate CLI input sanitization
+4. **Coverage Reports**: Uploaded to Codecov
+
+**CI Configuration Features:**
+
+- Tailscale CLI installation and setup
+- Optional Tailscale authentication for full integration testing
+- Separate coverage reports for unit and integration tests
+- Proper cleanup of Tailscale connections
+- Matrix testing across Node.js versions
+
+#### Test Organization
+
+```bash
+src/__test__/
+├── setup.ts                           # Global test setup
+├── setup.integration.ts               # Integration test setup
+├── utils/
+│   └── logger.test.ts                 # Unit tests for utilities
+├── tailscale/
+│   └── cli-security.test.integration.ts  # Integration security tests
+└── tools/
+    └── *.test.ts                      # Tool unit tests
+```
+
+#### Writing Tests
+
+**Unit Test Example:**
+
+```typescript
+// src/__test__/utils/example.test.ts
+import { ExampleClass } from "../../utils/example";
+
+describe("ExampleClass", () => {
+  test("should perform expected behavior", () => {
+    const instance = new ExampleClass();
+    expect(instance.method()).toBe("expected");
+  });
+});
+```
+
+**Integration Test Example:**
+
+```typescript
+// src/__test__/tailscale/example.integration.test.ts
+import { TailscaleCLI } from "../../tailscale/tailscale-cli";
+
+describe("TailscaleCLI Integration", () => {
+  test("should validate CLI security", async () => {
+    const cli = new TailscaleCLI();
+    await expect(cli.ping("invalid; rm -rf /")).rejects.toThrow();
+  });
+});
+```
+
+#### Test Utilities
+
+The integration test setup provides utilities for conditional test execution:
+
+```typescript
+// Skip tests if Tailscale CLI is not available
+global.integrationTestUtils.skipIfNoTailscale()("should test CLI", () => {
+  // Test implementation
+});
+
+// Skip tests if not logged into Tailscale
+global.integrationTestUtils.skipIfNotLoggedIn()("should test network", () => {
+  // Test implementation
+});
+```
+
+### NPM Scripts Reference
+
+The project includes a comprehensive set of npm scripts organized by workflow:
+
+#### Development Workflow
+
+```bash
+# Build commands
+npm run clean              # Clean dist directory
+npm run build              # Production build
+npm run build:dev          # Development build
+npm run build:watch        # Build with file watching
+
+# Development servers
+npm run start              # Start built application
+npm run dev                # Build and start in development mode
+npm run dev:watch          # Development with auto-rebuild
+npm run dev:direct         # Direct execution with tsx (fastest)
+
+# Quality assurance
+npm run typecheck          # TypeScript type checking
+npm run qa                 # Quick QA: typecheck + unit tests + lint
+npm run qa:full            # Full QA: typecheck + all tests + lint
+```
+
+#### Testing Workflow
+
+```bash
+# Basic testing
+npm run test               # Run all tests
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests only
+
+# Development testing
+npm run test:watch         # All tests in watch mode
+npm run test:unit:watch    # Unit tests in watch mode
+npm run test:integration:watch # Integration tests in watch mode
+
+# Coverage reports
+npm run test:coverage      # All tests with coverage
+npm run test:unit:coverage # Unit test coverage
+npm run test:integration:coverage # Integration test coverage
+
+# CI testing
+npm run test:ci            # All tests for CI
+npm run test:unit:ci       # Unit tests for CI
+npm run test:integration:ci # Integration tests for CI
+
+# Environment setup
+npm run test:setup         # Setup testing environment
+```
+
+#### Code Quality (Future)
+
+```bash
+npm run lint               # Lint code (needs ESLint setup)
+npm run format             # Format code (needs Prettier setup)
+```
+
+#### Publishing Workflow
+
+```bash
+npm run publish            # Interactive publish script
+npm run publish:test       # Test publish process
+npm run inspector          # Test with MCP Inspector
+```
+
+#### Recommended Development Workflow
+
+1. **Initial Setup**: `npm run test:setup`
+2. **Development**: `npm run dev:direct` or `npm run dev:watch`
+3. **Quick Check**: `npm run qa` (before commits)
+4. **Full Validation**: `npm run qa:full` (before PRs)
+5. **Publishing**: `npm run publish`
 
 ### Publishing
 
@@ -381,7 +613,7 @@ const MyToolSchema = z.object({
 
 async function myTool(
   args: z.infer<typeof MyToolSchema>,
-  context: ToolContext
+  context: ToolContext,
 ) {
   // Implementation
   return {

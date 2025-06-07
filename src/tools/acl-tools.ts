@@ -16,7 +16,7 @@ const ACLSchema = z.object({
             action: z.enum(["accept", "drop"]),
             src: z.array(z.string()),
             dst: z.array(z.string()),
-          })
+          }),
         )
         .optional()
         .describe("Access control rules"),
@@ -123,7 +123,7 @@ const PolicyFileSchema = z.object({
 // Tool handlers
 async function manageACL(
   args: z.infer<typeof ACLSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing ACL configuration:", args);
@@ -240,7 +240,7 @@ async function manageACL(
 
 async function manageDNS(
   args: z.infer<typeof DNSSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing DNS configuration:", args);
@@ -306,7 +306,7 @@ async function manageDNS(
             {
               type: "text",
               text: `DNS nameservers updated to: ${args.nameservers.join(
-                ", "
+                ", ",
               )}`,
             },
           ],
@@ -435,7 +435,7 @@ async function manageDNS(
             {
               type: "text",
               text: `DNS search paths updated to: ${args.searchPaths.join(
-                ", "
+                ", ",
               )}`,
             },
           ],
@@ -464,7 +464,7 @@ async function manageDNS(
 
 async function manageKeys(
   args: z.infer<typeof KeyManagementSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing authentication keys:", args);
@@ -615,7 +615,7 @@ async function manageKeys(
 
 async function manageNetworkLock(
   args: z.infer<typeof NetworkLockSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing network lock:", args);
@@ -723,7 +723,7 @@ async function manageNetworkLock(
 
 async function managePolicyFile(
   args: z.infer<typeof PolicyFileSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing policy file:", args);

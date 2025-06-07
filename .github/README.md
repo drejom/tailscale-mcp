@@ -381,7 +381,7 @@ const MyToolSchema = z.object({
 
 async function myTool(
   args: z.infer<typeof MyToolSchema>,
-  context: ToolContext
+  context: ToolContext,
 ) {
   // Implementation
   return {

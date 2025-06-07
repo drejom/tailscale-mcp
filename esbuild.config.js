@@ -15,7 +15,7 @@ try {
 } catch (error) {
   console.warn(
     "Warning: Could not read package.json dependencies:",
-    error.message
+    error.message,
   );
 }
 
@@ -115,7 +115,7 @@ export async function buildProject(configs = [prodEsmConfig, prodCjsConfig]) {
 
     // Build all configurations
     const results = await Promise.all(
-      configArray.map((config) => build(config))
+      configArray.map((config) => build(config)),
     );
 
     console.log("✅ Build completed successfully");

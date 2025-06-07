@@ -34,7 +34,7 @@ const ExitNodeSchema = z.object({
     .array(z.string())
     .min(1, "At least one route must be specified")
     .describe(
-      'Routes to advertise (e.g., ["0.0.0.0/0", "::/0"] for full exit node)'
+      'Routes to advertise (e.g., ["0.0.0.0/0", "::/0"] for full exit node)',
     ),
 });
 
@@ -66,7 +66,7 @@ const DeviceTaggingSchema = z.object({
     .array(z.string())
     .optional()
     .describe(
-      'Array of tags to manage (e.g., ["tag:server", "tag:production"])'
+      'Array of tags to manage (e.g., ["tag:server", "tag:production"])',
     ),
 });
 
@@ -143,7 +143,7 @@ const LoggingSchema = z.object({
 // Tool handlers
 async function getTailnetInfo(
   args: z.infer<typeof TailnetInfoSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting tailnet information:", args);
@@ -209,7 +209,7 @@ ${
 
 async function manageFileSharing(
   args: z.infer<typeof FileSharingSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing file sharing:", args);
@@ -310,7 +310,7 @@ async function manageFileSharing(
 
 async function manageExitNodes(
   args: z.infer<typeof ExitNodeSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing exit nodes:", args);
@@ -334,7 +334,7 @@ async function manageExitNodes(
         const exitNodes = devices.filter(
           (device: any) =>
             device.advertisedRoutes?.includes("0.0.0.0/0") ||
-            device.advertisedRoutes?.includes("::/0")
+            device.advertisedRoutes?.includes("::/0"),
         );
 
         if (exitNodes.length === 0) {
@@ -380,7 +380,7 @@ async function manageExitNodes(
 
         const result = await context.api.setDeviceExitNode(
           args.deviceId,
-          args.routes
+          args.routes,
         );
         if (!result.success) {
           return {
@@ -474,7 +474,7 @@ async function manageExitNodes(
 
 async function manageWebhooks(
   args: z.infer<typeof WebhookSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing webhooks:", args);
@@ -630,7 +630,7 @@ async function manageWebhooks(
               text: `Webhook test successful. Response: ${JSON.stringify(
                 result.data,
                 null,
-                2
+                2,
               )}`,
             },
           ],
@@ -661,7 +661,7 @@ async function manageWebhooks(
 
 async function manageDeviceTags(
   args: z.infer<typeof DeviceTaggingSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing device tags:", args);
@@ -711,7 +711,7 @@ async function manageDeviceTags(
 
         const result = await context.api.setDeviceTags(
           args.deviceId,
-          args.tags
+          args.tags,
         );
         if (!result.success) {
           return {
@@ -783,7 +783,7 @@ async function manageDeviceTags(
             {
               type: "text",
               text: `Added tags: ${args.tags.join(
-                ", "
+                ", ",
               )}. Current tags: ${newTags.join(", ")}`,
             },
           ],

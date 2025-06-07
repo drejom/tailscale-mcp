@@ -69,16 +69,16 @@ describe("TailscaleCLI Security Tests", () => {
 
     test("should validate ping count parameter", async () => {
       await expect(cli.ping("valid-host", 0)).rejects.toThrow(
-        /Count must be an integer between 1 and 100/
+        /Count must be an integer between 1 and 100/,
       );
       await expect(cli.ping("valid-host", 101)).rejects.toThrow(
-        /Count must be an integer between 1 and 100/
+        /Count must be an integer between 1 and 100/,
       );
       await expect(cli.ping("valid-host", -1)).rejects.toThrow(
-        /Count must be an integer between 1 and 100/
+        /Count must be an integer between 1 and 100/,
       );
       await expect(cli.ping("valid-host", 1.5)).rejects.toThrow(
-        /Count must be an integer between 1 and 100/
+        /Count must be an integer between 1 and 100/,
       );
     });
   });
@@ -106,7 +106,7 @@ describe("TailscaleCLI Security Tests", () => {
 
       for (const loginServer of dangerousServers) {
         await expect(cli.up({ loginServer })).rejects.toThrow(
-          /Invalid character/
+          /Invalid character/,
         );
       }
     });
@@ -135,7 +135,7 @@ describe("TailscaleCLI Security Tests", () => {
 
       for (const advertiseRoutes of ourValidationRoutes) {
         await expect(cli.up({ advertiseRoutes })).rejects.toThrow(
-          /Invalid route format/
+          /Invalid route format/,
         );
       }
 
@@ -180,7 +180,7 @@ describe("TailscaleCLI Security Tests", () => {
         ];
 
         const hasAcceptableError = acceptableErrors.some((pattern) =>
-          pattern.test(result.error || "")
+          pattern.test(result.error || ""),
         );
 
         expect(hasAcceptableError || result.success).toBeTruthy();
@@ -199,7 +199,7 @@ describe("TailscaleCLI Security Tests", () => {
 
       for (const nodeId of dangerousNodeIds) {
         await expect(cli.setExitNode(nodeId)).rejects.toThrow(
-          /Invalid character/
+          /Invalid character/,
         );
       }
     });

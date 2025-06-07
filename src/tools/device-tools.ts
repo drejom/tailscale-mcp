@@ -30,7 +30,7 @@ const ManageRoutesSchema = z.object({
 // Tool handlers
 async function listDevices(
   args: z.infer<typeof ListDevicesSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Listing devices with options:", args);
@@ -67,7 +67,7 @@ async function listDevices(
         device.advertisedRoutes.length > 0
       ) {
         output += `  - Advertised routes: ${device.advertisedRoutes.join(
-          ", "
+          ", ",
         )}\n`;
         output += `  - Enabled routes: ${
           Array.isArray(device.enabledRoutes)
@@ -103,7 +103,7 @@ async function listDevices(
 
 async function deviceAction(
   args: z.infer<typeof DeviceActionSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Performing device action:", args);
@@ -170,7 +170,7 @@ async function deviceAction(
 
 async function manageRoutes(
   args: z.infer<typeof ManageRoutesSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Managing routes:", args);
@@ -181,7 +181,7 @@ async function manageRoutes(
     } else {
       result = await context.api.disableDeviceRoutes(
         args.deviceId,
-        args.routes
+        args.routes,
       );
     }
 
@@ -202,7 +202,7 @@ async function manageRoutes(
         {
           type: "text",
           text: `Successfully ${args.action}d routes ${args.routes.join(
-            ", "
+            ", ",
           )} for device ${args.deviceId}`,
         },
       ],

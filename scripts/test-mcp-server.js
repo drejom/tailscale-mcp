@@ -54,7 +54,7 @@ class TailscaleMCPTester {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       this.logFilePath = process.env.MCP_LOG_FILE.replace(
         "{timestamp}",
-        timestamp
+        timestamp,
       );
 
       // Create initial log file with header
@@ -283,12 +283,12 @@ class TailscaleMCPTester {
     if (apiKey) {
       this.log(
         `✅ TAILSCALE_API_KEY: Set (${apiKey.substring(0, 8)}...)`,
-        "green"
+        "green",
       );
     } else {
       this.log(
         "⚠️  TAILSCALE_API_KEY: Not set (API operations will fail)",
-        "yellow"
+        "yellow",
       );
     }
 
@@ -417,7 +417,7 @@ class TailscaleMCPTester {
   async getTailnetInfo() {
     this.log("\n🏢 Getting tailnet information...", "cyan");
     const includeDetails = await this.prompt(
-      "Include detailed info? (y/n) [n]: "
+      "Include detailed info? (y/n) [n]: ",
     );
     const result = await this.callTool("get_tailnet_info", {
       includeDetails: includeDetails.toLowerCase().startsWith("y"),
@@ -449,7 +449,7 @@ class TailscaleMCPTester {
     }
 
     const argsStr = await this.prompt(
-      "Enter arguments as JSON (or press Enter for empty): "
+      "Enter arguments as JSON (or press Enter for empty): ",
     );
     let args = {};
 
@@ -573,7 +573,7 @@ class TailscaleMCPTester {
       } catch (error) {
         this.log(
           '❌ Server build not found. Please run "npm run build" first.',
-          "red"
+          "red",
         );
         process.exit(1);
       }

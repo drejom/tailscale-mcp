@@ -94,7 +94,7 @@ export const TailscaleCLIStatusSchema = z.object({
         Active: z.boolean().optional(),
         RxBytes: z.number().optional(),
         TxBytes: z.number().optional(),
-      })
+      }),
     )
     .optional(),
   ExitNodeStatus: z
@@ -433,7 +433,7 @@ export class TailscaleError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
-    public readonly statusCode?: number
+    public readonly statusCode?: number,
   ) {
     super(message);
     this.name = "TailscaleError";
@@ -444,7 +444,7 @@ export class CLIError extends Error {
   constructor(
     message: string,
     public readonly stderr?: string,
-    public readonly exitCode?: number
+    public readonly exitCode?: number,
   ) {
     super(message);
     this.name = "CLIError";

@@ -30,7 +30,7 @@ class Logger {
       let logPath = process.env.MCP_SERVER_LOG_FILE;
       if (!logPath) {
         console.warn(
-          "Warning: MCP_SERVER_LOG_FILE is not set or is empty. File logging will be disabled."
+          "Warning: MCP_SERVER_LOG_FILE is not set or is empty. File logging will be disabled.",
         );
         return;
       }
@@ -71,7 +71,7 @@ class Logger {
       this.writeToFileAsync(`Log level changed to: ${LogLevel[level]}`).catch(
         (error) => {
           console.error(`❌ Failed to log level change: ${error}`);
-        }
+        },
       );
     }
   }
@@ -165,7 +165,7 @@ class Logger {
         args.length > 0
           ? `${message} ${args
               .map((arg) =>
-                typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+                typeof arg === "object" ? JSON.stringify(arg) : String(arg),
               )
               .join(" ")}`
           : message;
@@ -240,7 +240,7 @@ class Logger {
 
 // Export singleton instance
 export const logger = new Logger(
-  process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL) : LogLevel.INFO
+  process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL) : LogLevel.INFO,
 );
 
 // Export class for custom instances
