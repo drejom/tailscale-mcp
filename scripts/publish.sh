@@ -7,6 +7,8 @@ set -e # Exit on any error
 # --- Configuration ---
 # Your primary git branch
 MAIN_BRANCH="main"
+DOCKER_HUB_USERNAME="hexsleeves"
+DOCKER_HUB_REPO="tailscale-mcp-server"
 
 # --- Colors for output ---
 RED='\033[0;31m'
@@ -51,11 +53,6 @@ get_current_version() {
 }
 get_package_name() {
   node -p "require('./package.json').name"
-}
-get_docker_name() {
-  local pkg_name="$1"
-  # Removes the scope (e.g., @username/pkg -> pkg) for Docker Hub
-  echo "$pkg_name" | sed 's/@[^/]*\///'
 }
 get_github_owner() {
   # Tries to automatically determine the GitHub user/org from the git remote URL
@@ -113,19 +110,27 @@ publish_npm() {
   fi
 }
 
+build_docker() {
+  local version="$1"
+  local docker_name="$DOCKER_HUB_USERNAME/$DOCKER_HUB_REPO"
+  print_status "Building Docker image: $docker_name:$version"
+  docker build -t "$docker_name:$version" -t "$docker_name:latest" .
+  print_success "Built Docker image: $docker_name:$version"
+}
+
 publish_docker() {
   local version="$1"
   local package_name="$2"
   local docker_name
 
-  docker_name=$(get_docker_name "$package_name")
-
-  print_status "Building Docker image: $docker_name:$version"
-  docker build -t "$docker_name:$version" -t "$docker_name:latest" .
+  docker_name="$DOCKER_HUB_USERNAME/$DOCKER_HUB_REPO"
+  build_docker "$version"
 
   if prompt_yes_no "Push image '$docker_name' to Docker Hub?"; then
-    print_status "Pushing to Docker Hub..."
+    print_status "Pushing to Docker Hub: $docker_name:$version..."
     docker push "$docker_name:$version"
+
+    print_status "Pushing to Docker Hub: $docker_name:latest..."
     docker push "$docker_name:latest"
     print_success "Published to Docker Hub successfully!"
   else
@@ -140,7 +145,7 @@ publish_ghcr() {
   local github_owner
   local ghcr_image
 
-  docker_name=$(get_docker_name "$package_name")
+  docker_name="$DOCKER_HUB_USERNAME/$DOCKER_HUB_REPO"
   github_owner=$(get_github_owner)
 
   if [ -z "$github_owner" ]; then
@@ -153,7 +158,8 @@ publish_ghcr() {
     print_status "Detected GitHub owner: $github_owner"
   fi
 
-  ghcr_image="ghcr.io/$github_owner/$docker_name"
+  lowercase_github_owner=$(echo "$github_owner" | tr '[:upper:]' '[:lower:]')
+  ghcr_image="ghcr.io/$lowercase_github_owner/$DOCKER_HUB_REPO"
 
   print_status "Tagging image for GHCR: $ghcr_image:$version"
   docker tag "$docker_name:latest" "$ghcr_image:$version"
@@ -267,11 +273,7 @@ main() {
     if ! $did_publish_docker; then
       print_warning "Docker image was not built in the previous step."
       if prompt_yes_no "Build it now?"; then
-        # Build the image without pushing to Docker Hub
-        local docker_name
-        docker_name=$(get_docker_name "$package_name")
-        print_status "Building Docker image: $docker_name:$version"
-        docker build -t "$docker_name:$version" -t "$docker_name:latest" .
+        build_docker "$new_version"
       else
         print_error "Cannot publish to GHCR without a built image."
       fi
