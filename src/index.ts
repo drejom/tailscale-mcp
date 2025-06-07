@@ -18,8 +18,15 @@ async function main() {
       const portIndex = args.indexOf("--port");
       if (portIndex !== -1 && args[portIndex + 1]) {
         const parsedPort = parseInt(args[portIndex + 1], 10);
-        if (!isNaN(parsedPort)) {
+        if (!isNaN(parsedPort) && parsedPort >= 1 && parsedPort <= 65535) {
           port = parsedPort;
+        } else {
+          console.error(
+            `Invalid port number: ${
+              args[portIndex + 1]
+            }. Port must be between 1 and 65535.`
+          );
+          process.exit(1);
         }
       }
     }
