@@ -2,6 +2,12 @@
 
 A modern [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that provides seamless integration with Tailscale's CLI commands and REST API, enabling automated network management and monitoring through a standardized interface.
 
+## 📦 Available Packages
+
+- **NPM**: [`@hexsleeves/tailscale-mcp-server`](https://www.npmjs.com/package/@hexsleeves/tailscale-mcp-server)
+- **Docker Hub**: [`hexsleeves/tailscale-mcp-server`](https://hub.docker.com/r/hexsleeves/tailscale-mcp-server)
+- **GitHub Container Registry**: [`ghcr.io/hexsleeves/tailscale-mcp-server`](https://github.com/users/HexSleeves/packages/container/package/tailscale-mcp-server)
+
 ## Features
 
 - **Device Management**: List, authorize, deauthorize, and manage Tailscale devices
@@ -18,8 +24,14 @@ A modern [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server 
 Run directly without installation:
 
 ```bash
+# Method 1: Explicit package syntax (most reliable)
+npx --package=@hexsleeves/tailscale-mcp-server tailscale-mcp-server
+
+# Method 2: Direct syntax (may work depending on npx version)
 npx -y @hexsleeves/tailscale-mcp-server
 ```
+
+> **Note**: Method 1 with `--package=` syntax is more reliable across different npx versions and environments.
 
 Or install globally:
 
@@ -30,15 +42,32 @@ tailscale-mcp-server
 
 ### Option 2: Docker
 
+#### Docker Hub
+
 ```bash
-# Pull and run from Docker Hub (when published)
+# Pull and run from Docker Hub
+docker run -d \
+  --name tailscale-mcp \
+  -e TAILSCALE_API_KEY=your_api_key \
+  -e TAILSCALE_TAILNET=your_tailnet \
+  hexsleeves/tailscale-mcp-server:latest
+```
+
+#### GitHub Container Registry
+
+```bash
+# Pull and run from GitHub Container Registry
 docker run -d \
   --name tailscale-mcp \
   -e TAILSCALE_API_KEY=your_api_key \
   -e TAILSCALE_TAILNET=your_tailnet \
   ghcr.io/hexsleeves/tailscale-mcp-server:latest
+```
 
-# Or use Docker Compose
+#### Docker Compose
+
+```bash
+# Use the included docker-compose.yml
 docker-compose up -d
 ```
 
@@ -55,7 +84,10 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
   "mcpServers": {
     "tailscale": {
       "command": "npx",
-      "args": ["@hexsleeves/tailscale-mcp-server"],
+      "args": [
+        "--package=@hexsleeves/tailscale-mcp-server",
+        "tailscale-mcp-server"
+      ],
       "env": {
         "TAILSCALE_API_KEY": "your-api-key-here",
         "TAILSCALE_TAILNET": "your-tailnet-name"
@@ -65,7 +97,29 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
 }
 ```
 
-#### Using Docker
+#### Using Docker Hub
+
+```json
+{
+  "mcpServers": {
+    "tailscale": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "TAILSCALE_API_KEY=your-api-key",
+        "-e",
+        "TAILSCALE_TAILNET=your-tailnet",
+        "hexsleeves/tailscale-mcp-server:latest"
+      ]
+    }
+  }
+}
+```
+
+#### Using GitHub Container Registry
 
 ```json
 {
