@@ -3,7 +3,7 @@ import {
   TailscaleDevice,
   TailscaleDeviceSchema,
   TailscaleAPIResponse,
-  TailscaleError,
+  TailscaleError as _TailscaleError,
   TailscaleConfig,
 } from "../types";
 import { logger } from "../logger";

@@ -7,7 +7,7 @@ beforeAll(async () => {
     // Check if tailscale command is available
     execSync("which tailscale", { stdio: "pipe" });
     console.log("✅ Tailscale CLI is available");
-  } catch (error) {
+  } catch {
     console.error("❌ Tailscale CLI is not available");
     console.error("Please install Tailscale CLI to run integration tests");
     console.error("Visit: https://tailscale.com/download");
@@ -22,7 +22,7 @@ beforeAll(async () => {
     });
     const statusData = JSON.parse(status);
     console.log(`📡 Tailscale status: ${statusData.BackendState || "unknown"}`);
-  } catch (error) {
+  } catch {
     // It's okay if Tailscale is not logged in for security tests
     console.log(
       "ℹ️  Tailscale CLI available but not logged in (this is fine for security tests)",
@@ -56,6 +56,7 @@ global.integrationTestUtils = {
 
 // Declare global types for TypeScript
 declare global {
+  // eslint-disable-next-line no-var
   var integrationTestUtils: {
     skipIfNoTailscale: () => typeof test;
     skipIfNotLoggedIn: () => typeof test;

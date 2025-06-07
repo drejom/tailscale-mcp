@@ -70,7 +70,7 @@ const DeviceTaggingSchema = z.object({
     ),
 });
 
-const SSHManagementSchema = z.object({
+const _SSHManagementSchema = z.object({
   operation: z
     .enum(["get_ssh_settings", "update_ssh_settings"])
     .describe("SSH management operation to perform"),
@@ -83,7 +83,7 @@ const SSHManagementSchema = z.object({
     .describe("SSH configuration settings for update operation"),
 });
 
-const NetworkStatsSchema = z.object({
+const _NetworkStatsSchema = z.object({
   operation: z
     .enum(["get_network_overview", "get_device_stats"])
     .describe("Statistics operation to perform"),
@@ -97,7 +97,7 @@ const NetworkStatsSchema = z.object({
     .describe("Time range for statistics"),
 });
 
-const UserManagementSchema = z.object({
+const _UserManagementSchema = z.object({
   operation: z
     .enum(["list_users", "get_user", "update_user_role"])
     .describe("User management operation to perform"),
@@ -111,7 +111,7 @@ const UserManagementSchema = z.object({
     .describe("User role for role update operations"),
 });
 
-const DevicePostureSchema = z.object({
+const _DevicePostureSchema = z.object({
   operation: z
     .enum(["get_posture", "set_posture_policy", "check_compliance"])
     .describe("Device posture operation to perform"),
@@ -126,7 +126,7 @@ const DevicePostureSchema = z.object({
     .describe("Posture policy configuration"),
 });
 
-const LoggingSchema = z.object({
+const _LoggingSchema = z.object({
   operation: z
     .enum(["get_log_config", "set_log_level", "get_audit_logs"])
     .describe("Logging operation to perform"),
