@@ -109,9 +109,7 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
         "--rm",
         "-i",
         "-e",
-        "TAILSCALE_API_KEY=your-api-key",
-        "-e",
-        "TAILSCALE_TAILNET=your-tailnet",
+        "TAILSCALE_API_KEY=xxxxxxxxxxxxx",
         "hexsleeves/tailscale-mcp-server:latest"
       ]
     }
@@ -124,31 +122,16 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
 ```json
 {
   "mcpServers": {
-    "tailscale": {
+    "tailscale-docker": {
       "command": "docker",
       "args": [
         "run",
         "--rm",
         "-i",
         "-e",
-        "TAILSCALE_API_KEY=your-api-key",
-        "-e",
-        "TAILSCALE_TAILNET=your-tailnet",
+        "TAILSCALE_API_KEY=xxxxxxxxxxxxx",
         "ghcr.io/hexsleeves/tailscale-mcp-server:latest"
       ]
-    }
-  }
-}
-```
-
-#### Using Docker Compose
-
-```json
-{
-  "mcpServers": {
-    "tailscale": {
-      "command": "docker",
-      "args": ["compose", "exec", "tailscale-mcp", "node", "/app/dist/index.js"]
     }
   }
 }

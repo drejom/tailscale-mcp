@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
-import { createTailscaleAPI, TailscaleCLI } from "./tailscale/index.js";
+import { createTailscaleAPI } from "./tailscale/index.js";
 import { ToolRegistry } from "./tools/index.js";
 import { logger } from "./logger.js";
 
@@ -32,10 +32,10 @@ export class TailscaleMCPServer {
   async initialize(): Promise<void> {
     // Initialize Tailscale integrations
     const api = createTailscaleAPI();
-    const cli = new TailscaleCLI();
+    // const cli = new TailscaleCLI();
 
     // Create tool registry and register tool modules
-    this.toolRegistry = new ToolRegistry({ api, cli });
+    this.toolRegistry = new ToolRegistry({ api });
     await this.toolRegistry.loadTools();
   }
 
@@ -68,27 +68,17 @@ export class TailscaleMCPServer {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
 
-    // Keep the process alive - different strategies for different environments
-    // Note: Don't interfere with stdin when MCP transport is using it
-    if (!process.stdin.isTTY) {
-      // Non-interactive (Docker) - use interval keepalive
-      logger.debug(
-        "Non-interactive environment detected, using interval keepalive"
-      );
-      const keepAliveInterval = setInterval(() => {
-        logger.debug("MCP Server keepalive heartbeat");
-      }, 30000); // 30 second heartbeat
+    // Keep the process alive - MCP servers need to stay running to receive messages
+    // Use interval-based keepalive to avoid interfering with MCP transport's stdin handling
+    logger.debug("Setting up keepalive mechanism for MCP server");
+    const keepAliveInterval = setInterval(() => {
+      logger.debug("MCP Server keepalive heartbeat");
+    }, 30000); // 30 second heartbeat
 
-      // Store interval reference for cleanup
-      process.on("exit", () => {
-        clearInterval(keepAliveInterval);
-      });
-    } else {
-      // Interactive terminal - let MCP transport handle stdin
-      logger.debug(
-        "Interactive terminal detected, letting MCP transport handle stdin"
-      );
-    }
+    // Store interval reference for cleanup
+    process.on("exit", () => {
+      clearInterval(keepAliveInterval);
+    });
 
     // Handle process termination gracefully
     const cleanup = () => {
