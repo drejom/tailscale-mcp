@@ -286,6 +286,43 @@ npm run lint
 npm run format
 ```
 
+### Publishing
+
+The project includes an interactive publishing script that handles version bumping and publishing to multiple registries:
+
+```bash
+# Run the interactive publish script
+npm run publish
+
+# Or run directly
+./scripts/publish.sh
+```
+
+The script will guide you through:
+
+1. **Version Bumping**: Choose between patch, minor, major, or skip
+2. **NPM Publishing**: Optionally publish to npm registry
+3. **Docker Hub**: Optionally build and publish Docker images
+4. **GitHub Container Registry**: Optionally publish to GHCR
+5. **Git Operations**: Automatically commit version changes and create tags
+
+#### Publishing Features
+
+- **Interactive prompts** for each publishing step
+- **Automatic version bumping** with semantic versioning
+- **Git integration** with automatic tagging and commits
+- **Multi-registry support** (npm, Docker Hub, GHCR)
+- **Safety checks** for uncommitted changes
+- **Colored output** for better visibility
+- **Error handling** with proper exit codes
+
+#### Prerequisites for Publishing
+
+- **NPM**: Logged in with `npm login` and proper access to the package
+- **Docker Hub**: Logged in with `docker login`
+- **GHCR**: Logged in with `docker login ghcr.io` using a GitHub token
+- **Git**: Clean working directory (or confirmation to proceed with uncommitted changes)
+
 ### Docker Development
 
 For Docker-based development:
