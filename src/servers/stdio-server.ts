@@ -48,7 +48,12 @@ export class StdioMCPServer {
     logger.info("Starting stdio MCP server...");
 
     const transport = new StdioServerTransport();
-    await this.server.connect(transport);
+    try {
+      await this.server.connect(transport);
+    } catch (error) {
+      logger.error("Failed to connect server to stdio transport:", error);
+      throw error;
+    }
 
     // Keep the process alive - MCP servers need to stay running to receive messages
     // Use interval-based keepalive to avoid interfering with MCP transport's stdin handling
@@ -58,9 +63,9 @@ export class StdioMCPServer {
     }, 30000); // 30 second heartbeat
 
     // Handle process termination gracefully
-    const cleanup = () => {
+    const cleanup = async () => {
       logger.info("Stdio MCP Server shutting down...");
-      this.stop();
+      await this.stop();
       process.exit(0);
     };
 
@@ -72,7 +77,7 @@ export class StdioMCPServer {
     );
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (this.keepAliveInterval) {
       clearInterval(this.keepAliveInterval);
       this.keepAliveInterval = undefined;

@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import express from "express";
-import { randomUUID, createHash } from "node:crypto";
+import { randomUUID, createHash, randomBytes } from "node:crypto";
 import * as http from "node:http";
 import { logger } from "../logger.js";
 import { ToolRegistry } from "../tools/index.js";
@@ -62,7 +62,7 @@ export class HttpMCPServer {
 
   private generateAuthToken(): string {
     return createHash("sha256")
-      .update(randomUUID() + Date.now() + Math.random())
+      .update(randomUUID() + randomBytes(32).toString("hex"))
       .digest("hex");
   }
 
@@ -355,9 +355,9 @@ export class HttpMCPServer {
     });
 
     // Handle process termination gracefully
-    const cleanup = () => {
+    const cleanup = async () => {
       logger.info("HTTP MCP Server shutting down...");
-      this.stop();
+      await this.stop();
       process.exit(0);
     };
 
@@ -369,7 +369,7 @@ export class HttpMCPServer {
     );
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     // Clear the session cleanup interval
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
@@ -383,7 +383,9 @@ export class HttpMCPServer {
     });
 
     if (this.httpServer) {
-      this.httpServer.close();
+      await new Promise<void>((resolve) =>
+        this.httpServer!.close(() => resolve())
+      );
       this.httpServer = undefined;
     }
 

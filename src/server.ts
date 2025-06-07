@@ -28,7 +28,7 @@ export class TailscaleMCPServer {
     logger.info(`Loaded ${this.toolRegistry.getTools().length} tools`);
   }
 
-  async start(mode: ServerMode = "stdio", port: number = 3000): Promise<void> {
+  async start(mode: ServerMode = "stdio", port?: number): Promise<void> {
     await this.initialize();
 
     // Log server configuration
@@ -51,19 +51,21 @@ export class TailscaleMCPServer {
     await this.stdioServer.start();
   }
 
-  private async startHttpServer(port: number): Promise<void> {
+  private async startHttpServer(port: number = 3000): Promise<void> {
     this.httpServer = new HttpMCPServer(this.toolRegistry);
     await this.httpServer.start(port);
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
+    logger.info("Stopping Tailscale MCP Server...");
+
     if (this.stdioServer) {
-      this.stdioServer.stop();
+      await this.stdioServer.stop();
       this.stdioServer = undefined;
     }
 
     if (this.httpServer) {
-      this.httpServer.stop();
+      await this.httpServer.stop();
       this.httpServer = undefined;
     }
 

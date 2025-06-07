@@ -37,12 +37,11 @@ export class TailscaleMCPCLI {
         if (!isNaN(parsedPort) && parsedPort >= 1 && parsedPort <= 65535) {
           port = parsedPort;
         } else {
-          console.error(
+          throw new Error(
             `Invalid port number: ${
               args[portIndex + 1]
             }. Port must be between 1 and 65535.`
           );
-          process.exit(1);
         }
       }
     }
@@ -116,14 +115,20 @@ Environment Variables:
     });
 
     // Handle graceful shutdown
-    process.on("SIGINT", async () => {
+    process.on("SIGINT", () => {
       logger.info("Received SIGINT, shutting down gracefully...");
-      await this.gracefulShutdown(0);
+      this.gracefulShutdown(0).catch((error) => {
+        console.error("Error during SIGINT shutdown:", error);
+        process.exit(1);
+      });
     });
 
-    process.on("SIGTERM", async () => {
+    process.on("SIGTERM", () => {
       logger.info("Received SIGTERM, shutting down gracefully...");
-      await this.gracefulShutdown(0);
+      this.gracefulShutdown(0).catch((error) => {
+        console.error("Error during SIGTERM shutdown:", error);
+        process.exit(1);
+      });
     });
   }
 }
