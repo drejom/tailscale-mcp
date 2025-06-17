@@ -156,7 +156,7 @@ class Logger {
     }
   }
 
-  private log(level: LogLevel, message: string, ...args: any[]): void {
+  private log(level: LogLevel, message: string, ...args: unknown[]): void {
     if (level >= this.level) {
       const timestamp = new Date().toISOString();
       const levelName = LogLevel[level];
@@ -196,24 +196,24 @@ class Logger {
     }
   }
 
-  debug(message: string, ...args: any[]): void {
+  debug(message: string, ...args: unknown[]): void {
     this.log(LogLevel.DEBUG, message, ...args);
   }
 
-  info(message: string, ...args: any[]): void {
+  info(message: string, ...args: unknown[]): void {
     this.log(LogLevel.INFO, message, ...args);
   }
 
-  warn(message: string, ...args: any[]): void {
+  warn(message: string, ...args: unknown[]): void {
     this.log(LogLevel.WARN, message, ...args);
   }
 
-  error(message: string, ...args: any[]): void {
+  error(message: string, ...args: unknown[]): void {
     this.log(LogLevel.ERROR, message, ...args);
   }
 
   // Helper method for structured logging
-  logObject(level: LogLevel, message: string, obj: any): void {
+  logObject(level: LogLevel, message: string, obj: unknown): void {
     this.log(level, message, JSON.stringify(obj, null, 2));
   }
 

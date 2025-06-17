@@ -12,6 +12,32 @@ A modern [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server 
 - **Docker Hub**: [`hexsleeves/tailscale-mcp-server`](https://hub.docker.com/r/hexsleeves/tailscale-mcp-server)
 - **GitHub Container Registry**: [`ghcr.io/hexsleeves/tailscale-mcp-server`](https://github.com/users/HexSleeves/packages/container/package/tailscale-mcp-server)
 
+## 🚀 Recommended Package Manager
+
+This project is optimized for **[Bun](https://bun.sh)** for faster installation and execution. NPM is supported as a fallback option.
+
+### Quick Setup with Bun
+
+```bash
+# Install Bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+
+# Install dependencies
+bun install
+
+# Build and run
+bun run build
+bun start
+```
+
+### Fallback with NPM
+
+```bash
+npm ci
+npm run build
+npm start
+```
+
 ## Features
 
 - **Device Management**: List, authorize, deauthorize, and manage Tailscale devices
@@ -148,38 +174,60 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
 # Clone and setup
 git clone https://github.com/HexSleeves/tailscale-mcp-server.git
 cd tailscale-mcp-server
-npm install
+
+# Install Bun (recommended) or use npm
+curl -fsSL https://bun.sh/install | bash
+bun install  # or: npm install
 
 # Setup environment
 cp .env.example .env
 # Edit .env with your Tailscale credentials
 
 # Build and run
-npm run build
-npm start
+bun run build  # or: npm run build
+bun start      # or: npm start
 ```
 
 ### Development Commands
 
 ```bash
-# Development workflow
-npm run dev:direct        # Fast development with tsx
-npm run dev:watch         # Auto-rebuild on changes
-npm run build:watch       # Build with file watching
+# Development workflow (Bun recommended)
+bun run dev:direct        # Fast development with tsx
+bun run dev:watch         # Auto-rebuild on changes
+bun run build:watch       # Build with file watching
 
-# Testing
-npm test                  # All tests
-npm run test:unit         # Unit tests only
-npm run test:integration  # Integration tests (requires Tailscale CLI)
-npm run test:watch        # Watch mode
+# Development workflow (NPM fallback)
+npm run dev:direct
+npm run dev:watch
+npm run build:watch
 
-# Quality assurance
-npm run qa                # Quick QA (typecheck + unit tests + lint)
-npm run qa:full           # Full QA (all tests + checks)
-npm run typecheck         # TypeScript validation
+# Testing (Bun recommended)
+bun test                  # All tests
+bun run test:unit         # Unit tests only
+bun run test:integration  # Integration tests (requires Tailscale CLI)
+bun run test:watch        # Watch mode
 
-# Tools
-npm run inspector         # Test with MCP Inspector
+# Testing (NPM fallback)
+npm test
+npm run test:unit
+npm run test:integration
+npm run test:watch
+
+# Quality assurance (Bun recommended)
+bun run qa                # Quick QA (typecheck + unit tests + lint)
+bun run qa:full           # Full QA (all tests + checks)
+bun run typecheck         # TypeScript validation
+
+# Quality assurance (NPM fallback)
+npm run qa
+npm run qa:full
+npm run typecheck
+
+# Tools (Bun recommended)
+bun run inspector         # Test with MCP Inspector
+
+# Tools (NPM fallback)
+npm run inspector
 ```
 
 ### Local Claude Desktop Configuration
@@ -260,7 +308,7 @@ tail -f logs/debug-*.log
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes and add tests
-4. Run quality checks: `npm run qa:full`
+4. Run quality checks: `bun run qa:full` (or `npm run qa:full`)
 5. Commit your changes: `git commit -m 'Add amazing feature'`
 6. Push to the branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request

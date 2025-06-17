@@ -46,11 +46,13 @@ echo "   - Get API key from: https://login.tailscale.com/admin/settings/keys"
 echo "   - Set TAILSCALE_API_KEY and TAILSCALE_TAILNET"
 echo
 echo "2. Build the project:"
-echo "   npm run build"
+echo "   bun run build    # Recommended"
+echo "   npm run build    # Fallback"
 echo
 echo "3. Test the server:"
-echo "   node scripts/test-mcp-server.js"
+echo "   bun scripts/test-mcp-server.js"
 echo
 echo "4. Or run with MCP Inspector:"
-echo "   npm run inspector"
+echo "   bun run inspector    # Recommended"
+echo "   npm run inspector    # Fallback"
 echo

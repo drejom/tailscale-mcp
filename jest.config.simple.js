@@ -1,11 +1,5 @@
-import type { Config } from "jest";
-
-/**
- * Base Jest configuration containing common settings shared across all test configurations.
- * This configuration is extended by specific test configurations (unit, integration, etc.)
- * to avoid duplication and ensure consistency.
- */
-const baseConfig: Config = {
+/** @type {import('jest').Config} */
+export default {
   // TypeScript and ESM support
   extensionsToTreatAsEsm: [".ts"],
   preset: "ts-jest/presets/default-esm",
@@ -34,14 +28,20 @@ const baseConfig: Config = {
   // Common roots
   roots: ["<rootDir>/src"],
 
-  // Basic setup files (can be extended by specific configs)
+  // Basic setup files
   setupFilesAfterEnv: ["<rootDir>/src/__test__/setup.ts"],
 
-  // Default timeout (can be overridden)
+  // Default timeout
   testTimeout: 5000,
 
-  // Base coverage collection (can be extended/overridden)
+  // Coverage collection
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/index.ts"],
-};
 
-export default baseConfig;
+  // Only match unit tests, exclude integration and e2e tests
+  testMatch: [
+    "**/__tests__/**/*.ts",
+    "**/?(*.)+(spec|test).ts",
+    "!**/*.integration.test.ts", // Exclude integration tests
+    "!**/*.e2e.test.ts", // Exclude end-to-end tests
+  ],
+};

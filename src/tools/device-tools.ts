@@ -35,7 +35,8 @@ async function listDevices(
   try {
     logger.debug("Listing devices with options:", args);
 
-    const result = await context.api.listDevices();
+    // Use unified client which will automatically choose between API and CLI
+    const result = await context.client.listDevices();
 
     if (!result.success) {
       return {
@@ -53,30 +54,39 @@ async function listDevices(
     let output = `Found ${devices.length} devices:\n\n`;
 
     for (const device of devices) {
-      output += `**${device.name}** (${device.hostname})\n`;
-      output += `  - ID: ${device.id}\n`;
-      output += `  - OS: ${device.os}\n`;
-      output += `  - Addresses: ${device.addresses.join(", ")}\n`;
-      output += `  - Authorized: ${device.authorized ? "✅" : "❌"}\n`;
-      output += `  - Last seen: ${device.lastSeen}\n`;
-      output += `  - Client version: ${device.clientVersion}\n`;
+      // Handle both string arrays (from CLI) and TailscaleDevice objects (from API)
+      if (typeof device === "string") {
+        // CLI returns simple string array of hostnames
+        output += `**${device}**\n`;
+        output += `  - Source: CLI (limited info available)\n\n`;
+      } else {
+        // API returns full TailscaleDevice objects
+        const typedDevice = device;
+        output += `**${typedDevice.name}** (${typedDevice.hostname})\n`;
+        output += `  - ID: ${typedDevice.id}\n`;
+        output += `  - OS: ${typedDevice.os}\n`;
+        output += `  - Addresses: ${typedDevice.addresses.join(", ")}\n`;
+        output += `  - Authorized: ${typedDevice.authorized ? "✅" : "❌"}\n`;
+        output += `  - Last seen: ${typedDevice.lastSeen}\n`;
+        output += `  - Client version: ${typedDevice.clientVersion}\n`;
 
-      if (
-        args.includeRoutes &&
-        Array.isArray(device.advertisedRoutes) &&
-        device.advertisedRoutes.length > 0
-      ) {
-        output += `  - Advertised routes: ${device.advertisedRoutes.join(
-          ", ",
-        )}\n`;
-        output += `  - Enabled routes: ${
-          Array.isArray(device.enabledRoutes)
-            ? device.enabledRoutes.join(", ")
-            : "—"
-        }\n`;
+        if (
+          args.includeRoutes &&
+          Array.isArray(typedDevice.advertisedRoutes) &&
+          typedDevice.advertisedRoutes.length > 0
+        ) {
+          output += `  - Advertised routes: ${typedDevice.advertisedRoutes.join(
+            ", ",
+          )}\n`;
+          output += `  - Enabled routes: ${
+            Array.isArray(typedDevice.enabledRoutes)
+              ? typedDevice.enabledRoutes.join(", ")
+              : "—"
+          }\n`;
+        }
+
+        output += "\n";
       }
-
-      output += "\n";
     }
 
     return {
@@ -87,13 +97,14 @@ async function listDevices(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error listing devices:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error listing devices: ${error.message}`,
+          text: `Error listing devices: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -111,16 +122,16 @@ async function deviceAction(
     let result;
     switch (args.action) {
       case "authorize":
-        result = await context.api.authorizeDevice(args.deviceId);
+        result = await context.client.authorizeDevice(args.deviceId);
         break;
       case "deauthorize":
-        result = await context.api.deauthorizeDevice(args.deviceId);
+        result = await context.client.deauthorizeDevice(args.deviceId);
         break;
       case "delete":
-        result = await context.api.deleteDevice(args.deviceId);
+        result = await context.client.deleteDevice(args.deviceId);
         break;
       case "expire-key":
-        result = await context.api.expireDeviceKey(args.deviceId);
+        result = await context.client.expireDeviceKey(args.deviceId);
         break;
       default:
         return {
@@ -154,13 +165,14 @@ async function deviceAction(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error performing device action:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error performing device action: ${error.message}`,
+          text: `Error performing device action: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -177,9 +189,12 @@ async function manageRoutes(
 
     let result;
     if (args.action === "enable") {
-      result = await context.api.enableDeviceRoutes(args.deviceId, args.routes);
+      result = await context.client.enableDeviceRoutes(
+        args.deviceId,
+        args.routes,
+      );
     } else {
-      result = await context.api.disableDeviceRoutes(
+      result = await context.client.disableDeviceRoutes(
         args.deviceId,
         args.routes,
       );
@@ -207,13 +222,14 @@ async function manageRoutes(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error managing routes:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error managing routes: ${error.message}`,
+          text: `Error managing routes: ${errorMessage}`,
         },
       ],
       isError: true,

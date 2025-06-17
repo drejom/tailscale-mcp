@@ -141,7 +141,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const mode = process.argv[2] || "build";
 
   if (process.argv.includes("--help") || process.argv.includes("-h")) {
-    console.log("Usage: node esbuild.config.js [mode]");
+    console.log("Usage: bun esbuild.config.js [mode]");
     console.log("Modes: dev, watch, build (default)");
     process.exit(0);
   }

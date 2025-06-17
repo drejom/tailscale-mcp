@@ -14,3 +14,4 @@ updates:
       - "dependencies"
     allow:
       - dependency-type: "all"
+    # Note: Dependabot uses npm ecosystem for bun.lock files as well

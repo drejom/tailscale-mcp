@@ -58,7 +58,8 @@ async function getNetworkStatus(
   try {
     logger.debug("Getting network status with format:", args.format);
 
-    const result = await context.cli.getStatus();
+    // Use unified client which will automatically choose between API and CLI
+    const result = await context.client.getStatus();
 
     if (!result.success) {
       return {
@@ -72,7 +73,7 @@ async function getNetworkStatus(
       };
     }
 
-    const status = result.data!;
+    const status = result.data as import("../types.js").TailscaleCLIStatus;
 
     if (args.format === "summary") {
       let output = `**Tailscale Network Status**\n\n`;
@@ -131,13 +132,14 @@ async function getNetworkStatus(
         ],
       };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error getting network status:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error getting network status: ${error.message}`,
+          text: `Error getting network status: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -152,7 +154,7 @@ async function connectNetwork(
   try {
     const options = {
       acceptRoutes: args.acceptRoutes || false,
-      acceptDNS: args.acceptDNS ?? false,
+      acceptDns: args.acceptDNS ?? false, // Note: CLI uses acceptDns, not acceptDNS
       hostname: args.hostname,
       advertiseRoutes: args.advertiseRoutes || [],
       authKey: args.authKey,
@@ -161,16 +163,15 @@ async function connectNetwork(
 
     logger.debug("Connecting to Tailscale network with options:", options);
 
-    const result = await context.cli.up(options);
+    // Use unified client - this operation is CLI-only
+    const result = await context.client.connect(options);
 
     if (!result.success) {
       return {
         content: [
           {
             type: "text",
-            text: `Failed to connect to Tailscale: ${result.error}\n${
-              result.stderr || ""
-            }`,
+            text: `Failed to connect to Tailscale: ${result.error}`,
           },
         ],
         isError: true,
@@ -185,13 +186,14 @@ async function connectNetwork(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error connecting to network:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error connecting to network: ${error.message}`,
+          text: `Error connecting to network: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -200,22 +202,21 @@ async function connectNetwork(
 }
 
 async function disconnectNetwork(
-  args: any,
+  args: Record<string, unknown>,
   context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Disconnecting from Tailscale network");
 
-    const result = await context.cli.down();
+    // Use unified client - this operation is CLI-only
+    const result = await context.client.disconnect();
 
     if (!result.success) {
       return {
         content: [
           {
             type: "text",
-            text: `Failed to disconnect from Tailscale: ${result.error}\n${
-              result.stderr || ""
-            }`,
+            text: `Failed to disconnect from Tailscale: ${result.error}`,
           },
         ],
         isError: true,
@@ -230,13 +231,14 @@ async function disconnectNetwork(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error disconnecting from network:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error disconnecting from network: ${error.message}`,
+          text: `Error disconnecting from network: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -251,16 +253,15 @@ async function pingPeer(
   try {
     logger.debug(`Pinging ${args.target} (${args.count} packets)`);
 
-    const result = await context.cli.ping(args.target, args.count);
+    // Use unified client - this operation is CLI-only
+    const result = await context.client.ping(args.target, args.count);
 
     if (!result.success) {
       return {
         content: [
           {
             type: "text",
-            text: `Failed to ping ${args.target}: ${result.error}\n${
-              result.stderr || ""
-            }`,
+            text: `Failed to ping ${args.target}: ${result.error}`,
           },
         ],
         isError: true,
@@ -275,13 +276,14 @@ async function pingPeer(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error pinging peer:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error pinging peer: ${error.message}`,
+          text: `Error pinging peer: ${errorMessage}`,
         },
       ],
       isError: true,
@@ -290,13 +292,14 @@ async function pingPeer(
 }
 
 async function getVersion(
-  args: any,
+  _args: Record<string, unknown>,
   context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting Tailscale version");
 
-    const result = await context.cli.version();
+    // Use unified client - this operation is CLI-only
+    const result = await context.client.getVersion();
 
     if (!result.success) {
       return {
@@ -318,13 +321,14 @@ async function getVersion(
         },
       ],
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error getting version:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error getting version: ${error.message}`,
+          text: `Error getting version: ${errorMessage}`,
         },
       ],
       isError: true,

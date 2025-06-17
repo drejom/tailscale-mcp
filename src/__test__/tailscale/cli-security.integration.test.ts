@@ -1,6 +1,7 @@
+import { describe, test, expect, beforeEach } from "bun:test";
 import { TailscaleCLI } from "../../tailscale/tailscale-cli";
 
-describe("TailscaleCLI Security Tests", () => {
+describe("TailscaleCLI Security Tests (integration)", () => {
   let cli: TailscaleCLI;
 
   beforeEach(() => {

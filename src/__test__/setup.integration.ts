@@ -1,4 +1,5 @@
 // Integration test setup file
+import { beforeAll } from "bun:test";
 import { execSync } from "child_process";
 
 // Check if Tailscale CLI is available
@@ -30,35 +31,32 @@ beforeAll(async () => {
   }
 });
 
-// Global timeout for integration tests
-jest.setTimeout(30000);
-
 // Add integration test specific utilities
-global.integrationTestUtils = {
-  skipIfNoTailscale: () => {
-    try {
-      execSync("which tailscale", { stdio: "pipe" });
-    } catch {
-      return test.skip;
-    }
-    return test;
-  },
+// global.integrationTestUtils = {
+//   skipIfNoTailscale: (): Test => {
+//     try {
+//       execSync("which tailscale", { stdio: "pipe" });
+//     } catch {
+//       return test.skip;
+//     }
 
-  skipIfNotLoggedIn: () => {
-    try {
-      execSync("tailscale status", { stdio: "pipe" });
-    } catch {
-      return test.skip;
-    }
-    return test;
-  },
-};
+//     return test;
+//   },
 
-// Declare global types for TypeScript
-declare global {
-  // eslint-disable-next-line no-var
-  var integrationTestUtils: {
-    skipIfNoTailscale: () => typeof test;
-    skipIfNotLoggedIn: () => typeof test;
-  };
-}
+//   skipIfNotLoggedIn: (): Test => {
+//     try {
+//       execSync("tailscale status", { stdio: "pipe" });
+//     } catch {
+//       return test.skip;
+//     }
+//     return test;
+//   },
+// };
+
+// // Declare global types for TypeScript
+// declare global {
+//   var integrationTestUtils: {
+//     skipIfNoTailscale: () => Test;
+//     skipIfNotLoggedIn: () => Test;
+//   };
+// }

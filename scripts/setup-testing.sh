@@ -38,25 +38,26 @@ if [ ! -f "package.json" ] || ! grep -q "tailscale-mcp-server" package.json; the
   exit 1
 fi
 
-print_status "Checking Node.js and npm..."
+print_status "Checking Node.js and Bun..."
 
 # Check Node.js version
-if ! command -v node &>/dev/null; then
-  print_error "Node.js is not installed. Please install Node.js 18 or later."
+if ! command -v bun &>/dev/null; then
+  print_error "Bun is not installed. Please install Node.js 18 or later."
   exit 1
 fi
 
-NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-  print_error "Node.js version 18 or later is required. Current version: $(node --version)"
-  exit 1
+print_success "Bun $(bun --version) is installed"
+
+# Check for Bun
+if ! command -v bun &>/dev/null; then
+  print_warning "Bun is not installed. Installing dependencies with npm as fallback..."
+  npm ci
+else
+  print_success "Bun $(bun --version) is installed"
+  # Install dependencies
+  print_status "Installing dependencies with Bun..."
+  bun install --frozen-lockfile
 fi
-
-print_success "Node.js $(node --version) is installed"
-
-# Install dependencies
-print_status "Installing npm dependencies..."
-npm ci
 print_success "Dependencies installed"
 
 # Check for Tailscale CLI
@@ -96,21 +97,39 @@ fi
 
 # Run unit tests to verify setup
 print_status "Running unit tests to verify setup..."
-if npm run test:unit; then
-  print_success "Unit tests passed! ✅"
+if command -v bun &>/dev/null; then
+  if bun run test:unit; then
+    print_success "Unit tests passed! ✅"
+  else
+    print_error "Unit tests failed. Please check your setup."
+    exit 1
+  fi
 else
-  print_error "Unit tests failed. Please check your setup."
-  exit 1
+  if npm run test:unit; then
+    print_success "Unit tests passed! ✅"
+  else
+    print_error "Unit tests failed. Please check your setup."
+    exit 1
+  fi
 fi
 
 # Try integration tests if Tailscale is available
 if command -v tailscale &>/dev/null; then
   print_status "Running integration tests..."
-  if npm run test:integration; then
-    print_success "Integration tests passed! ✅"
+  if command -v bun &>/dev/null; then
+    if bun run test:integration; then
+      print_success "Integration tests passed! ✅"
+    else
+      print_warning "Integration tests failed. This might be expected if Tailscale is not configured."
+      echo "Integration tests require Tailscale CLI to be installed and may require authentication."
+    fi
   else
-    print_warning "Integration tests failed. This might be expected if Tailscale is not configured."
-    echo "Integration tests require Tailscale CLI to be installed and may require authentication."
+    if npm run test:integration; then
+      print_success "Integration tests passed! ✅"
+    else
+      print_warning "Integration tests failed. This might be expected if Tailscale is not configured."
+      echo "Integration tests require Tailscale CLI to be installed and may require authentication."
+    fi
   fi
 else
   print_warning "Skipping integration tests (Tailscale CLI not available)"
@@ -120,16 +139,29 @@ echo ""
 print_success "Testing environment setup complete!"
 echo ""
 echo "Available test commands:"
-echo "  npm run test:unit          # Run unit tests only"
-echo "  npm run test:integration   # Run integration tests (requires Tailscale CLI)"
-echo "  npm run test              # Run all tests"
-echo "  npm run test:coverage     # Run tests with coverage report"
-echo "  npm run test:watch        # Run tests in watch mode"
-echo ""
-echo "For CI testing:"
-echo "  npm run test:unit:ci       # Unit tests for CI"
-echo "  npm run test:integration:ci # Integration tests for CI"
-echo "  npm run test:ci           # All tests for CI"
+if command -v bun &>/dev/null; then
+  echo "  bun run test:unit          # Run unit tests only"
+  echo "  bun run test:integration   # Run integration tests (requires Tailscale CLI)"
+  echo "  bun run test              # Run all tests"
+  echo "  bun run test:coverage     # Run tests with coverage report"
+  echo "  bun run test:watch        # Run tests in watch mode"
+  echo ""
+  echo "For CI testing:"
+  echo "  bun run test:unit:ci       # Unit tests for CI"
+  echo "  bun run test:integration:ci # Integration tests for CI"
+  echo "  bun run test:ci           # All tests for CI"
+else
+  echo "  npm run test:unit          # Run unit tests only"
+  echo "  npm run test:integration   # Run integration tests (requires Tailscale CLI)"
+  echo "  npm run test              # Run all tests"
+  echo "  npm run test:coverage     # Run tests with coverage report"
+  echo "  npm run test:watch        # Run tests in watch mode"
+  echo ""
+  echo "For CI testing:"
+  echo "  npm run test:unit:ci       # Unit tests for CI"
+  echo "  npm run test:integration:ci # Integration tests for CI"
+  echo "  npm run test:ci           # All tests for CI"
+fi
 echo ""
 
 if command -v tailscale &>/dev/null; then

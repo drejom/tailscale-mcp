@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * Tailscale MCP Server Test Script
@@ -8,7 +8,7 @@
  * to send tool requests and view responses.
  *
  * Usage:
- *   node test-mcp-server.js
+ *   bun test-mcp-server.js
  *
  * Environment Variables:
  *   TAILSCALE_API_KEY - Your Tailscale API key (optional for CLI-only operations)
@@ -105,7 +105,7 @@ class TailscaleMCPTester {
 
       // Start the server process
       const serverPath = join(__dirname, "dist", "index.js");
-      this.serverProcess = spawn("node", [serverPath], {
+      this.serverProcess = spawn("bun", [serverPath], {
         stdio: ["pipe", "pipe", "pipe"],
         env: { ...process.env },
       });
@@ -572,7 +572,7 @@ class TailscaleMCPTester {
         await import("fs").then((fs) => fs.promises.access(serverPath));
       } catch (error) {
         this.log(
-          '❌ Server build not found. Please run "npm run build" first.',
+          '❌ Server build not found. Please run "bun run build" first.',
           "red",
         );
         process.exit(1);

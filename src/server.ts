@@ -3,6 +3,7 @@ import { logger } from "./logger.js";
 import { HttpMCPServer, StdioMCPServer } from "./servers/index.js";
 import { createTailscaleAPI } from "./tailscale/index.js";
 import { TailscaleCLI } from "./tailscale/tailscale-cli.js";
+import { UnifiedTailscaleClient } from "./tailscale/unified-client.js";
 import { ToolRegistry } from "./tools/index.js";
 
 export type ServerMode = "stdio" | "http";
@@ -11,23 +12,45 @@ export class TailscaleMCPServer {
   private toolRegistry!: ToolRegistry;
   private stdioServer?: StdioMCPServer;
   private httpServer?: HttpMCPServer;
+  private unifiedClient!: UnifiedTailscaleClient;
 
-  async initialize(): Promise<void> {
+  async initialize(mode: ServerMode = "stdio"): Promise<void> {
     logger.info("Initializing Tailscale MCP Server...");
 
     // Initialize Tailscale integrations
     const api = createTailscaleAPI();
     const cli = new TailscaleCLI();
 
+    // Create unified client based on transport mode
+    this.unifiedClient = new UnifiedTailscaleClient({
+      transportMode: mode,
+      apiKey: process.env.TAILSCALE_API_KEY,
+      tailnet: process.env.TAILSCALE_TAILNET,
+      preferAPI: mode === "http", // HTTP mode prefers API, stdio prefers CLI
+    });
+
+    // Initialize the unified client
+    await this.unifiedClient.initialize();
+
     // Create tool registry and register tool modules
-    this.toolRegistry = new ToolRegistry({ api, cli });
+    this.toolRegistry = new ToolRegistry({
+      api,
+      cli,
+      client: this.unifiedClient,
+    });
     await this.toolRegistry.loadTools();
 
+    // Log capabilities
+    const capabilities = this.unifiedClient.getCapabilities();
     logger.debug(`Loaded ${this.toolRegistry.getTools().length} tools`);
+    logger.debug(
+      `Client capabilities - API: ${capabilities.api}, CLI: ${capabilities.cli}`,
+    );
+    logger.debug(`Available features:`, capabilities.features);
   }
 
   async start(mode: ServerMode = "stdio", port?: number): Promise<void> {
-    await this.initialize();
+    await this.initialize(mode);
 
     // Log server configuration
     logger.info(`Tailscale MCP Server starting in ${mode} mode...`);

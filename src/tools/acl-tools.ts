@@ -229,11 +229,11 @@ async function manageACL(
           isError: true,
         };
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing ACL:", error);
     return {
-      content: [{ type: "text", text: `Error managing ACL: ${error.message}` }],
       isError: true,
+      content: [{ type: "text", text: `Error managing ACL: ${error instanceof Error ? error.message : "Unknown error"}` }],
     };
   }
 }
@@ -492,7 +492,7 @@ async function manageKeys(
         }
 
         const keyList = keys
-          .map((key: any, index: number) => {
+          .map((key, index: number) => {
             return `**Key ${index + 1}**
   - ID: ${key.id}
   - Description: ${key.description || "No description"}
@@ -529,7 +529,17 @@ async function manageKeys(
           };
         }
 
-        const result = await context.api.createAuthKey(args.keyConfig);
+        const keyConfig = {
+          ...args.keyConfig,
+          capabilities: {
+            devices: {
+              create: {
+                ...args.keyConfig.capabilities?.devices?.create
+              }
+            }
+          }
+        };
+        const result = await context.api.createAuthKey(keyConfig);
         if (!result.success) {
           return {
             content: [
@@ -707,13 +717,13 @@ async function manageNetworkLock(
           isError: true,
         };
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing network lock:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error managing network lock: ${error.message}`,
+          text: `Error managing network lock: ${error instanceof Error ? error.message : "Unknown error"}`,
         },
       ],
       isError: true,
@@ -809,13 +819,13 @@ async function managePolicyFile(
           isError: true,
         };
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing policy file:", error);
     return {
       content: [
         {
           type: "text",
-          text: `Error managing policy file: ${error.message}`,
+          text: `Error managing policy file: ${error instanceof Error ? error.message : "Unknown error"}`,
         },
       ],
       isError: true,

@@ -1,36 +1,42 @@
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+  Mock,
+} from "bun:test";
 import { Logger, LogLevel } from "../../logger";
-import { jest } from "@jest/globals";
 
 // Mock fs/promises
-jest.mock("fs/promises", () => ({
-  writeFile: jest.fn(),
-  appendFile: jest.fn(),
+mock.module("fs/promises", () => ({
+  writeFile: mock(() => Promise.resolve()),
+  appendFile: mock(() => Promise.resolve()),
 }));
 
 describe("Logger", () => {
   let logger: Logger;
-  let consoleSpy: jest.SpiedFunction<typeof console.log>;
+  let consoleSpy: Mock<typeof console.info>;
 
   beforeEach(() => {
     // Reset environment variables
     delete process.env.MCP_SERVER_LOG_FILE;
 
-    // Clear all mocks from global setup
-    jest.clearAllMocks();
-
     // Create fresh spies for console methods
-    consoleSpy = jest.spyOn(console, "info").mockImplementation(() => {});
-    jest.spyOn(console, "debug").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleSpy = spyOn(console, "info").mockImplementation(() => {});
+    spyOn(console, "debug").mockImplementation(() => {});
+    spyOn(console, "warn").mockImplementation(() => {});
+    spyOn(console, "error").mockImplementation(() => {});
 
     // Create a fresh logger instance with known level
     logger = new Logger(LogLevel.INFO);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
-    jest.clearAllTimers();
+    // Restore all mocks
+    mock.restore();
   });
 
   describe("constructor", () => {
@@ -53,7 +59,7 @@ describe("Logger", () => {
 
   describe("setLevel", () => {
     test("should update log level", () => {
-      const debugSpy = jest.spyOn(console, "debug");
+      const debugSpy = spyOn(console, "debug");
 
       // Initially at INFO level, debug should not log
       logger.debug("test debug message");
@@ -79,13 +85,13 @@ describe("Logger", () => {
     });
 
     test("should not log debug messages when level is INFO", () => {
-      const debugSpy = jest.spyOn(console, "debug");
+      const debugSpy = spyOn(console, "debug");
       logger.debug("test debug message");
       expect(debugSpy).not.toHaveBeenCalled();
     });
 
     test("should log warn messages", () => {
-      const warnSpy = jest.spyOn(console, "warn");
+      const warnSpy = spyOn(console, "warn");
       logger.warn("test warning");
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining("[WARN]"),
@@ -94,7 +100,7 @@ describe("Logger", () => {
     });
 
     test("should log error messages", () => {
-      const errorSpy = jest.spyOn(console, "error");
+      const errorSpy = spyOn(console, "error");
       logger.error("test error");
       expect(errorSpy).toHaveBeenCalledWith(
         expect.stringContaining("[ERROR]"),

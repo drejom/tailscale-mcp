@@ -111,7 +111,7 @@ docker run -it --rm \
   -v /app/node_modules \
   -w /app \
   node:20-alpine \
-  npm run dev
+  bun run dev  # or: npm run dev
 ```
 
 ## Docker Compose Configurations
@@ -165,7 +165,7 @@ services:
       - TAILSCALE_TAILNET=${TAILSCALE_TAILNET}
       - LOG_LEVEL=0 # Debug logging
       - NODE_ENV=development
-    command: npm run dev:watch
+    command: bun run dev:watch # or: npm run dev:watch
     ports:
       - "3000:3000" # Expose for debugging
 ```
@@ -222,7 +222,7 @@ docker run -it --rm \
   -e TAILSCALE_TAILNET=your_tailnet \
   -e LOG_LEVEL=0 \
   node:20-alpine \
-  sh -c "cd /app && npm run dev:watch"
+  sh -c "cd /app && bun run dev:watch"  # or: npm run dev:watch
 ```
 
 #### Option 2: Development Container
@@ -243,8 +243,8 @@ docker run -it --rm \
   sh
 
 # Inside container
-npm install
-npm run dev
+bun install  # or: npm install
+bun run dev  # or: npm run dev
 ```
 
 ### Testing in Docker
@@ -347,7 +347,7 @@ spec:
 # Custom health check
 docker run -d \
   --name tailscale-mcp \
-  --health-cmd="node -e 'process.exit(0)'" \
+  --health-cmd="bun -e 'process.exit(0)'" \
   --health-interval=30s \
   --health-timeout=3s \
   --health-retries=3 \
@@ -478,7 +478,7 @@ docker run -it --rm \
   sh
 
 # Inside container, run manually
-node dist/index.js
+bun dist/index.js
 ```
 
 ## Performance Optimization

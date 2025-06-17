@@ -2,6 +2,7 @@ import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { TailscaleAPI } from "../tailscale/tailscale-api.js";
 import { TailscaleCLI } from "../tailscale/tailscale-cli.js";
+import { UnifiedTailscaleClient } from "../tailscale/unified-client.js";
 
 // Import all tool modules
 import { logger } from "../logger.js";
@@ -13,13 +14,14 @@ import { networkTools } from "./network-tools.js";
 export interface ToolContext {
   api: TailscaleAPI;
   cli: TailscaleCLI;
+  client: UnifiedTailscaleClient;
 }
 
 export interface ToolDefinition {
   name: string;
   description: string;
   inputSchema: z.ZodSchema;
-  handler: (args: any, context: ToolContext) => Promise<CallToolResult>;
+  handler(args: Record<string, any>, context: ToolContext): Promise<CallToolResult>;
 }
 
 export interface ToolModule {
@@ -47,19 +49,19 @@ export class ToolRegistry {
     logger.debug(`Loaded ${this.tools.size} tools`);
   }
 
-  register(tool: ToolDefinition): void {
+  private registerModule(module: ToolModule): void {
+    for (const tool of module.tools) {
+      this.register(tool);
+    }
+  }
+
+  private register(tool: ToolDefinition): void {
     if (this.tools.has(tool.name)) {
       logger.warn(
         `Duplicate tool name detected: "${tool.name}" – overriding previous definition`,
       );
     }
     this.tools.set(tool.name, tool);
-  }
-
-  registerModule(module: ToolModule): void {
-    for (const tool of module.tools) {
-      this.register(tool);
-    }
   }
 
   getTools(): Tool[] {
@@ -70,7 +72,10 @@ export class ToolRegistry {
     }));
   }
 
-  async callTool(name: string, args: any): Promise<CallToolResult> {
+  async callTool(
+    name: string,
+    args?: Record<string, unknown>,
+  ): Promise<CallToolResult> {
     const tool = this.tools.get(name);
     if (!tool) {
       return {
@@ -95,12 +100,17 @@ export class ToolRegistry {
         };
       }
 
-      return await tool.handler(validatedArgs.data, this.context);
-    } catch (error: any) {
+      return await tool.handler(validatedArgs.data as Record<string, any>, this.context);
+    } catch (error: unknown) {
       logger.error("Tool error:", error);
 
       return {
-        content: [{ type: "text", text: `Tool error: ${error.message}` }],
+        content: [
+          {
+            type: "text",
+            text: `Tool error: ${error instanceof Error ? error.message : "Unknown error"}`,
+          },
+        ],
         isError: true,
       };
     }

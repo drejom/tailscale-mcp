@@ -1,8 +1,9 @@
+import { describe, test, expect } from "bun:test";
 import { TailscaleCLIStatusSchema, TailscaleDeviceSchema } from "../../types";
 
 describe("Type Schemas", () => {
   describe("TailscaleCLIStatusSchema", () => {
-    it("should validate a valid CLI status object", () => {
+    test("should validate a valid CLI status object", () => {
       const validStatus = {
         Version: "1.84.0",
         TUN: true,
@@ -25,7 +26,7 @@ describe("Type Schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should reject invalid CLI status object", () => {
+    test("should reject invalid CLI status object", () => {
       const invalidStatus = {
         Version: "1.84.0",
         // Missing required fields
@@ -37,7 +38,7 @@ describe("Type Schemas", () => {
   });
 
   describe("TailscaleDeviceSchema", () => {
-    it("should validate a valid device object", () => {
+    test("should validate a valid device object", () => {
       const validDevice = {
         id: "device-123",
         name: "test-device",
@@ -62,7 +63,7 @@ describe("Type Schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should reject device object with missing required fields", () => {
+    test("should reject device object with missing required fields", () => {
       const invalidDevice = {
         id: "device-123",
         // Missing required fields like name, hostname, etc.

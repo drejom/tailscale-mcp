@@ -134,17 +134,6 @@ export const RouteActionRequestSchema = z.object({
   action: z.enum(["enable", "disable"]),
 });
 
-// Type exports
-export type TailscaleDevice = z.infer<typeof TailscaleDeviceSchema>;
-export type TailscaleNetworkStatus = z.infer<
-  typeof TailscaleNetworkStatusSchema
->;
-export type TailscaleCLIStatus = z.infer<typeof TailscaleCLIStatusSchema>;
-export type ListDevicesRequest = z.infer<typeof ListDevicesRequestSchema>;
-export type DeviceActionRequest = z.infer<typeof DeviceActionRequestSchema>;
-export type NetworkStatusRequest = z.infer<typeof NetworkStatusRequestSchema>;
-export type RouteActionRequest = z.infer<typeof RouteActionRequestSchema>;
-
 // ACL Types
 export const ACLRuleSchema = z.object({
   action: z.enum(["accept", "drop"]),
@@ -153,12 +142,26 @@ export const ACLRuleSchema = z.object({
   proto: z.string().optional(),
 });
 
+export const ACLTestSchema = z.object({
+  src: z.string(),
+  accept: z.array(z.string()),
+  deny: z.array(z.string()).optional(),
+});
+
+export const SSHRuleSchema = z.object({
+  action: z.enum(["accept", "check"]),
+  src: z.array(z.string()),
+  dst: z.array(z.string()),
+  users: z.array(z.string()),
+  checkPeriod: z.string().optional(),
+});
+
 export const ACLConfigSchema = z.object({
   groups: z.record(z.string(), z.array(z.string())).optional(),
   tagOwners: z.record(z.string(), z.array(z.string())).optional(),
   acls: z.array(ACLRuleSchema),
-  tests: z.array(z.any()).optional(),
-  ssh: z.array(z.any()).optional(),
+  tests: z.array(ACLTestSchema).optional(),
+  ssh: z.array(SSHRuleSchema).optional(),
 });
 
 // DNS Types
@@ -242,17 +245,6 @@ export const TailnetInfoRequestSchema = z.object({
   includeDetails: z.boolean().optional(),
 });
 
-export type ACLRule = z.infer<typeof ACLRuleSchema>;
-export type ACLConfig = z.infer<typeof ACLConfigSchema>;
-export type DNSConfig = z.infer<typeof DNSConfigSchema>;
-export type SearchPath = z.infer<typeof SearchPathSchema>;
-export type AuthKey = z.infer<typeof AuthKeySchema>;
-export type CreateAuthKeyRequest = z.infer<typeof CreateAuthKeyRequestSchema>;
-export type ACLRequest = z.infer<typeof ACLRequestSchema>;
-export type DNSRequest = z.infer<typeof DNSRequestSchema>;
-export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
-export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
-
 // File Sharing Types
 export const FileSharingRequestSchema = z.object({
   operation: z.enum(["get_status", "enable", "disable"]),
@@ -319,13 +311,6 @@ export const PolicyFileRequestSchema = z.object({
     .optional(),
 });
 
-export type FileSharingRequest = z.infer<typeof FileSharingRequestSchema>;
-export type ExitNodeRequest = z.infer<typeof ExitNodeRequestSchema>;
-export type NetworkLockRequest = z.infer<typeof NetworkLockRequestSchema>;
-export type SubnetRouterRequest = z.infer<typeof SubnetRouterRequestSchema>;
-export type WebhookRequest = z.infer<typeof WebhookRequestSchema>;
-export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
-
 // Device Tagging Types
 export const DeviceTaggingRequestSchema = z.object({
   operation: z.enum(["get_tags", "set_tags", "add_tags", "remove_tags"]),
@@ -390,12 +375,182 @@ export const DevicePostureRequestSchema = z.object({
     .optional(),
 });
 
-export type DeviceTaggingRequest = z.infer<typeof DeviceTaggingRequestSchema>;
-export type SSHManagementRequest = z.infer<typeof SSHManagementRequestSchema>;
-export type NetworkStatsRequest = z.infer<typeof NetworkStatsRequestSchema>;
-export type LoggingRequest = z.infer<typeof LoggingRequestSchema>;
-export type UserManagementRequest = z.infer<typeof UserManagementRequestSchema>;
-export type DevicePostureRequest = z.infer<typeof DevicePostureRequestSchema>;
+// Additional API Response Types
+export const TailnetInfoSchema = z.object({
+  name: z.string(),
+  id: z.string(),
+  domain: z.string(),
+  accountId: z.string(),
+  dnsConfig: z
+    .object({
+      nameservers: z.array(z.string()),
+      domains: z.array(z.string()),
+      magicDNS: z.boolean(),
+    })
+    .optional(),
+  organizationName: z.string().optional(),
+  organization: z.string().optional(),
+  createdAt: z.string(),
+  created: z.string().optional(),
+  dns: z
+    .object({
+      nameservers: z.array(z.string()),
+      magicDNS: z.boolean(),
+    })
+    .optional(),
+  fileSharing: z.boolean().optional(),
+  serviceCollection: z.boolean().optional(),
+  networkLockEnabled: z.boolean().optional(),
+  oidcIdentityProviderURL: z.string().optional(),
+  keyExpiryDisabled: z.boolean().optional(),
+  machineAuthorizationTimeout: z.string().optional(),
+  deviceApprovalRequired: z.boolean().optional(),
+});
+
+export const ACLValidationResultSchema = z.object({
+  valid: z.boolean(),
+  errors: z.array(z.string()).optional(),
+  warnings: z.array(z.string()).optional(),
+});
+
+export const AuthKeyListSchema = z.object({
+  keys: z.array(AuthKeySchema),
+});
+
+export const DeviceRoutesSchema = z.object({
+  advertisedRoutes: z.array(z.string()),
+  enabledRoutes: z.array(z.string()),
+  isExitNode: z.boolean().optional(),
+});
+
+export const NetworkLockStatusSchema = z.object({
+  enabled: z.boolean(),
+  nodeKey: z.string().optional(),
+  publicKey: z.string().optional(),
+  key: z.string().optional(),
+  trustedKeys: z
+    .array(
+      z.object({
+        key: z.string(),
+        votes: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const WebhookSchema = z.object({
+  id: z.string(),
+  endpointUrl: z.string(),
+  description: z.string().optional(),
+  secret: z.string().optional(),
+  events: z.array(z.string()),
+  createdAt: z.string(),
+  lastDelivery: z.string().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export const WebhookListSchema = z.object({
+  webhooks: z.array(WebhookSchema),
+});
+
+export const ACLTestResultSchema = z.object({
+  matches: z.boolean(),
+  match: z.boolean().optional(),
+  allowed: z.boolean().optional(),
+  rule: z.string().optional(),
+  error: z.string().optional(),
+});
+
+export const SSHSettingsSchema = z.object({
+  enabled: z.boolean(),
+  checkPeriod: z.string().optional(),
+  rules: z.array(SSHRuleSchema).optional(),
+});
+
+export const NetworkStatsSchema = z.object({
+  totalDevices: z.number(),
+  activeDevices: z.number(),
+  totalTraffic: z
+    .object({
+      bytesIn: z.number(),
+      bytesOut: z.number(),
+    })
+    .optional(),
+  period: z.string().optional(),
+});
+
+export const DeviceStatsSchema = z.object({
+  deviceId: z.string(),
+  traffic: z.object({
+    bytesIn: z.number(),
+    bytesOut: z.number(),
+    packetsIn: z.number(),
+    packetsOut: z.number(),
+  }),
+  connections: z
+    .array(
+      z.object({
+        peer: z.string(),
+        latency: z.number().optional(),
+        bytesIn: z.number(),
+        bytesOut: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const UserSchema = z.object({
+  id: z.string(),
+  loginName: z.string(),
+  displayName: z.string(),
+  profilePicUrl: z.string().optional(),
+  role: z.enum(["admin", "user", "auditor"]),
+  created: z.string(),
+  lastSeen: z.string().optional(),
+});
+
+export const UserListSchema = z.object({
+  users: z.array(UserSchema),
+});
+
+export const AuditLogEntrySchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  action: z.string(),
+  actor: z.string(),
+  target: z.string().optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const AuditLogListSchema = z.object({
+  logs: z.array(AuditLogEntrySchema),
+});
+
+export const DevicePostureSchema = z.object({
+  deviceId: z.string(),
+  osVersion: z.string(),
+  updateAvailable: z.boolean(),
+  requiredSoftware: z
+    .array(
+      z.object({
+        name: z.string(),
+        version: z.string(),
+        installed: z.boolean(),
+      }),
+    )
+    .optional(),
+  compliance: z.object({
+    status: z.enum(["compliant", "non-compliant", "unknown"]),
+    issues: z.array(z.string()).optional(),
+  }),
+});
+
+export const PosturePolicySchema = z.object({
+  requireUpdate: z.boolean().optional(),
+  allowedOSVersions: z.array(z.string()).optional(),
+  requiredSoftware: z.array(z.string()).optional(),
+  blockNonCompliant: z.boolean().optional(),
+});
 
 // API Response types
 export interface TailscaleAPIResponse<T> {
@@ -450,3 +605,56 @@ export class CLIError extends Error {
     this.name = "CLIError";
   }
 }
+
+// Type exports
+export type TailscaleDevice = z.infer<typeof TailscaleDeviceSchema>;
+export type TailscaleNetworkStatus = z.infer<
+  typeof TailscaleNetworkStatusSchema
+>;
+
+export type ACLConfig = z.infer<typeof ACLConfigSchema>;
+export type ACLRequest = z.infer<typeof ACLRequestSchema>;
+export type ACLRule = z.infer<typeof ACLRuleSchema>;
+export type ACLTest = z.infer<typeof ACLTestSchema>;
+export type ACLTestResult = z.infer<typeof ACLTestResultSchema>;
+export type ACLValidationResult = z.infer<typeof ACLValidationResultSchema>;
+export type AuditLogEntry = z.infer<typeof AuditLogEntrySchema>;
+export type AuditLogList = z.infer<typeof AuditLogListSchema>;
+export type AuthKey = z.infer<typeof AuthKeySchema>;
+export type AuthKeyList = z.infer<typeof AuthKeyListSchema>;
+export type CreateAuthKeyRequest = z.infer<typeof CreateAuthKeyRequestSchema>;
+export type DeviceActionRequest = z.infer<typeof DeviceActionRequestSchema>;
+export type DevicePosture = z.infer<typeof DevicePostureSchema>;
+export type DevicePostureRequest = z.infer<typeof DevicePostureRequestSchema>;
+export type DeviceRoutes = z.infer<typeof DeviceRoutesSchema>;
+export type DeviceStats = z.infer<typeof DeviceStatsSchema>;
+export type DeviceTaggingRequest = z.infer<typeof DeviceTaggingRequestSchema>;
+export type DNSConfig = z.infer<typeof DNSConfigSchema>;
+export type DNSRequest = z.infer<typeof DNSRequestSchema>;
+export type ExitNodeRequest = z.infer<typeof ExitNodeRequestSchema>;
+export type FileSharingRequest = z.infer<typeof FileSharingRequestSchema>;
+export type KeyManagementRequest = z.infer<typeof KeyManagementRequestSchema>;
+export type ListDevicesRequest = z.infer<typeof ListDevicesRequestSchema>;
+export type LoggingRequest = z.infer<typeof LoggingRequestSchema>;
+export type NetworkLockRequest = z.infer<typeof NetworkLockRequestSchema>;
+export type NetworkLockStatus = z.infer<typeof NetworkLockStatusSchema>;
+export type NetworkStats = z.infer<typeof NetworkStatsSchema>;
+export type NetworkStatsRequest = z.infer<typeof NetworkStatsRequestSchema>;
+export type NetworkStatusRequest = z.infer<typeof NetworkStatusRequestSchema>;
+export type PolicyFileRequest = z.infer<typeof PolicyFileRequestSchema>;
+export type PosturePolicy = z.infer<typeof PosturePolicySchema>;
+export type RouteActionRequest = z.infer<typeof RouteActionRequestSchema>;
+export type SearchPath = z.infer<typeof SearchPathSchema>;
+export type SSHManagementRequest = z.infer<typeof SSHManagementRequestSchema>;
+export type SSHRule = z.infer<typeof SSHRuleSchema>;
+export type SSHSettings = z.infer<typeof SSHSettingsSchema>;
+export type SubnetRouterRequest = z.infer<typeof SubnetRouterRequestSchema>;
+export type TailnetInfo = z.infer<typeof TailnetInfoSchema>;
+export type TailnetInfoRequest = z.infer<typeof TailnetInfoRequestSchema>;
+export type TailscaleCLIStatus = z.infer<typeof TailscaleCLIStatusSchema>;
+export type User = z.infer<typeof UserSchema>;
+export type UserList = z.infer<typeof UserListSchema>;
+export type UserManagementRequest = z.infer<typeof UserManagementRequestSchema>;
+export type Webhook = z.infer<typeof WebhookSchema>;
+export type WebhookList = z.infer<typeof WebhookListSchema>;
+export type WebhookRequest = z.infer<typeof WebhookRequestSchema>;

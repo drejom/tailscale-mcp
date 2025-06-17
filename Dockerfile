@@ -3,22 +3,22 @@
 # This stage installs dependencies (including devDependencies)
 # and builds the application source code.
 #
-FROM node:20-alpine AS builder
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files and install all dependencies for the build
-COPY package*.json ./
-RUN npm ci
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile
 
 # Copy the rest of the application source code
 COPY . .
 
 # Run the build script to transpile TypeScript to JavaScript
-RUN npm run build
+RUN bun run build
 
 # Remove dev dependencies
-RUN npm prune --production
+RUN bun install --production --frozen-lockfile
 
 #
 # ---- Production Stage ----
@@ -56,14 +56,14 @@ EXPOSE 3000
 # A basic health check to ensure the Node.js process can start.
 # For a real-world app, this should hit a dedicated /health endpoint.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "process.exit(0)" || exit 1
+  CMD bun -e "process.exit(0)" || exit 1
 
 # Set environment variables for the production environment
 ENV NODE_ENV=production
 ENV LOG_LEVEL=1
 
-# Use dumb-init as the entrypoint to manage the node process
+# Use dumb-init as the entrypoint to manage the bun node process
 ENTRYPOINT ["dumb-init", "--"]
 
 # The command to start the application
-CMD ["node", "dist/index.js"]
+CMD ["bun", "dist/index.js"]

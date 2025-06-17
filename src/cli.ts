@@ -116,7 +116,7 @@ Environment Variables:
     }
   }
 
-  setupSignalHandlers(): void {
+  private setupSignalHandlers(): void {
     process.on("unhandledRejection", async (err) => {
       logger.error("Unhandled rejection:", err);
       await this.gracefulShutdown(1);

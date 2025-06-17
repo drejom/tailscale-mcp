@@ -210,9 +210,9 @@ export class TailscaleCLI {
   }
 
   /**
-   * Get list of peers
+   * Get list of devices (peers)
    */
-  async listPeers(): Promise<CLIResponse<string[]>> {
+  async listDevices(): Promise<CLIResponse<string[]>> {
     const statusResult = await this.getStatus();
 
     if (!statusResult.success) {
@@ -225,16 +225,44 @@ export class TailscaleCLI {
 
     const peers = statusResult.data?.Peer
       ? Object.values(statusResult.data.Peer)
-          .map((p) => (p as any).HostName)
+          .map((p) => p.HostName)
           .filter(
             (hostname): hostname is string => typeof hostname === "string",
           )
       : [];
 
     return {
-      success: true,
       data: peers,
+      success: true,
     };
+  }
+
+  /**
+   * Connect to network (alias for up)
+   */
+  async connect(options?: {
+    loginServer?: string;
+    acceptRoutes?: boolean;
+    acceptDns?: boolean;
+    hostname?: string;
+    advertiseRoutes?: string[];
+    authKey?: string;
+  }): Promise<CLIResponse<string>> {
+    return this.up(options);
+  }
+
+  /**
+   * Disconnect from network (alias for down)
+   */
+  async disconnect(): Promise<CLIResponse<string>> {
+    return this.down();
+  }
+
+  /**
+   * Get tailnet info (alias for getStatus for API parity)
+   */
+  async getTailnetInfo(): Promise<CLIResponse<TailscaleCLIStatus>> {
+    return this.getStatus();
   }
 
   /**

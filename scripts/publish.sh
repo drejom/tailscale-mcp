@@ -49,10 +49,10 @@ prompt_yes_no() {
 # --- Package & Git Info Functions ---
 
 get_current_version() {
-  node -p "require('./package.json').version"
+  bun -p "require('./package.json').version"
 }
 get_package_name() {
-  node -p "require('./package.json').name"
+  bun -p "require('./package.json').name"
 }
 get_github_owner() {
   # Tries to automatically determine the GitHub user/org from the git remote URL
@@ -70,10 +70,10 @@ bump_version() {
 
   if [ "$bump_type" == "custom" ]; then
     read -p "Enter the custom version number: " new_version
-    npm version "$new_version" --no-git-tag-version
+    bun version "$new_version" --no-git-tag-version
   else
-    # Use npm version to bump and capture the new version
-    new_version=$(npm version "$bump_type" --no-git-tag-version | sed 's/v//')
+    # Use bun version to bump and capture the new version
+    new_version=$(bun version "$bump_type" --no-git-tag-version | sed 's/v//')
   fi
 
   print_success "Version bumped to $new_version"
@@ -94,16 +94,16 @@ publish_npm() {
   local version="$1"
   print_status "Preparing to publish to npm..."
 
-  if prompt_yes_no "Run 'npm run build' first?"; then
-    npm run build
+  if prompt_yes_no "Run 'bun run build' first?"; then
+    bun run build
   fi
 
   if prompt_yes_no "Run tests before publishing?"; then
-    npm test
+    bun test
   fi
 
   if prompt_yes_no "Ready to publish version $version to npm?"; then
-    npm publish --access public
+    bun publish --access public
     print_success "Published to npm successfully!"
   else
     print_warning "NPM publish aborted by user."
