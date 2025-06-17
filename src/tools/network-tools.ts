@@ -1,8 +1,9 @@
+import type { TailscaleCLIStatus } from "@/types.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
+import { returnToolError, returnToolSuccess } from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
-import { TailscaleCLIStatus } from "@/types.js";
 
 // Schemas
 const NetworkStatusSchema = z.object({
@@ -54,7 +55,7 @@ const PingPeerSchema = z.object({
 // Tool handlers
 async function getNetworkStatus(
   args: z.infer<typeof NetworkStatusSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting network status with format:", args.format);
@@ -63,15 +64,7 @@ async function getNetworkStatus(
     const result = await context.client.getStatus();
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to get network status: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
     const status = result.data as TailscaleCLIStatus;
@@ -114,42 +107,19 @@ async function getNetworkStatus(
         }
       }
 
-      return {
-        content: [
-          {
-            type: "text",
-            text: output,
-          },
-        ],
-      };
+      return returnToolSuccess(output);
     }
     // JSON format
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(status, null, 2),
-        },
-      ],
-    };
+    return returnToolSuccess(JSON.stringify(status, null, 2));
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error getting network status:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error getting network status: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
 async function connectNetwork(
   args: z.infer<typeof ConnectNetworkSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     const options = {
@@ -167,43 +137,21 @@ async function connectNetwork(
     const result = await context.client.connect(options);
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to connect to Tailscale: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Successfully connected to Tailscale network\n\n${result.data}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Successfully connected to Tailscale network\n\n${result.data}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error connecting to network:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error connecting to network: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
 async function disconnectNetwork(
   _args: Record<string, unknown>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Disconnecting from Tailscale network");
@@ -212,43 +160,21 @@ async function disconnectNetwork(
     const result = await context.client.disconnect();
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to disconnect from Tailscale: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Successfully disconnected from Tailscale network\n\n${result.data}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Successfully disconnected from Tailscale network\n\n${result.data}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error disconnecting from network:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error disconnecting from network: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
 async function pingPeer(
   args: z.infer<typeof PingPeerSchema>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug(`Pinging ${args.target} (${args.count} packets)`);
@@ -257,43 +183,21 @@ async function pingPeer(
     const result = await context.client.ping(args.target, args.count);
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to ping ${args.target}: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Ping results for ${args.target}:\n\n${result.data}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Ping results for ${args.target}:\n\n${result.data}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error pinging peer:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error pinging peer: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
 async function getVersion(
   _args: Record<string, unknown>,
-  context: ToolContext
+  context: ToolContext,
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting Tailscale version");
@@ -302,37 +206,15 @@ async function getVersion(
     const result = await context.client.getVersion();
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to get version: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Tailscale version information:\n\n${result.data}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Tailscale version information:\n\n${result.data}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error getting version:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error getting version: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 

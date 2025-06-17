@@ -1,6 +1,8 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
+import type { UnifiedResponse } from "../tailscale/unified-client.js";
+import { returnToolError, returnToolSuccess } from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
 
 // Schemas
@@ -39,18 +41,10 @@ async function listDevices(
     const result = await context.client.listDevices();
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to list devices: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    const devices = result.data!;
+    const devices = result.data || [];
     let output = `Found ${devices.length} devices:\n\n`;
 
     for (const device of devices) {
@@ -89,26 +83,10 @@ async function listDevices(
       }
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: output,
-        },
-      ],
-    };
+    return returnToolSuccess(output);
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error listing devices:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error listing devices: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -119,7 +97,7 @@ async function deviceAction(
   try {
     logger.debug("Performing device action:", args);
 
-    let result;
+    let result: UnifiedResponse<void>;
     switch (args.action) {
       case "authorize":
         result = await context.client.authorizeDevice(args.deviceId);
@@ -134,49 +112,19 @@ async function deviceAction(
         result = await context.client.expireDeviceKey(args.deviceId);
         break;
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Unknown action: ${args.action}`,
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(`Unknown action: ${args.action}`);
     }
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to perform device action: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Successfully performed action "${args.action}" on device ${args.deviceId}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Successfully performed action "${args.action}" on device ${args.deviceId}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error performing device action:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error performing device action: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -187,7 +135,7 @@ async function manageRoutes(
   try {
     logger.debug("Managing routes:", args);
 
-    let result;
+    let result: UnifiedResponse<void>;
     if (args.action === "enable") {
       result = await context.client.enableDeviceRoutes(
         args.deviceId,
@@ -201,39 +149,17 @@ async function manageRoutes(
     }
 
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to manage routes: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Successfully ${args.action}d routes ${args.routes.join(
-            ", ",
-          )} for device ${args.deviceId}`,
-        },
-      ],
-    };
+    return returnToolSuccess(
+      `Successfully ${args.action}d routes ${args.routes.join(
+        ", ",
+      )} for device ${args.deviceId}`,
+    );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error managing routes:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error managing routes: ${errorMessage}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 

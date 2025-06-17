@@ -22,7 +22,7 @@ export interface ToolDefinition {
   description: string;
   inputSchema: z.ZodSchema;
   handler(
-    args: Record<string, any>,
+    args: Record<string, unknown>,
     context: ToolContext,
   ): Promise<CallToolResult>;
 }
@@ -104,7 +104,7 @@ export class ToolRegistry {
       }
 
       return await tool.handler(
-        validatedArgs.data as Record<string, any>,
+        validatedArgs.data as Record<string, unknown>,
         this.context,
       );
     } catch (error: unknown) {
@@ -141,9 +141,13 @@ export class ToolRegistry {
 }
 
 // Helper function to convert Zod schema to JSON Schema
-function zodToJsonSchema(schema: z.ZodSchema): any {
+function zodToJsonSchema(
+  schema: z.ZodSchema,
+): Record<string, unknown> & { type: "object" } {
   try {
-    return z.toJSONSchema(schema);
+    return z.toJSONSchema(schema) as Record<string, unknown> & {
+      type: "object";
+    };
   } catch (error) {
     logger.error("Schema conversion failed:", error);
     return { type: "object", properties: {} };

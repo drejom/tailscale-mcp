@@ -109,13 +109,13 @@ export class HttpMCPServer {
     const now = new Date();
     const expiredThreshold = 60 * 60 * 1000; // 1 hour
 
-    Object.keys(this.sessions).forEach((sessionId) => {
+    for (const sessionId of Object.keys(this.sessions)) {
       const session = this.sessions[sessionId];
       if (now.getTime() - session.lastAccessed.getTime() > expiredThreshold) {
         logger.debug(`Cleaning up expired session: ${sessionId}`);
         delete this.sessions[sessionId];
       }
-    });
+    }
   }
 
   private setupRoutes(app: express.Application): void {
@@ -381,10 +381,10 @@ export class HttpMCPServer {
     }
 
     // Clean up all active sessions
-    Object.keys(this.sessions).forEach((sessionId) => {
+    for (const sessionId of Object.keys(this.sessions)) {
       logger.debug(`Cleaning up session on shutdown: ${sessionId}`);
       delete this.sessions[sessionId];
-    });
+    }
 
     if (this.httpServer) {
       await new Promise<void>((resolve) =>

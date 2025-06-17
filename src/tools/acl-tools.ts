@@ -1,6 +1,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
+import { returnToolError, returnToolSuccess } from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
 
 // Schemas
@@ -132,114 +133,60 @@ async function manageACL(
       case "get": {
         const result = await context.api.getACL();
         if (!result.success) {
-          return {
-            content: [
-              { type: "text", text: `Failed to get ACL: ${result.error}` },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Current ACL configuration:\n\n${
-                typeof result.data === "string"
-                  ? result.data
-                  : JSON.stringify(result.data, null, 2)
-              }`,
-            },
-          ],
-        };
+
+        return returnToolSuccess(
+          `Current ACL configuration:\n\n${
+            typeof result.data === "string"
+              ? result.data
+              : JSON.stringify(result.data, null, 2)
+          }`,
+        );
       }
 
       case "update": {
         if (!args.aclConfig) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "ACL configuration is required for update operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "ACL configuration is required for update operation",
+          );
         }
 
         const aclString = JSON.stringify(args.aclConfig, null, 2);
         const result = await context.api.updateACL(aclString);
 
         if (!result.success) {
-          return {
-            content: [
-              { type: "text", text: `Failed to update ACL: ${result.error}` },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            { type: "text", text: "ACL configuration updated successfully" },
-          ],
-        };
+        return returnToolSuccess("ACL configuration updated successfully");
       }
 
       case "validate": {
         if (!args.aclConfig) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "ACL configuration is required for validation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "ACL configuration is required for validation",
+          );
         }
 
         const aclString = JSON.stringify(args.aclConfig, null, 2);
         const result = await context.api.validateACL(aclString);
 
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `ACL validation failed: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [{ type: "text", text: "ACL configuration is valid" }],
-        };
+        return returnToolSuccess("ACL configuration is valid");
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid ACL operation. Use: get, update, or validate",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid ACL operation. Use: get, update, or validate",
+        );
     }
   } catch (error) {
     logger.error("Error managing ACL:", error);
-    return {
-      isError: true,
-      content: [
-        {
-          type: "text",
-          text: `Error managing ACL: ${error instanceof Error ? error.message : "Unknown error"}`,
-        },
-      ],
-    };
+    return returnToolError(error);
   }
 }
 
@@ -254,216 +201,107 @@ async function manageDNS(
       case "get_nameservers": {
         const result = await context.api.getDNSNameservers();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get DNS nameservers: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const nameservers = result.data?.dns || [];
-        return {
-          content: [
-            {
-              type: "text",
-              text: `DNS Nameservers:\n${
-                nameservers.length > 0
-                  ? nameservers.map((ns) => `  - ${ns}`).join("\n")
-                  : "  No custom nameservers configured"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `DNS Nameservers:\n${
+            nameservers.length > 0
+              ? nameservers.map((ns) => `  - ${ns}`).join("\n")
+              : "  No custom nameservers configured"
+          }`,
+        );
       }
 
       case "set_nameservers": {
         if (!args.nameservers) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Nameservers array is required for set_nameservers operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Nameservers array is required for set_nameservers operation",
+          );
         }
 
         const result = await context.api.setDNSNameservers(args.nameservers);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to set DNS nameservers: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `DNS nameservers updated to: ${args.nameservers.join(
-                ", ",
-              )}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `DNS nameservers updated to: ${args.nameservers.join(", ")}`,
+        );
       }
 
       case "get_preferences": {
         const result = await context.api.getDNSPreferences();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get DNS preferences: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `DNS Preferences:\n  MagicDNS: ${
-                result.data?.magicDNS ? "Enabled" : "Disabled"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `DNS Preferences:\n  MagicDNS: ${
+            result.data?.magicDNS ? "Enabled" : "Disabled"
+          }`,
+        );
       }
 
       case "set_preferences": {
         if (args.magicDNS === undefined) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "magicDNS boolean is required for set_preferences operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "magicDNS boolean is required for set_preferences operation",
+          );
         }
 
         const result = await context.api.setDNSPreferences(args.magicDNS);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to set DNS preferences: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `MagicDNS ${args.magicDNS ? "enabled" : "disabled"}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `MagicDNS ${args.magicDNS ? "enabled" : "disabled"}`,
+        );
       }
 
       case "get_searchpaths": {
         const result = await context.api.getDNSSearchPaths();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get DNS search paths: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const searchPaths = result.data?.searchPaths || [];
-        return {
-          content: [
-            {
-              type: "text",
-              text: `DNS Search Paths:\n${
-                searchPaths.length > 0
-                  ? searchPaths.map((path) => `  - ${path}`).join("\n")
-                  : "  No search paths configured"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `DNS Search Paths:\n${
+            searchPaths.length > 0
+              ? searchPaths.map((path) => `  - ${path}`).join("\n")
+              : "  No search paths configured"
+          }`,
+        );
       }
 
       case "set_searchpaths": {
         if (!args.searchPaths) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "searchPaths array is required for set_searchpaths operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "searchPaths array is required for set_searchpaths operation",
+          );
         }
 
         const result = await context.api.setDNSSearchPaths(args.searchPaths);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to set DNS search paths: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `DNS search paths updated to: ${args.searchPaths.join(
-                ", ",
-              )}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `DNS search paths updated to: ${args.searchPaths.join(", ")}`,
+        );
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid DNS operation. Use: get_nameservers, set_nameservers, get_preferences, set_preferences, get_searchpaths, set_searchpaths",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid DNS operation. Use: get_nameservers, set_nameservers, get_preferences, set_preferences, get_searchpaths, set_searchpaths",
+        );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error managing DNS:", error);
-    return {
-      content: [{ type: "text", text: `Error managing DNS: ${error.message}` }],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -478,22 +316,12 @@ async function manageKeys(
       case "list": {
         const result = await context.api.listAuthKeys();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to list auth keys: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const keys = result.data?.keys || [];
         if (keys.length === 0) {
-          return {
-            content: [{ type: "text", text: "No authentication keys found" }],
-          };
+          return returnToolSuccess("No authentication keys found");
         }
 
         const keyList = keys
@@ -511,27 +339,16 @@ async function manageKeys(
           })
           .join("\n\n");
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Found ${keys.length} authentication keys:\n\n${keyList}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Found ${keys.length} authentication keys:\n\n${keyList}`,
+        );
       }
 
       case "create": {
         if (!args.keyConfig) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Key configuration is required for create operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Key configuration is required for create operation",
+          );
         }
 
         const keyConfig = {
@@ -546,85 +363,40 @@ async function manageKeys(
         };
         const result = await context.api.createAuthKey(keyConfig);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to create auth key: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Authentication key created successfully:
+        return returnToolSuccess(
+          `Authentication key created successfully:
   - ID: ${result.data?.id}
   - Key: ${result.data?.key}
   - Description: ${result.data?.description || "No description"}`,
-            },
-          ],
-        };
+        );
       }
 
       case "delete": {
         if (!args.keyId) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Key ID is required for delete operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError("Key ID is required for delete operation");
         }
 
         const result = await context.api.deleteAuthKey(args.keyId);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to delete auth key: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Authentication key ${args.keyId} deleted successfully`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Authentication key ${args.keyId} deleted successfully`,
+        );
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid key operation. Use: list, create, or delete",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid key operation. Use: list, create, or delete",
+        );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error managing keys:", error);
-    return {
-      content: [
-        { type: "text", text: `Error managing keys: ${error.message}` },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -639,100 +411,48 @@ async function manageNetworkLock(
       case "status": {
         const result = await context.api.getNetworkLockStatus();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get network lock status: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const status = result.data;
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Network Lock Status:
+        return returnToolSuccess(
+          `Network Lock Status:
   - Enabled: ${status?.enabled ? "Yes" : "No"}
   - Node Key: ${status?.nodeKey || "Not available"}
   - Trusted Keys: ${status?.trustedKeys?.length || 0}`,
-            },
-          ],
-        };
+        );
       }
 
       case "enable": {
         const result = await context.api.enableNetworkLock();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to enable network lock: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Network lock enabled successfully. Key: ${
-                result.data?.key || "Generated"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Network lock enabled successfully. Key: ${
+            result.data?.key || "Generated"
+          }`,
+        );
       }
 
       case "disable": {
         const result = await context.api.disableNetworkLock();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to disable network lock: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            { type: "text", text: "Network lock disabled successfully" },
-          ],
-        };
+        return returnToolSuccess("Network lock disabled successfully");
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid network lock operation. Use: status, enable, or disable",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid network lock operation. Use: status, enable, or disable",
+        );
     }
   } catch (error) {
     logger.error("Error managing network lock:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error managing network lock: ${error instanceof Error ? error.message : "Unknown error"}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -747,94 +467,48 @@ async function managePolicyFile(
       case "get": {
         const result = await context.api.getPolicyFile();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get policy file: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Policy File (HuJSON format):\n\n${result.data}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Policy File (HuJSON format):\n\n${result.data}`,
+        );
       }
 
       case "test_access": {
         if (!args.testRequest) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Test request parameters are required for test_access operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Test request parameters are required for test_access operation",
+          );
         }
 
         const { src, dst, proto } = args.testRequest;
         const result = await context.api.testACLAccess(src, dst, proto);
 
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to test ACL access: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const testResult = result.data;
-        return {
-          content: [
-            {
-              type: "text",
-              text: `ACL Access Test Result:
+        return returnToolSuccess(
+          `ACL Access Test Result:
   - Source: ${src}
   - Destination: ${dst}
   - Protocol: ${proto || "any"}
   - Result: ${testResult?.allowed ? "ALLOWED" : "DENIED"}
   - Rule: ${testResult?.rule || "No matching rule"}
   - Match: ${testResult?.match || "N/A"}`,
-            },
-          ],
-        };
+        );
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid policy operation. Use: get or test_access",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid policy operation. Use: get or test_access",
+        );
     }
   } catch (error) {
     logger.error("Error managing policy file:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error managing policy file: ${error instanceof Error ? error.message : "Unknown error"}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 

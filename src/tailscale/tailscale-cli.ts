@@ -167,13 +167,18 @@ export class TailscaleCLI {
         data: stdout.trim(),
         stderr: stderr?.trim(),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("CLI command failed:", error);
 
       return {
         success: false,
-        error: error.message,
-        stderr: error.stderr,
+        error: error instanceof Error ? error.message : String(error),
+        stderr:
+          error instanceof Error &&
+          "stderr" in error &&
+          typeof error.stderr === "string"
+            ? error.stderr
+            : undefined,
       };
     }
   }
@@ -193,18 +198,18 @@ export class TailscaleCLI {
     }
 
     try {
-      const statusData = JSON.parse(result.data!);
+      const statusData = JSON.parse(result.data || "{}");
       const validatedStatus = TailscaleCLIStatusSchema.parse(statusData);
 
       return {
         success: true,
         data: validatedStatus,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Failed to parse status JSON:", error);
       return {
         success: false,
-        error: `Failed to parse status data: ${error.message}`,
+        error: `Failed to parse status data: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
   }

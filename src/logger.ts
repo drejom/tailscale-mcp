@@ -139,12 +139,16 @@ class Logger {
         await appendFile(this.logFilePath, batchMessages, "utf8");
 
         // Resolve all promises in the batch
-        batch.forEach((entry) => entry.resolve());
+        for (const entry of batch) {
+          entry.resolve();
+        }
       } catch (error) {
         console.error(`❌ Failed to write batch to server log file: ${error}`);
 
         // Reject all promises in the batch
-        batch.forEach((entry) => entry.reject(error as Error));
+        for (const entry of batch) {
+          entry.reject(error as Error);
+        }
       }
     }
 

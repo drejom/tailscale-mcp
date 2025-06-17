@@ -1,6 +1,11 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
+import {
+  getErrorMessage,
+  returnToolError,
+  returnToolSuccess,
+} from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
 
 // Schemas
@@ -150,15 +155,7 @@ async function getTailnetInfo(
 
     const result = await context.api.getDetailedTailnetInfo();
     if (!result.success) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Failed to get tailnet info: ${result.error}`,
-          },
-        ],
-        isError: true,
-      };
+      return returnToolError(result.error);
     }
 
     const info = result.data;
@@ -190,20 +187,11 @@ ${
     : ""
 }`;
 
-    return {
-      content: [{ type: "text", text: formattedInfo }],
-    };
-  } catch (error: any) {
+    return returnToolSuccess(formattedInfo);
+  } catch (error) {
     logger.error("Error getting tailnet info:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error getting tailnet info: ${error.message}`,
-        },
-      ],
-      isError: true,
-    };
+
+    return returnToolError(error);
   }
 }
 
@@ -218,93 +206,42 @@ async function manageFileSharing(
       case "get_status": {
         const result = await context.api.getFileSharingStatus();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get file sharing status: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `File Sharing Status: ${
-                result.data?.fileSharing ? "Enabled" : "Disabled"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `File Sharing Status: ${
+            result.data?.fileSharing ? "Enabled" : "Disabled"
+          }`,
+        );
       }
 
       case "enable": {
         const result = await context.api.setFileSharingStatus(true);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to enable file sharing: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            { type: "text", text: "File sharing enabled successfully" },
-          ],
-        };
+        return returnToolSuccess("File sharing enabled successfully");
       }
 
       case "disable": {
         const result = await context.api.setFileSharingStatus(false);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to disable file sharing: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            { type: "text", text: "File sharing disabled successfully" },
-          ],
-        };
+        return returnToolSuccess("File sharing disabled successfully");
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid file sharing operation. Use: get_status, enable, or disable",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid file sharing operation. Use: get_status, enable, or disable",
+        );
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing file sharing:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error managing file sharing: ${error.message}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -319,34 +256,22 @@ async function manageExitNodes(
       case "list": {
         const devicesResult = await context.api.listDevices();
         if (!devicesResult.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to list devices: ${devicesResult.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(devicesResult.error);
         }
 
         const devices = devicesResult.data || [];
         const exitNodes = devices.filter(
-          (device: any) =>
+          (device) =>
             device.advertisedRoutes?.includes("0.0.0.0/0") ||
             device.advertisedRoutes?.includes("::/0"),
         );
 
         if (exitNodes.length === 0) {
-          return {
-            content: [
-              { type: "text", text: "No exit nodes found in the network" },
-            ],
-          };
+          return returnToolSuccess("No exit nodes found in the network");
         }
 
         const exitNodeList = exitNodes
-          .map((node: any) => {
+          .map((node) => {
             return `**${node.name}** (${node.hostname})
   - ID: ${node.id}
   - OS: ${node.os}
@@ -355,27 +280,16 @@ async function manageExitNodes(
           })
           .join("\n\n");
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Exit Nodes (${exitNodes.length}):\n\n${exitNodeList}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Exit Nodes (${exitNodes.length}):\n\n${exitNodeList}`,
+        );
       }
 
       case "advertise": {
         if (!args.deviceId || !args.routes) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Device ID and routes are required for advertise operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Device ID and routes are required for advertise operation",
+          );
         }
 
         const result = await context.api.setDeviceExitNode(
@@ -383,92 +297,45 @@ async function manageExitNodes(
           args.routes,
         );
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to advertise exit node: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Device ${
-                args.deviceId
-              } is now advertising routes: ${args.routes.join(", ")}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Device ${
+            args.deviceId
+          } is now advertising routes: ${args.routes.join(", ")}`,
+        );
       }
 
       case "set": {
         const nodeId = args.deviceId ?? "";
         const cliResult = await context.cli.setExitNode(nodeId);
         if (!cliResult.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to set exit node: ${cliResult.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(cliResult.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Exit node set to: ${args.deviceId || "auto"}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Exit node set to: ${args.deviceId || "auto"}`,
+        );
       }
 
       case "clear": {
         const cliResult = await context.cli.setExitNode();
         if (!cliResult.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to clear exit node: ${cliResult.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(cliResult.error);
         }
 
-        return {
-          content: [{ type: "text", text: "Exit node cleared successfully" }],
-        };
+        return returnToolSuccess("Exit node cleared successfully");
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid exit node operation. Use: list, set, clear, advertise",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid exit node operation. Use: list, set, clear, advertise",
+        );
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing exit nodes:", error);
-    return {
-      content: [
-        { type: "text", text: `Error managing exit nodes: ${error.message}` },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -483,179 +350,92 @@ async function manageWebhooks(
       case "list": {
         const result = await context.api.listWebhooks();
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to list webhooks: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const webhooks = result.data?.webhooks || [];
         if (webhooks.length === 0) {
-          return {
-            content: [{ type: "text", text: "No webhooks configured" }],
-          };
+          return returnToolSuccess("No webhooks configured");
         }
 
         const webhookList = webhooks
-          .map((webhook: any, index: number) => {
+          .map((webhook, index: number) => {
             return `**Webhook ${index + 1}**
   - ID: ${webhook.id}
   - URL: ${webhook.endpointUrl}
   - Events: ${webhook.events?.join(", ") || "None"}
   - Description: ${webhook.description || "No description"}
-  - Created: ${webhook.created}`;
+  - Created: ${webhook.createdAt}`;
           })
           .join("\n\n");
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Found ${webhooks.length} webhooks:\n\n${webhookList}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Found ${webhooks.length} webhooks:\n\n${webhookList}`,
+        );
       }
 
       case "create": {
         if (!args.config) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Webhook configuration is required for create operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Webhook configuration is required for create operation",
+          );
         }
 
         const result = await context.api.createWebhook(args.config);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to create webhook: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Webhook created successfully:
+        return returnToolSuccess(
+          `Webhook created successfully:
   - ID: ${result.data?.id}
   - URL: ${result.data?.endpointUrl}
   - Events: ${result.data?.events?.join(", ")}`,
-            },
-          ],
-        };
+        );
       }
 
       case "delete": {
         if (!args.webhookId) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Webhook ID is required for delete operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError("Webhook ID is required for delete operation");
         }
 
         const result = await context.api.deleteWebhook(args.webhookId);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to delete webhook: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Webhook ${args.webhookId} deleted successfully`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Webhook ${args.webhookId} deleted successfully`,
+        );
       }
 
       case "test": {
         if (!args.webhookId) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Webhook ID is required for test operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError("Webhook ID is required for test operation");
         }
 
         const result = await context.api.testWebhook(args.webhookId);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to test webhook: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Webhook test successful. Response: ${JSON.stringify(
-                result.data,
-                null,
-                2,
-              )}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Webhook test successful. Response: ${JSON.stringify(
+            result.data,
+            null,
+            2,
+          )}`,
+        );
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid webhook operation. Use: list, create, delete, or test",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid webhook operation. Use: list, create, delete, or test",
+        );
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing webhooks:", error);
-    return {
-      content: [
-        { type: "text", text: `Error managing webhooks: ${error.message}` },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 
@@ -670,43 +450,24 @@ async function manageDeviceTags(
       case "get_tags": {
         const result = await context.api.getDeviceTags(args.deviceId);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get device tags: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
         const tags = result.data?.tags || [];
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Device Tags for ${args.deviceId}:\n${
-                tags.length > 0
-                  ? tags.map((tag) => `  - ${tag}`).join("\n")
-                  : "  No tags assigned"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Device Tags for ${args.deviceId}:\n${
+            tags.length > 0
+              ? tags.map((tag) => `  - ${tag}`).join("\n")
+              : "  No tags assigned"
+          }`,
+        );
       }
 
       case "set_tags": {
         if (!args.tags) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Tags array is required for set_tags operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Tags array is required for set_tags operation",
+          );
         }
 
         const result = await context.api.setDeviceTags(
@@ -714,52 +475,25 @@ async function manageDeviceTags(
           args.tags,
         );
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to set device tags: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Device tags updated to: ${args.tags.join(", ")}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Device tags updated to: ${args.tags.join(", ")}`,
+        );
       }
 
       case "add_tags": {
         if (!args.tags) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Tags array is required for add_tags operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Tags array is required for add_tags operation",
+          );
         }
 
         // Get current tags first
         const currentResult = await context.api.getDeviceTags(args.deviceId);
         if (!currentResult.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get current tags: ${currentResult.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(currentResult.error);
         }
 
         const currentTags = currentResult.data?.tags || [];
@@ -767,54 +501,27 @@ async function manageDeviceTags(
 
         const result = await context.api.setDeviceTags(args.deviceId, newTags);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to add device tags: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Added tags: ${args.tags.join(
-                ", ",
-              )}. Current tags: ${newTags.join(", ")}`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Added tags: ${args.tags.join(
+            ", ",
+          )}. Current tags: ${newTags.join(", ")}`,
+        );
       }
 
       case "remove_tags": {
         if (!args.tags) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Tags array is required for remove_tags operation",
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(
+            "Tags array is required for remove_tags operation",
+          );
         }
 
         // Get current tags first
         const currentResult = await context.api.getDeviceTags(args.deviceId);
         if (!currentResult.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to get current tags: ${currentResult.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(currentResult.error);
         }
 
         const currentTags = currentResult.data?.tags || [];
@@ -822,51 +529,24 @@ async function manageDeviceTags(
 
         const result = await context.api.setDeviceTags(args.deviceId, newTags);
         if (!result.success) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to remove device tags: ${result.error}`,
-              },
-            ],
-            isError: true,
-          };
+          return returnToolError(result.error);
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Removed tags: ${args.tags.join(", ")}. Remaining tags: ${
-                newTags.join(", ") || "None"
-              }`,
-            },
-          ],
-        };
+        return returnToolSuccess(
+          `Removed tags: ${args.tags.join(", ")}. Remaining tags: ${
+            newTags.join(", ") || "None"
+          }`,
+        );
       }
 
       default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid device tagging operation. Use: get_tags, set_tags, add_tags, or remove_tags",
-            },
-          ],
-          isError: true,
-        };
+        return returnToolError(
+          "Invalid device tagging operation. Use: get_tags, set_tags, add_tags, or remove_tags",
+        );
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error managing device tags:", error);
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Error managing device tags: ${error.message}`,
-        },
-      ],
-      isError: true,
-    };
+    return returnToolError(error);
   }
 }
 

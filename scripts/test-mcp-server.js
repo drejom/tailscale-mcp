@@ -239,11 +239,11 @@ class TailscaleMCPTester {
     }
 
     if (result.content && Array.isArray(result.content)) {
-      result.content.forEach((item) => {
+      for (const item of result.content) {
         if (item.type === "text") {
           console.log(item.text);
         }
-      });
+      }
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
