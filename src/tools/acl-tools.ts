@@ -233,7 +233,12 @@ async function manageACL(
     logger.error("Error managing ACL:", error);
     return {
       isError: true,
-      content: [{ type: "text", text: `Error managing ACL: ${error instanceof Error ? error.message : "Unknown error"}` }],
+      content: [
+        {
+          type: "text",
+          text: `Error managing ACL: ${error instanceof Error ? error.message : "Unknown error"}`,
+        },
+      ],
     };
   }
 }
@@ -534,10 +539,10 @@ async function manageKeys(
           capabilities: {
             devices: {
               create: {
-                ...args.keyConfig.capabilities?.devices?.create
-              }
-            }
-          }
+                ...args.keyConfig.capabilities?.devices?.create,
+              },
+            },
+          },
         };
         const result = await context.api.createAuthKey(keyConfig);
         if (!result.success) {

@@ -21,7 +21,10 @@ export interface ToolDefinition {
   name: string;
   description: string;
   inputSchema: z.ZodSchema;
-  handler(args: Record<string, any>, context: ToolContext): Promise<CallToolResult>;
+  handler(
+    args: Record<string, any>,
+    context: ToolContext,
+  ): Promise<CallToolResult>;
 }
 
 export interface ToolModule {
@@ -100,7 +103,10 @@ export class ToolRegistry {
         };
       }
 
-      return await tool.handler(validatedArgs.data as Record<string, any>, this.context);
+      return await tool.handler(
+        validatedArgs.data as Record<string, any>,
+        this.context,
+      );
     } catch (error: unknown) {
       logger.error("Tool error:", error);
 

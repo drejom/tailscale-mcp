@@ -144,10 +144,10 @@ export class UnifiedTailscaleClient {
     if (this.shouldUseAPI("getStatus")) {
       const response = await this.api.getTailnetInfo();
       return this.normalizeAPIResponse(response);
-    } else {
-      const response = await this.cli.getStatus();
-      return this.normalizeCLIResponse(response);
     }
+
+    const response = await this.cli.getStatus();
+    return this.normalizeCLIResponse(response);
   }
 
   /**
@@ -157,10 +157,10 @@ export class UnifiedTailscaleClient {
     if (this.shouldUseAPI("listDevices")) {
       const response = await this.api.listDevices();
       return this.normalizeAPIResponse(response);
-    } else {
-      const response = await this.cli.listDevices();
-      return this.normalizeCLIResponse(response);
     }
+
+    const response = await this.cli.listDevices();
+    return this.normalizeCLIResponse(response);
   }
 
   /**
