@@ -1,13 +1,13 @@
 import { logger } from "../logger.js";
+import type {
+  CLIResponse,
+  TailscaleAPIResponse,
+  TailscaleCLIStatus,
+  TailscaleConfig,
+  TailscaleDevice,
+} from "../types.js";
 import { TailscaleAPI } from "./tailscale-api.js";
 import { TailscaleCLI } from "./tailscale-cli.js";
-import type {
-  TailscaleConfig,
-  TailscaleAPIResponse,
-  CLIResponse,
-  TailscaleDevice,
-  TailscaleCLIStatus,
-} from "../types.js";
 
 export type TransportMode = "stdio" | "http";
 
@@ -35,8 +35,8 @@ export class UnifiedTailscaleClient {
   private api: TailscaleAPI;
   private cli: TailscaleCLI;
   private config: UnifiedClientConfig;
-  private apiAvailable: boolean = false;
-  private cliAvailable: boolean = false;
+  private apiAvailable = false;
+  private cliAvailable = false;
 
   constructor(config: UnifiedClientConfig) {
     this.config = {
@@ -172,17 +172,16 @@ export class UnifiedTailscaleClient {
     if (this.shouldUseAPI("getVersion")) {
       const response = await this.api.getVersion();
       return this.normalizeAPIResponse(response);
-    } else {
-      if (!this.cliAvailable) {
-        return {
-          success: false,
-          error: "Version information is not available",
-          source: "cli",
-        };
-      }
-      const response = await this.cli.version();
-      return this.normalizeCLIResponse(response);
     }
+    if (!this.cliAvailable) {
+      return {
+        success: false,
+        error: "Version information is not available",
+        source: "cli",
+      };
+    }
+    const response = await this.cli.version();
+    return this.normalizeCLIResponse(response);
   }
 
   /**
@@ -217,17 +216,17 @@ export class UnifiedTailscaleClient {
     if (this.cliAvailable) {
       const response = await this.cli.connect(options);
       return this.normalizeCLIResponse(response);
-    } else if (this.apiAvailable) {
+    }
+    if (this.apiAvailable) {
       const response = await this.api.connect();
       return this.normalizeAPIResponse(response);
-    } else {
-      return {
-        success: false,
-        error:
-          "Network connection is not available - neither CLI nor API is available",
-        source: "cli",
-      };
     }
+    return {
+      success: false,
+      error:
+        "Network connection is not available - neither CLI nor API is available",
+      source: "cli",
+    };
   }
 
   /**
@@ -237,17 +236,17 @@ export class UnifiedTailscaleClient {
     if (this.cliAvailable) {
       const response = await this.cli.disconnect();
       return this.normalizeCLIResponse(response);
-    } else if (this.apiAvailable) {
+    }
+    if (this.apiAvailable) {
       const response = await this.api.disconnect();
       return this.normalizeAPIResponse(response);
-    } else {
-      return {
-        success: false,
-        error:
-          "Network disconnection is not available - neither CLI nor API is available",
-        source: "cli",
-      };
     }
+    return {
+      success: false,
+      error:
+        "Network disconnection is not available - neither CLI nor API is available",
+      source: "cli",
+    };
   }
 
   /**

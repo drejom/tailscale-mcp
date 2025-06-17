@@ -1,14 +1,14 @@
 import {
-  describe,
-  test,
-  expect,
-  beforeEach,
+  type Mock,
   afterEach,
-  spyOn,
+  beforeEach,
+  describe,
+  expect,
   mock,
-  Mock,
+  spyOn,
+  test,
 } from "bun:test";
-import { Logger, LogLevel } from "../../logger";
+import { LogLevel, Logger } from "../../logger";
 
 // Mock fs/promises
 mock.module("fs/promises", () => ({
@@ -22,7 +22,7 @@ describe("Logger", () => {
 
   beforeEach(() => {
     // Reset environment variables
-    delete process.env.MCP_SERVER_LOG_FILE;
+    process.env.MCP_SERVER_LOG_FILE = undefined;
 
     // Create fresh spies for console methods
     consoleSpy = spyOn(console, "info").mockImplementation(() => {});

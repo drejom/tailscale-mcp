@@ -1,6 +1,6 @@
 // Integration test setup file
 import { beforeAll } from "bun:test";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 
 // Check if Tailscale CLI is available
 beforeAll(async () => {

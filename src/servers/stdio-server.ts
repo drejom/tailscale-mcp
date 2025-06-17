@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { logger } from "../logger.js";
-import { ToolRegistry } from "../tools/index.js";
+import type { ToolRegistry } from "../tools/index.js";
 
 const KEEP_ALIVE_INTERVAL = 30_000;
 

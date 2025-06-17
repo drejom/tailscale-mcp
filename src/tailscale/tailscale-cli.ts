@@ -1,11 +1,11 @@
-import { execFile } from "child_process";
-import { promisify } from "util";
-import {
-  TailscaleCLIStatus,
-  TailscaleCLIStatusSchema,
-  CLIResponse,
-} from "../types.js";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { logger } from "../logger.js";
+import {
+  type CLIResponse,
+  type TailscaleCLIStatus,
+  TailscaleCLIStatusSchema,
+} from "../types.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -21,7 +21,7 @@ export const cidrPattern =
 export class TailscaleCLI {
   private cliPath: string;
 
-  constructor(cliPath: string = "tailscale") {
+  constructor(cliPath = "tailscale") {
     this.cliPath = cliPath;
   }
 
@@ -158,7 +158,7 @@ export class TailscaleCLI {
         killSignal: "SIGTERM", // Graceful termination signal
       });
 
-      if (stderr && stderr.trim()) {
+      if (stderr?.trim()) {
         logger.warn("CLI stderr:", stderr);
       }
 
@@ -328,7 +328,7 @@ export class TailscaleCLI {
   private static readonly MIN_PING_COUNT = 1;
   private static readonly MAX_PING_COUNT = 100;
 
-  async ping(target: string, count: number = 4): Promise<CLIResponse<string>> {
+  async ping(target: string, count = 4): Promise<CLIResponse<string>> {
     this.validateTarget(target);
 
     if (

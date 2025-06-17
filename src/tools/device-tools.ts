@@ -58,7 +58,7 @@ async function listDevices(
       if (typeof device === "string") {
         // CLI returns simple string array of hostnames
         output += `**${device}**\n`;
-        output += `  - Source: CLI (limited info available)\n\n`;
+        output += "  - Source: CLI (limited info available)\n\n";
       } else {
         // API returns full TailscaleDevice objects
         const typedDevice = device;

@@ -29,13 +29,14 @@
 import "dotenv/config";
 
 import { spawn } from "node:child_process";
+import { appendFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-import { writeFileSync, appendFileSync } from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const __dist = join(__dirname, "../", "dist");
 
 class TailscaleMCPTester {
   constructor() {
@@ -104,7 +105,7 @@ class TailscaleMCPTester {
       this.log("🚀 Starting Tailscale MCP Server...", "cyan");
 
       // Start the server process
-      const serverPath = join(__dirname, "dist", "index.js");
+      const serverPath = join(__dist, "index.js");
       this.serverProcess = spawn("bun", [serverPath], {
         stdio: ["pipe", "pipe", "pipe"],
         env: { ...process.env },
@@ -169,7 +170,7 @@ class TailscaleMCPTester {
       const requestStr = `${JSON.stringify(request)}\n`;
 
       let responseData = "";
-      let responseTimeout = setTimeout(() => {
+      const responseTimeout = setTimeout(() => {
         reject(new Error("Request timeout"));
       }, 30000);
 
@@ -188,7 +189,7 @@ class TailscaleMCPTester {
                 resolve(response);
                 return;
               }
-            } catch (e) {
+            } catch (_e) {
               // Continue collecting data
             }
           }
@@ -359,7 +360,7 @@ class TailscaleMCPTester {
     tools.forEach((tool, index) => {
       this.log(`${index + 1}. ${tool.name}`, "bright");
       console.log(`   Description: ${tool.description}`);
-      if (tool.inputSchema && tool.inputSchema.properties) {
+      if (tool.inputSchema?.properties) {
         const props = Object.keys(tool.inputSchema.properties);
         if (props.length > 0) {
           console.log(`   Parameters: ${props.join(", ")}`);
@@ -404,7 +405,7 @@ class TailscaleMCPTester {
     }
 
     const countStr = (await this.prompt("Number of pings [4]: ")) || "4";
-    const count = parseInt(countStr) || 4;
+    const count = Number.parseInt(countStr) || 4;
 
     const result = await this.callTool("ping_peer", {
       target: target.trim(),
@@ -567,10 +568,11 @@ class TailscaleMCPTester {
   async run() {
     try {
       // Check if the server build exists
-      const serverPath = join(__dirname, "dist", "index.js");
+      const serverPath = join(__dist, "index.js");
       try {
-        await import("fs").then((fs) => fs.promises.access(serverPath));
-      } catch (error) {
+        await import("node:fs").then((fs) => fs.promises.access(serverPath));
+      } catch (_error) {
+        console.log(_error);
         this.log(
           '❌ Server build not found. Please run "bun run build" first.',
           "red",

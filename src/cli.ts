@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { TailscaleMCPServer, ServerMode } from "./server.js";
 import { logger } from "./logger.js";
+import { type ServerMode, TailscaleMCPServer } from "./server.js";
 
 export interface CLIOptions {
   mode: ServerMode;
@@ -20,15 +20,14 @@ export class TailscaleMCPCLI {
     const portIndex = args.indexOf("--port");
     if (portIndex !== -1 && args[portIndex + 1]) {
       const parsedPort = Number.parseInt(args[portIndex + 1], 10);
-      if (!isNaN(parsedPort) && parsedPort >= 1 && parsedPort <= 65535) {
+      if (!Number.isNaN(parsedPort) && parsedPort >= 1 && parsedPort <= 65535) {
         return parsedPort;
-      } else {
-        throw new Error(
-          `Invalid port number: ${
-            args[portIndex + 1]
-          }. Port must be between 1 and 65535.`,
-        );
       }
+      throw new Error(
+        `Invalid port number: ${
+          args[portIndex + 1]
+        }. Port must be between 1 and 65535.`,
+      );
     }
     return undefined;
   }
@@ -102,7 +101,7 @@ Environment Variables:
     }
   }
 
-  private async gracefulShutdown(exitCode: number = 0): Promise<void> {
+  private async gracefulShutdown(exitCode = 0): Promise<void> {
     try {
       await this.server?.stop();
 

@@ -1,4 +1,4 @@
-import { writeFile, appendFile } from "fs/promises";
+import { appendFile, writeFile } from "node:fs/promises";
 
 export enum LogLevel {
   DEBUG = 0,
@@ -81,7 +81,7 @@ class Logger {
 
     return new Promise((resolve, reject) => {
       this.writeQueue.push({
-        message: message + "\n",
+        message: `${message}\n`,
         resolve,
         reject,
       });
@@ -240,7 +240,9 @@ class Logger {
 
 // Export singleton instance
 export const logger = new Logger(
-  process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL) : LogLevel.INFO,
+  process.env.LOG_LEVEL
+    ? Number.parseInt(process.env.LOG_LEVEL)
+    : LogLevel.INFO,
 );
 
 // Export class for custom instances

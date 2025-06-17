@@ -76,20 +76,20 @@ async function getNetworkStatus(
     const status = result.data as import("../types.js").TailscaleCLIStatus;
 
     if (args.format === "summary") {
-      let output = `**Tailscale Network Status**\n\n`;
+      let output = "**Tailscale Network Status**\n\n";
       output += `Version: ${status.Version}\n`;
       output += `Backend state: ${status.BackendState}\n`;
       output += `TUN interface: ${status.TUN ? "Active" : "Inactive"}\n`;
       output += `Tailscale IPs: ${(status.TailscaleIPs ?? []).join(", ")}\n\n`;
 
-      output += `**This device:**\n`;
+      output += "**This device:**\n";
       output += `  - Hostname: ${status.Self.HostName}\n`;
       output += `  - DNS name: ${status.Self.DNSName}\n`;
       output += `  - OS: ${status.Self.OS}\n`;
       output += `  - IPs: ${status.Self.TailscaleIPs.join(", ")}\n`;
       output += `  - Online: ${status.Self.Online ? "🟢" : "🔴"}\n`;
       if (status.Self.ExitNode) {
-        output += `  - Exit node: Yes\n`;
+        output += "  - Exit node: Yes\n";
       }
       output += "\n";
 
@@ -105,10 +105,10 @@ async function getNetworkStatus(
             output += `    - Last seen: ${peer.LastSeen}\n`;
           }
           if (peer.ExitNode) {
-            output += `    - Exit node: Yes\n`;
+            output += "    - Exit node: Yes\n";
           }
           if (peer.Active) {
-            output += `    - Active connection\n`;
+            output += "    - Active connection\n";
           }
         }
       }
@@ -121,17 +121,16 @@ async function getNetworkStatus(
           },
         ],
       };
-    } else {
-      // JSON format
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(status, null, 2),
-          },
-        ],
-      };
     }
+    // JSON format
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(status, null, 2),
+        },
+      ],
+    };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Error getting network status:", error);
@@ -202,7 +201,7 @@ async function connectNetwork(
 }
 
 async function disconnectNetwork(
-  args: Record<string, unknown>,
+  _args: Record<string, unknown>,
   context: ToolContext,
 ): Promise<CallToolResult> {
   try {

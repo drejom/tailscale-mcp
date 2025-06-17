@@ -1,3 +1,5 @@
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import type * as http from "node:http";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
@@ -5,10 +7,8 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import express from "express";
-import { randomUUID, createHash, randomBytes } from "node:crypto";
-import * as http from "node:http";
 import { logger } from "../logger.js";
-import { ToolRegistry } from "../tools/index.js";
+import type { ToolRegistry } from "../tools/index.js";
 
 const TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -120,7 +120,7 @@ export class HttpMCPServer {
 
   private setupRoutes(app: express.Application): void {
     // Add a simple health check endpoint
-    app.get("/health", (req, res) => {
+    app.get("/health", (_req, res) => {
       res.json({
         status: "healthy",
         server: "tailscale-mcp-server",
@@ -130,12 +130,12 @@ export class HttpMCPServer {
     });
 
     // Add a tools listing endpoint
-    app.get("/tools", (req, res) => {
+    app.get("/tools", (_req, res) => {
       res.json({ tools: this.toolRegistry.getTools() });
     });
 
     // Add session info endpoint for debugging (development only)
-    app.get("/sessions", (req, res) => {
+    app.get("/sessions", (_req, res) => {
       if (process.env.NODE_ENV === "production") {
         res.status(404).json({ error: "Not found" });
         return;
@@ -161,7 +161,7 @@ export class HttpMCPServer {
     ) => {
       try {
         const sessionId = req.headers["mcp-session-id"] as string;
-        const authToken = req.headers["authorization"]?.replace(
+        const authToken = req.headers.authorization?.replace(
           "Bearer ",
           "",
         ) as string;
@@ -265,7 +265,7 @@ export class HttpMCPServer {
     ) => {
       try {
         const sessionId = req.headers["mcp-session-id"] as string;
-        const authToken = req.headers["authorization"]?.replace(
+        const authToken = req.headers.authorization?.replace(
           "Bearer ",
           "",
         ) as string;
@@ -388,7 +388,7 @@ export class HttpMCPServer {
 
     if (this.httpServer) {
       await new Promise<void>((resolve) =>
-        this.httpServer!.close(() => resolve()),
+        this.httpServer?.close(() => resolve()),
       );
       this.httpServer = undefined;
     }

@@ -16,11 +16,7 @@
   "bin": {
     "tailscale-mcp-server": "./dist/index.js"
   },
-  "files": [
-    "dist/**/*",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist/**/*", "README.md", "LICENSE"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -38,23 +34,20 @@
     "dev:watch": "bun run build:watch",
     "dev:direct": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "eslint --fix . && prettier --write .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "test": "bun test",
     "test:unit": "bun test --testNamePattern='(?!.*integration)'",
     "test:integration": "bun test --testNamePattern='integration'",
-    "test:watch": "bun test --watch",
-    "test:unit:watch": "bun test --watch --testNamePattern='(?!.*integration)'",
-    "test:integration:watch": "bun test --watch --testNamePattern='integration'",
     "test:coverage": "bun test --coverage",
-    "test:unit:coverage": "bun test --coverage --testNamePattern='(?!.*integration)'",
-    "test:integration:coverage": "bun test --coverage --testNamePattern='integration'",
     "test:ci": "bun test --coverage",
     "test:unit:ci": "bun test --coverage --testNamePattern='(?!.*integration)'",
     "test:integration:ci": "bun test --coverage --testNamePattern='integration'",
     "test:setup": "./scripts/setup-testing.sh",
-    "qa": "bun run typecheck && bun run test:unit && bun run lint",
-    "qa:full": "bun run typecheck && bun run test && bun run lint",
+    "qa": "bun run typecheck && bun run test:unit && bun run check",
+    "qa:full": "bun run typecheck && bun run test && bun run check",
     "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js",
     "prepublishOnly": "bun run qa:full && bun run build",
     "publish": "./scripts/publish.sh",
@@ -68,9 +61,11 @@
     "zod": "^3.25.64"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@eslint/js": "^9.29.0",
     "@eslint/json": "^0.12.0",
     "@eslint/markdown": "^6.5.0",
+    "@types/bun": "latest",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.34.0",
@@ -84,8 +79,7 @@
     "semver": "^7.7.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.0",
-    "@types/bun": "latest"
+    "typescript-eslint": "^8.34.0"
   },
   "private": true
 }

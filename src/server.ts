@@ -46,7 +46,7 @@ export class TailscaleMCPServer {
     logger.debug(
       `Client capabilities - API: ${capabilities.api}, CLI: ${capabilities.cli}`,
     );
-    logger.debug(`Available features:`, capabilities.features);
+    logger.debug("Available features:", capabilities.features);
   }
 
   async start(mode: ServerMode = "stdio", port?: number): Promise<void> {
@@ -72,7 +72,7 @@ export class TailscaleMCPServer {
     await this.stdioServer.start();
   }
 
-  private async startHttpServer(port: number = 3000): Promise<void> {
+  private async startHttpServer(port = 3000): Promise<void> {
     this.httpServer = new HttpMCPServer(this.toolRegistry);
     await this.httpServer.start(port);
   }
