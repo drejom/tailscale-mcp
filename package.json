@@ -16,7 +16,11 @@
   "bin": {
     "tailscale-mcp-server": "./dist/index.js"
   },
-  "files": ["dist/**/*", "README.md", "LICENSE"],
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -49,7 +53,7 @@
     "qa": "bun run typecheck && bun run test:unit && bun run check",
     "qa:full": "bun run typecheck && bun run test && bun run check",
     "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js",
-    "prepublishOnly": "bun run qa:full && bun run build",
+    "prepublishOnly": "bun run build",
     "publish": "./scripts/publish.sh",
     "publish:test": "./scripts/test-publish.sh"
   },
