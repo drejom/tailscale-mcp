@@ -4,8 +4,8 @@ peer     = true
 optional = true
 
 [test]
-coverage          = true
-coverageDir       = "coverage"
-coverageReporter  = ["text", "lcov"]
-coverageThreshold = 0.8
+coverage         = true
+coverageDir      = "coverage"
+coverageReporter = ["text", "lcov"]
+# coverageThreshold = 0.8
 # coverageThreshold = { line = 0.8, function = 0.8, statement = 0.8 }

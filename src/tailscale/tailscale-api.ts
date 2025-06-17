@@ -40,7 +40,7 @@ export class TailscaleAPI {
 
     if (!apiKey) {
       logger.warn(
-        "No Tailscale API key provided. API operations will fail until TAILSCALE_API_KEY is set."
+        "No Tailscale API key provided. API operations will fail until TAILSCALE_API_KEY is set.",
       );
     }
 
@@ -58,7 +58,7 @@ export class TailscaleAPI {
     this.client.interceptors.request.use(
       (config) => {
         logger.debug(
-          `API Request: ${config.method?.toUpperCase()} ${config.url}`
+          `API Request: ${config.method?.toUpperCase()} ${config.url}`,
         );
         return config;
       },
@@ -70,7 +70,7 @@ export class TailscaleAPI {
           message: error.message,
         });
         return Promise.reject(error);
-      }
+      },
     );
 
     this.client.interceptors.response.use(
@@ -85,7 +85,7 @@ export class TailscaleAPI {
           data: error.response?.data,
         });
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -93,7 +93,7 @@ export class TailscaleAPI {
    * Handle API response and convert to standardized format
    */
   private handleResponse<T>(
-    response: AxiosResponse<T>
+    response: AxiosResponse<T>,
   ): TailscaleAPIResponse<T> {
     return {
       success: true,
@@ -141,7 +141,7 @@ export class TailscaleAPI {
   async listDevices(): Promise<TailscaleAPIResponse<TailscaleDevice[]>> {
     try {
       const response = await this.client.get<{ devices: TailscaleDevice[] }>(
-        `/tailnet/${this.tailnet}/devices`
+        `/tailnet/${this.tailnet}/devices`,
       );
 
       // Validate and parse devices
@@ -158,7 +158,7 @@ export class TailscaleAPI {
           }
         })
         .filter(
-          (d: TailscaleDevice | null): d is TailscaleDevice => d !== null
+          (d: TailscaleDevice | null): d is TailscaleDevice => d !== null,
         );
 
       return this.handleResponse<TailscaleDevice[]>({
@@ -177,7 +177,7 @@ export class TailscaleAPI {
    * Get a specific device by ID
    */
   async getDevice(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<TailscaleDevice>> {
     try {
       const response = await this.client.get(`/device/${deviceId}`);
@@ -204,7 +204,7 @@ export class TailscaleAPI {
         `/device/${deviceId}/authorized`,
         {
           authorized: true,
-        }
+        },
       );
 
       return this.handleResponse(response);
@@ -217,14 +217,14 @@ export class TailscaleAPI {
    * Deauthorize a device
    */
   async deauthorizeDevice(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/device/${deviceId}/authorized`,
         {
           authorized: false,
-        }
+        },
       );
 
       return this.handleResponse(response);
@@ -262,7 +262,7 @@ export class TailscaleAPI {
    */
   async enableDeviceRoutes(
     deviceId: string,
-    routes: string[]
+    routes: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(`/device/${deviceId}/routes`, {
@@ -280,7 +280,7 @@ export class TailscaleAPI {
    */
   async disableDeviceRoutes(
     deviceId: string,
-    routes: string[]
+    routes: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.delete(`/device/${deviceId}/routes`, {
@@ -312,7 +312,7 @@ export class TailscaleAPI {
     try {
       // TODO: Send a random request to the API to test connectivity
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/devices`
+        `/tailnet/${this.tailnet}/devices`,
       );
       return this.handleResponse({
         ...response,
@@ -395,7 +395,7 @@ export class TailscaleAPI {
           headers: {
             "Content-Type": "application/hujson",
           },
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -407,7 +407,7 @@ export class TailscaleAPI {
    * Validate ACL configuration
    */
   async validateACL(
-    aclConfig: string
+    aclConfig: string,
   ): Promise<TailscaleAPIResponse<ACLValidationResult>> {
     try {
       const response = await this.client.post(
@@ -417,7 +417,7 @@ export class TailscaleAPI {
           headers: {
             "Content-Type": "application/hujson",
           },
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -431,7 +431,7 @@ export class TailscaleAPI {
   async getDNSNameservers(): Promise<TailscaleAPIResponse<{ dns: string[] }>> {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/dns/nameservers`
+        `/tailnet/${this.tailnet}/dns/nameservers`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -443,14 +443,14 @@ export class TailscaleAPI {
    * Set DNS nameservers
    */
   async setDNSNameservers(
-    nameservers: string[]
+    nameservers: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/dns/nameservers`,
         {
           dns: nameservers,
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -466,7 +466,7 @@ export class TailscaleAPI {
   > {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/dns/preferences`
+        `/tailnet/${this.tailnet}/dns/preferences`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -478,14 +478,14 @@ export class TailscaleAPI {
    * Set DNS preferences
    */
   async setDNSPreferences(
-    magicDNS: boolean
+    magicDNS: boolean,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/dns/preferences`,
         {
           magicDNS,
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -501,7 +501,7 @@ export class TailscaleAPI {
   > {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/dns/searchpaths`
+        `/tailnet/${this.tailnet}/dns/searchpaths`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -513,14 +513,14 @@ export class TailscaleAPI {
    * Set DNS search paths
    */
   async setDNSSearchPaths(
-    searchPaths: string[]
+    searchPaths: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/dns/searchpaths`,
         {
           searchPaths,
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -544,14 +544,14 @@ export class TailscaleAPI {
    * Create auth key
    */
   async createAuthKey(
-    keyConfig: CreateAuthKeyRequest
+    keyConfig: CreateAuthKeyRequest,
   ): Promise<
     TailscaleAPIResponse<{ key: string; id: string; description?: string }>
   > {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/keys`,
-        keyConfig
+        keyConfig,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -565,7 +565,7 @@ export class TailscaleAPI {
   async deleteAuthKey(keyId: string): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.delete(
-        `/tailnet/${this.tailnet}/keys/${keyId}`
+        `/tailnet/${this.tailnet}/keys/${keyId}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -593,7 +593,7 @@ export class TailscaleAPI {
   > {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/settings`
+        `/tailnet/${this.tailnet}/settings`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -605,14 +605,14 @@ export class TailscaleAPI {
    * Set file sharing status for tailnet
    */
   async setFileSharingStatus(
-    enabled: boolean
+    enabled: boolean,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/settings`,
         {
           fileSharing: enabled,
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -625,7 +625,7 @@ export class TailscaleAPI {
    */
   async setDeviceExitNode(
     deviceId: string,
-    routes: string[]
+    routes: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(`/device/${deviceId}/routes`, {
@@ -641,7 +641,7 @@ export class TailscaleAPI {
    * Get device routes (including exit node status)
    */
   async getDeviceRoutes(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<DeviceRoutes>> {
     try {
       const response = await this.client.get(`/device/${deviceId}/routes`);
@@ -659,7 +659,7 @@ export class TailscaleAPI {
   > {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/network-lock`
+        `/tailnet/${this.tailnet}/network-lock`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -673,7 +673,7 @@ export class TailscaleAPI {
   async enableNetworkLock(): Promise<TailscaleAPIResponse<NetworkLockStatus>> {
     try {
       const response = await this.client.post(
-        `/tailnet/${this.tailnet}/network-lock`
+        `/tailnet/${this.tailnet}/network-lock`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -687,7 +687,7 @@ export class TailscaleAPI {
   async disableNetworkLock(): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.delete(
-        `/tailnet/${this.tailnet}/network-lock`
+        `/tailnet/${this.tailnet}/network-lock`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -701,7 +701,7 @@ export class TailscaleAPI {
   async listWebhooks(): Promise<TailscaleAPIResponse<WebhookList>> {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/webhooks`
+        `/tailnet/${this.tailnet}/webhooks`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -721,7 +721,7 @@ export class TailscaleAPI {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/webhooks`,
-        config
+        config,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -735,7 +735,7 @@ export class TailscaleAPI {
   async deleteWebhook(webhookId: string): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.delete(
-        `/tailnet/${this.tailnet}/webhooks/${webhookId}`
+        `/tailnet/${this.tailnet}/webhooks/${webhookId}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -747,11 +747,11 @@ export class TailscaleAPI {
    * Test webhook
    */
   async testWebhook(
-    webhookId: string
+    webhookId: string,
   ): Promise<TailscaleAPIResponse<{ success: boolean; message?: string }>> {
     try {
       const response = await this.client.post(
-        `/tailnet/${this.tailnet}/webhooks/${webhookId}/test`
+        `/tailnet/${this.tailnet}/webhooks/${webhookId}/test`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -781,7 +781,7 @@ export class TailscaleAPI {
   async testACLAccess(
     src: string,
     dst: string,
-    proto?: string
+    proto?: string,
   ): Promise<TailscaleAPIResponse<ACLTestResult>> {
     try {
       const params = new URLSearchParams({
@@ -791,7 +791,7 @@ export class TailscaleAPI {
       });
 
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/acl/test?${params}`
+        `/tailnet/${this.tailnet}/acl/test?${params}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -803,7 +803,7 @@ export class TailscaleAPI {
    * Get device tags
    */
   async getDeviceTags(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<{ tags: string[] }>> {
     try {
       const response = await this.client.get(`/device/${deviceId}`);
@@ -822,7 +822,7 @@ export class TailscaleAPI {
    */
   async setDeviceTags(
     deviceId: string,
-    tags: string[]
+    tags: string[],
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(`/device/${deviceId}/tags`, {
@@ -850,12 +850,12 @@ export class TailscaleAPI {
    * Update SSH settings
    */
   async updateSSHSettings(
-    settings: Partial<SSHSettings>
+    settings: Partial<SSHSettings>,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/ssh`,
-        settings
+        settings,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -879,7 +879,7 @@ export class TailscaleAPI {
    * Get device statistics
    */
   async getDeviceStats(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<DeviceStats>> {
     try {
       const response = await this.client.get(`/device/${deviceId}/stats`);
@@ -907,7 +907,7 @@ export class TailscaleAPI {
   async getUser(userId: string): Promise<TailscaleAPIResponse<User>> {
     try {
       const response = await this.client.get(
-        `/tailnet/${this.tailnet}/users/${userId}`
+        `/tailnet/${this.tailnet}/users/${userId}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -920,14 +920,14 @@ export class TailscaleAPI {
    */
   async updateUserRole(
     userId: string,
-    role: string
+    role: string,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/users/${userId}`,
         {
           role: role,
-        }
+        },
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -951,7 +951,7 @@ export class TailscaleAPI {
    * Get device posture information
    */
   async getDevicePosture(
-    deviceId: string
+    deviceId: string,
   ): Promise<TailscaleAPIResponse<DevicePosture>> {
     try {
       const response = await this.client.get(`/device/${deviceId}/posture`);
@@ -965,12 +965,12 @@ export class TailscaleAPI {
    * Set device posture policy
    */
   async setDevicePosturePolicy(
-    policy: PosturePolicy
+    policy: PosturePolicy,
   ): Promise<TailscaleAPIResponse<void>> {
     try {
       const response = await this.client.post(
         `/tailnet/${this.tailnet}/posture-policy`,
-        policy
+        policy,
       );
       return this.handleResponse(response);
     } catch (error) {

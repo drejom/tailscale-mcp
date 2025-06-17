@@ -1,6 +1,6 @@
 {
   "name": "@hexsleeves/tailscale-mcp-server",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A Model Context Protocol (MCP) server that provides seamless integration with Tailscale's CLI commands and REST API, enabling automated network management and monitoring through a standardized interface.",
   "keywords": [
     "tailscale",
@@ -80,6 +80,5 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.34.0"
-  },
-  "private": true
+  }
 }

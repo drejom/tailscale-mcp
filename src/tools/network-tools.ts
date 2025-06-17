@@ -2,6 +2,7 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
 import type { ToolContext, ToolModule } from "./index.js";
+import { TailscaleCLIStatus } from "@/types.js";
 
 // Schemas
 const NetworkStatusSchema = z.object({
@@ -53,7 +54,7 @@ const PingPeerSchema = z.object({
 // Tool handlers
 async function getNetworkStatus(
   args: z.infer<typeof NetworkStatusSchema>,
-  context: ToolContext,
+  context: ToolContext
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting network status with format:", args.format);
@@ -73,7 +74,7 @@ async function getNetworkStatus(
       };
     }
 
-    const status = result.data as import("../types.js").TailscaleCLIStatus;
+    const status = result.data as TailscaleCLIStatus;
 
     if (args.format === "summary") {
       let output = "**Tailscale Network Status**\n\n";
@@ -148,7 +149,7 @@ async function getNetworkStatus(
 
 async function connectNetwork(
   args: z.infer<typeof ConnectNetworkSchema>,
-  context: ToolContext,
+  context: ToolContext
 ): Promise<CallToolResult> {
   try {
     const options = {
@@ -202,7 +203,7 @@ async function connectNetwork(
 
 async function disconnectNetwork(
   _args: Record<string, unknown>,
-  context: ToolContext,
+  context: ToolContext
 ): Promise<CallToolResult> {
   try {
     logger.debug("Disconnecting from Tailscale network");
@@ -247,7 +248,7 @@ async function disconnectNetwork(
 
 async function pingPeer(
   args: z.infer<typeof PingPeerSchema>,
-  context: ToolContext,
+  context: ToolContext
 ): Promise<CallToolResult> {
   try {
     logger.debug(`Pinging ${args.target} (${args.count} packets)`);
@@ -292,7 +293,7 @@ async function pingPeer(
 
 async function getVersion(
   _args: Record<string, unknown>,
-  context: ToolContext,
+  context: ToolContext
 ): Promise<CallToolResult> {
   try {
     logger.debug("Getting Tailscale version");

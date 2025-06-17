@@ -1,8 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(LOG_LEVEL=0 timeout 3 bun dist/index.js --http)"
-    ],
+    "allow": ["Bash(LOG_LEVEL=0 timeout 3 bun dist/index.js --http)"],
     "deny": []
   }
 }
