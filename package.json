@@ -47,6 +47,8 @@
     "test:integration": "bun test --testNamePattern='integration'",
     "test:coverage": "bun test --coverage",
     "test:ci": "bun test ./src/__test__/utils/",
+    "test:unit:ci": "npm run test:ci",
+    "test:integration:ci": "bun test --coverage --testNamePattern='integration'",
     "test:setup": "./scripts/setup-testing.sh",
     "qa": "bun run typecheck && bun run test:unit && bun run check",
     "qa:full": "bun run typecheck && bun run test && bun run check",

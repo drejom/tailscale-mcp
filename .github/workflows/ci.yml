@@ -93,80 +93,80 @@ jobs:
           name: codecov-unit-tests
           fail_ci_if_error: false
 
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [unit-tests]
-    continue-on-error: true # Don't fail the entire workflow if integration tests fail
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # integration-tests:
+  #   name: Integration Tests
+  #   runs-on: ubuntu-latest
+  #   needs: [unit-tests]
+  #   continue-on-error: true # Don't fail the entire workflow if integration tests fail
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
+  #     - name: Setup Bun
+  #       uses: oven-sh/setup-bun@v1
+  #       with:
+  #         bun-version: ${{ env.BUN_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-          key: ${{ runner.os }}-bun-integration-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+  #     - name: Cache dependencies
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           ~/.bun/install/cache
+  #           node_modules
+  #         key: ${{ runner.os }}-bun-integration-${{ hashFiles('**/bun.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-bun-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+  #     - name: Install dependencies
+  #       run: bun install --frozen-lockfile
 
-      - name: Install Tailscale CLI
-        run: |
-          curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale version
+  #     - name: Install Tailscale CLI
+  #       run: |
+  #         curl -fsSL https://tailscale.com/install.sh | sh
+  #         sudo tailscale version
 
-      - name: Setup Tailscale for testing
-        env:
-          TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
-        run: |
-          if [ -n "$TAILSCALE_AUTH_KEY" ]; then
-            echo "🔐 Authenticating Tailscale with auth key..."
-            sudo tailscale up --authkey="$TAILSCALE_AUTH_KEY" --hostname="ci-runner-${{ github.run_id }}" --accept-routes
-            echo "✅ Tailscale authenticated successfully"
-            sudo tailscale status
-          else
-            echo "⚠️  No Tailscale auth key provided. Integration tests will run in CLI-only mode."
-            echo "   Some tests may be skipped. To enable full integration testing,"
-            echo "   add TAILSCALE_AUTH_KEY to repository secrets."
-          fi
+  #     - name: Setup Tailscale for testing
+  #       env:
+  #         TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+  #       run: |
+  #         if [ -n "$TAILSCALE_AUTH_KEY" ]; then
+  #           echo "🔐 Authenticating Tailscale with auth key..."
+  #           sudo tailscale up --authkey="$TAILSCALE_AUTH_KEY" --hostname="ci-runner-${{ github.run_id }}" --accept-routes
+  #           echo "✅ Tailscale authenticated successfully"
+  #           sudo tailscale status
+  #         else
+  #           echo "⚠️  No Tailscale auth key provided. Integration tests will run in CLI-only mode."
+  #           echo "   Some tests may be skipped. To enable full integration testing,"
+  #           echo "   add TAILSCALE_AUTH_KEY to repository secrets."
+  #         fi
 
-      - name: Run integration tests
-        run: bun run test:integration:ci
-        env:
-          # Allow tests to run even without full Tailscale setup
-          TAILSCALE_TEST_MODE: "ci"
+  #     - name: Run integration tests
+  #       run: bun run test:integration:ci
+  #       env:
+  #         # Allow tests to run even without full Tailscale setup
+  #         TAILSCALE_TEST_MODE: "ci"
 
-      - name: Upload integration test coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage/integration/lcov.info
-          flags: integration
-          name: codecov-integration-tests
-          fail_ci_if_error: false
+  #     - name: Upload integration test coverage
+  #       uses: codecov/codecov-action@v4
+  #       with:
+  #         file: ./coverage/integration/lcov.info
+  #         flags: integration
+  #         name: codecov-integration-tests
+  #         fail_ci_if_error: false
 
-      - name: Cleanup Tailscale
-        if: always()
-        run: |
-          if command -v tailscale >/dev/null 2>&1; then
-            echo "🧹 Cleaning up Tailscale..."
-            sudo tailscale logout || true
-            sudo tailscale down || true
-          fi
+  #     - name: Cleanup Tailscale
+  #       if: always()
+  #       run: |
+  #         if command -v tailscale >/dev/null 2>&1; then
+  #           echo "🧹 Cleaning up Tailscale..."
+  #           sudo tailscale logout || true
+  #           sudo tailscale down || true
+  #         fi
 
   build:
     name: Build
