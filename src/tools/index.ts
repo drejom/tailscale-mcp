@@ -1,11 +1,10 @@
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
+// Import all tool modules
+import { logger } from "../logger.js";
 import type { TailscaleAPI } from "../tailscale/tailscale-api.js";
 import type { TailscaleCLI } from "../tailscale/tailscale-cli.js";
 import type { UnifiedTailscaleClient } from "../tailscale/unified-client.js";
-
-// Import all tool modules
-import { logger } from "../logger.js";
 import { aclTools } from "./acl-tools.js";
 import { adminTools } from "./admin-tools.js";
 import { deviceTools } from "./device-tools.js";
@@ -17,14 +16,11 @@ export interface ToolContext {
   client: UnifiedTailscaleClient;
 }
 
-export interface ToolDefinition {
+export interface ToolDefinition<T extends z.ZodSchema = z.ZodSchema> {
   name: string;
   description: string;
-  inputSchema: z.ZodSchema;
-  handler(
-    args: Record<string, unknown>,
-    context: ToolContext,
-  ): Promise<CallToolResult>;
+  inputSchema: T;
+  handler(args: z.infer<T>, context: ToolContext): Promise<CallToolResult>;
 }
 
 export interface ToolModule {
@@ -103,10 +99,7 @@ export class ToolRegistry {
         };
       }
 
-      return await tool.handler(
-        validatedArgs.data as Record<string, unknown>,
-        this.context,
-      );
+      return await tool.handler(validatedArgs.data, this.context);
     } catch (error: unknown) {
       logger.error("Tool error:", error);
 
@@ -140,14 +133,28 @@ export class ToolRegistry {
   }
 }
 
+// Define the expected JSON Schema type for MCP tools
+interface MCPJsonSchema {
+  type: "object";
+  properties?: Record<string, unknown>;
+  required?: string[];
+  [key: string]: unknown;
+}
+
 // Helper function to convert Zod schema to JSON Schema
-function zodToJsonSchema(
-  schema: z.ZodSchema,
-): Record<string, unknown> & { type: "object" } {
+function zodToJsonSchema(schema: z.ZodSchema): MCPJsonSchema {
   try {
-    return z.toJSONSchema(schema) as Record<string, unknown> & {
-      type: "object";
+    const jsonSchema = z.toJSONSchema(schema);
+
+    // Extract properties and required from the generated schema, but ensure type is "object"
+    const { type: _unusedType, ...otherProps } = jsonSchema;
+
+    const mcpSchema: MCPJsonSchema = {
+      type: "object",
+      ...otherProps,
     };
+
+    return mcpSchema;
   } catch (error) {
     logger.error("Schema conversion failed:", error);
     return { type: "object", properties: {} };

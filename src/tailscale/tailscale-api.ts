@@ -27,7 +27,6 @@ import {
   type UserList,
   type Webhook,
   type WebhookList,
-  TailscaleError as _TailscaleError,
 } from "../types";
 
 export class TailscaleAPI {

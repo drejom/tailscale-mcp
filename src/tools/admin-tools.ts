@@ -1,11 +1,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
 import { logger } from "../logger.js";
-import {
-  getErrorMessage,
-  returnToolError,
-  returnToolSuccess,
-} from "../utils.js";
+import { returnToolError, returnToolSuccess } from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
 
 // Schemas

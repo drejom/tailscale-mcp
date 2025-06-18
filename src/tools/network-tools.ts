@@ -1,6 +1,6 @@
-import type { TailscaleCLIStatus } from "@/types.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod/v4";
+import type { TailscaleCLIStatus } from "@/types.js";
 import { logger } from "../logger.js";
 import { returnToolError, returnToolSuccess } from "../utils.js";
 import type { ToolContext, ToolModule } from "./index.js";
@@ -113,7 +113,11 @@ async function getNetworkStatus(
     return returnToolSuccess(JSON.stringify(status, null, 2));
   } catch (error: unknown) {
     logger.error("Error getting network status:", error);
-    return returnToolError(error);
+    const err =
+      error instanceof Error
+        ? error
+        : new Error(String(error ?? "Unknown error"));
+    return returnToolError(err);
   }
 }
 

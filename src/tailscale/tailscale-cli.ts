@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { getErrorMessage } from "@/utils.js";
 import { logger } from "../logger.js";
 import {
   type CLIResponse,
@@ -172,7 +173,7 @@ export class TailscaleCLI {
 
       return {
         success: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: getErrorMessage(error),
         stderr:
           error instanceof Error &&
           "stderr" in error &&
@@ -209,7 +210,7 @@ export class TailscaleCLI {
       logger.error("Failed to parse status JSON:", error);
       return {
         success: false,
-        error: `Failed to parse status data: ${error instanceof Error ? error.message : String(error)}`,
+        error: `Failed to parse status data: ${getErrorMessage(error)}`,
       };
     }
   }

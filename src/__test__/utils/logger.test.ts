@@ -1,14 +1,14 @@
 import {
-  type Mock,
   afterEach,
   beforeEach,
   describe,
   expect,
+  type Mock,
   mock,
   spyOn,
   test,
 } from "bun:test";
-import { LogLevel, Logger } from "../../logger";
+import { Logger, LogLevel } from "../../logger";
 
 // Mock fs/promises
 mock.module("fs/promises", () => ({

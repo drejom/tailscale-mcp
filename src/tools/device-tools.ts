@@ -41,7 +41,7 @@ async function listDevices(
     const result = await context.client.listDevices();
 
     if (!result.success) {
-      return returnToolError(result.error);
+      return returnToolError(result);
     }
 
     const devices = result.data || [];
@@ -152,8 +152,9 @@ async function manageRoutes(
       return returnToolError(result.error);
     }
 
+    const verbPast = args.action === "enable" ? "enabled" : "disabled";
     return returnToolSuccess(
-      `Successfully ${args.action}d routes ${args.routes.join(
+      `Successfully ${verbPast} routes ${args.routes.join(
         ", ",
       )} for device ${args.deviceId}`,
     );

@@ -1,13 +1,13 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { logger } from "./logger";
 import { CLIError, TailscaleError } from "./types";
 
-export function getErrorMessage(error: unknown) {
+export function getErrorMessage(error: unknown): string {
   if (error instanceof TailscaleError) {
     return error.message;
   }
-  if (error instanceof AxiosError) {
+  if (isAxiosError(error)) {
     return error.response?.data?.error || error.message;
   }
   if (error instanceof CLIError) {

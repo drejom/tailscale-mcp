@@ -447,7 +447,7 @@ async function manageNetworkLock(
 
       default:
         return returnToolError(
-          "Invalid network lock operation. Use: status, enable, or disable",
+          "Invalid network lock operation. Use: status, enable, disable, add_key, remove_key, or list_keys",
         );
     }
   } catch (error) {

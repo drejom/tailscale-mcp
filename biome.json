@@ -1,8 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -14,7 +12,16 @@
       "style": {
         "noUnusedTemplateLiteral": "error",
         "useConst": "error",
-        "noNonNullAssertion": "warn"
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       },
       "correctness": {
         "noUnusedVariables": "error"
@@ -52,15 +59,19 @@
     }
   },
   "files": {
-    "include": ["src/**/*", "scripts/**/*", "*.ts", "*.js", "*.json"],
-    "ignore": [
-      "dist/**/*",
-      "coverage/**/*",
-      "node_modules/**/*",
-      "*.config.js",
-      "jest.config*.ts",
-      "package-lock.json",
-      "bun.lockb"
+    "includes": [
+      "**/src/**/*",
+      "**/scripts/**/*",
+      "**/*.ts",
+      "**/*.js",
+      "**/*.json",
+      "!**/dist/**/*",
+      "!**/coverage/**/*",
+      "!**/node_modules/**/*",
+      "!**/*.config.js",
+      "!**/jest.config*.ts",
+      "!**/package-lock.json",
+      "!**/bun.lockb"
     ]
   }
 }
