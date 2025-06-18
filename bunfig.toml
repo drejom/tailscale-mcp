@@ -4,7 +4,7 @@ peer     = true
 optional = true
 
 [test]
-coverage         = true
+coverage         = false
 coverageDir      = "coverage"
 coverageReporter = ["text", "lcov"]
 # coverageThreshold = 0.8
