@@ -27,8 +27,12 @@ RUN bun install --production --frozen-lockfile
 #
 FROM node:20-alpine AS production
 
-# Install dumb-init for proper PID 1 signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init and Tailscale CLI
+RUN apk add --no-cache dumb-init ca-certificates \
+    && wget -q -O /etc/apk/keys/tailscale.rsa.pub https://pkgs.tailscale.com/stable/alpine/tailscale.rsa.pub \
+    && echo "https://pkgs.tailscale.com/stable/alpine/any-version/main" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tailscale
 
 # Create a dedicated, non-root user and group for the application
 RUN addgroup -S appgroup -g 1001 && \
