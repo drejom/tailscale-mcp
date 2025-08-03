@@ -27,12 +27,15 @@ RUN bun install --production --frozen-lockfile
 #
 FROM node:20-alpine AS production
 
-# Install dumb-init and Tailscale CLI
-RUN apk add --no-cache dumb-init ca-certificates \
-    && wget -q -O /etc/apk/keys/tailscale.rsa.pub https://pkgs.tailscale.com/stable/alpine/tailscale.rsa.pub \
-    && echo "https://pkgs.tailscale.com/stable/alpine/any-version/main" >> /etc/apk/repositories \
-    && apk update \
-    && apk add --no-cache tailscale
+# Install dumb-init and dependencies for Tailscale
+RUN apk add --no-cache dumb-init ca-certificates iptables ip6tables
+
+# Copy Tailscale binaries from the official Docker image
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /usr/local/bin/tailscaled
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /usr/local/bin/tailscale
+
+# Create necessary directories for Tailscale
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
 # Create a dedicated, non-root user and group for the application
 RUN addgroup -S appgroup -g 1001 && \
