@@ -63,10 +63,15 @@ jobs:
     needs: build-and-push
     if: github.event_name != 'pull_request'
     steps:
+      - name: Wait for image to be available
+        run: |
+          echo "Waiting for image to be available..."
+          sleep 30
+          
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           format: "sarif"
           output: "trivy-results.sarif"
 
