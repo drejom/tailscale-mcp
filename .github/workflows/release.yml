@@ -126,7 +126,13 @@ jobs:
         run: |
           git add package.json
           git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
-          git tag "v${{ steps.version.outputs.new_version }}"
+          
+          # Only create tag if it doesn't exist
+          if ! git rev-parse "v${{ steps.version.outputs.new_version }}" >/dev/null 2>&1; then
+            git tag "v${{ steps.version.outputs.new_version }}"
+          else
+            echo "Tag v${{ steps.version.outputs.new_version }} already exists, skipping tag creation"
+          fi
 
       - name: Setup NPM authentication
         run: |
@@ -174,7 +180,17 @@ jobs:
       - name: Push changes and tags
         run: |
           git push origin main
-          git push origin v${{ steps.version.outputs.new_version }}
+          
+          # Only push tag if it was created (doesn't exist remotely)
+          if git rev-parse "v${{ steps.version.outputs.new_version }}" >/dev/null 2>&1; then
+            if ! git ls-remote --tags origin | grep -q "refs/tags/v${{ steps.version.outputs.new_version }}"; then
+              git push origin v${{ steps.version.outputs.new_version }}
+            else
+              echo "Tag v${{ steps.version.outputs.new_version }} already exists remotely, skipping push"
+            fi
+          else
+            echo "Tag v${{ steps.version.outputs.new_version }} was not created locally, skipping push"
+          fi
 
   docker-publish:
     name: Publish Docker Images
