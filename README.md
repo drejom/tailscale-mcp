@@ -3,6 +3,8 @@
 A modern [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that provides seamless integration with Tailscale's CLI commands and REST API, enabling automated network management and monitoring through a standardized interface.
 
 > **Multi-Architecture Support**: This fork provides Docker images for both AMD64 and ARM64 architectures via GitHub Container Registry.
+> 
+> Pull the image: `docker pull ghcr.io/drejom/tailscale-mcp:latest`
 
 <a href="https://glama.ai/mcp/servers/@HexSleeves/tailscale-mcp">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@HexSleeves/tailscale-mcp/badge" alt="Tailscale Server MCP server" />
