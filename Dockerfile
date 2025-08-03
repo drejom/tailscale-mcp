@@ -37,25 +37,22 @@ COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /usr/l
 # Create necessary directories for Tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
-# Create a dedicated, non-root user and group for the application
-RUN addgroup -S appgroup -g 1001 && \
-  adduser -S appuser -u 1001 -G appgroup
-
 WORKDIR /app
 
 # Copy production dependencies from the builder stage. This is faster
 # and more reliable than re-installing them.
-COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy the compiled application code from the builder stage
-COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+COPY --from=builder /app/dist ./dist
 
 # Copy other project files like README and LICENSE
-COPY --from=builder --chown=appuser:appgroup /app/README.md ./
-COPY --from=builder --chown=appuser:appgroup /app/LICENSE ./
+COPY --from=builder /app/README.md ./
+COPY --from=builder /app/LICENSE ./
 
-# Switch to the non-root user for enhanced security
-USER appuser
+# Copy the startup script
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
 
 # Expose the port the application will run on
 EXPOSE 3000
@@ -72,5 +69,5 @@ ENV LOG_LEVEL=1
 # Use dumb-init as the entrypoint to manage the node process
 ENTRYPOINT ["dumb-init", "--"]
 
-# The command to start the application
-CMD ["node", "dist/index.js"]
+# The command to start the application with Tailscale
+CMD ["./start.sh"]

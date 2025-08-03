@@ -16,6 +16,38 @@ A modern [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server 
 - **Docker Hub**: [`hexsleeves/tailscale-mcp-server`](https://hub.docker.com/r/hexsleeves/tailscale-mcp-server)
 - **GitHub Container Registry**: [`ghcr.io/hexsleeves/tailscale-mcp-server`](https://github.com/users/HexSleeves/packages/container/package/tailscale-mcp-server)
 
+## 🔧 Docker Usage with Tailscale
+
+This Docker image includes the Tailscale CLI and daemon. To use it:
+
+### Option 1: With Tailscale Auth Key (Recommended)
+```bash
+docker run -d \
+  --name tailscale-mcp \
+  --privileged \
+  -p 3000:3000 \
+  -e TAILSCALE_AUTHKEY="your-auth-key-here" \
+  -e TAILSCALE_HOSTNAME="tailscale-mcp" \
+  ghcr.io/drejom/tailscale-mcp:latest
+```
+
+### Option 2: Manual Authentication
+```bash
+# Start container
+docker run -d \
+  --name tailscale-mcp \
+  --privileged \
+  -p 3000:3000 \
+  ghcr.io/drejom/tailscale-mcp:latest
+
+# Authenticate manually
+docker exec -it tailscale-mcp tailscale up
+```
+
+### Environment Variables
+- `TAILSCALE_AUTHKEY`: Your Tailscale authentication key
+- `TAILSCALE_HOSTNAME`: Hostname for this device (default: `tailscale-mcp`)
+
 ## 🚀 Recommended Package Manager
 
 This project is optimized for **[Bun](https://bun.sh)** for faster installation and execution. NPM is supported as a fallback option.
